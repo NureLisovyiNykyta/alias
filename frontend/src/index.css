@@ -1,33 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&family=Zen+Antique&display=swap');
 @import "tailwindcss";
 
 @theme {
     --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
     --font-noto: "Noto Sans", sans-serif;
+    --font-zen: "Zen Antique", serif;
 
-    --font-size-title: 64px;
-    --line-height-title: 1;
-    --letter-spacing-title: -0.05em;
+    --text-logo: 48px;
+    --text-logo--line-height: 1;
+    --text-logo--letter-spacing: -0.05em;
 
-    --font-size-h1: 32px;
-    --line-height-h1: 1;
-    --letter-spacing-h1: -0.05em;
+    --text-title: 64px;
+    --text-title--line-height: 1;
+    --text-title--letter-spacing: -0.05em;
 
-    --font-size-h2: 18px;
-    --line-height-h2: 1.5;
-    --letter-spacing-h2: -0.05em;
+    --text-h1: 32px;
+    --text-h1--line-height: 1;
+    --text-h1--letter-spacing: -0.05em;
 
-    --font-size-btn: 16px;
-    --line-height-btn: 1;
-    --letter-spacing-btn: -0.05em;
+    --text-h2: 18px;
+    --text-h2--line-height: 1.5;
+    --text-h2--letter-spacing: -0.05em;
 
-    --font-size-p: 16px;
-    --line-height-p: 1.5;
-    --letter-spacing-p: -0.05em;
+    --text-btn: 16px;
+    --text-btn--line-height: 1;
+    --text-btn--letter-spacing: -0.05em;
 
-    --font-size-label: 14px;
-    --line-height-label: 1;
-    --letter-spacing-label: -0.05em;
+    --text-p: 16px;
+    --text-p--line-height: 1.5;
+    --text-p--letter-spacing: -0.05em;
+
+    --text-label: 14px;
+    --text-label--line-height: 1;
+    --text-label--letter-spacing: -0.05em;
 
     --color-brand-100: #FFE9E5;
     --color-brand-300: #FFC4B3;
@@ -56,9 +61,9 @@
 
     p {
         font-family: var(--font-noto);
-        font-size: var(--font-size-p);
-        line-height: var(--line-height-p);
-        letter-spacing: var(--letter-spacing-p);
+        font-size: var(--text-p);
+        line-height: var(--text-p--line-height);
+        letter-spacing: var(--text-p--letter-spacing);
         font-weight: 400;
     }
 }

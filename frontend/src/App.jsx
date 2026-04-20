@@ -1,26 +1,40 @@
-import { Button } from "@/components/Button.jsx";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import Landing from "@/pages/Landing.jsx";
+import Header from "@/components/Header.jsx";
+import Navigation from "@/components/Navigation.jsx";
+
+const Login = () => <div>Login Page</div>;
+const Dashboard = () => <div>Dashboard (Protected)</div>;
 
 function App() {
+  const isAuthenticated = false;
+
   return (
-    <div className='min-h-screen w-full p-4'>
-      <div className='flex w-full justify-center items-center h-full gap-3 flex-col'>
-        <div className='flex gap-3'>
-          <Button disabled={false} variant='primary'>Primary</Button>
-          <Button disabled={true} variant='primary'>Primary</Button>
-        </div>
+    <BrowserRouter>
+      <Header />
 
-        <div className='flex gap-3'>
-          <Button disabled={false} variant='secondary'>Secondary</Button>
-          <Button disabled={true} variant='secondary'>Secondary</Button>
-        </div>
+      <div className="flex">
+        <Navigation />
 
-        <div className='flex gap-3'>
-          <Button disabled={false} variant='tertiary'>Tertiary</Button>
-          <Button disabled={true} variant='tertiary'>Tertiary</Button>
+        <div className="flex-1">
+          <Routes>
+            <Route path="/" element={<Landing />} />
+
+            <Route element={<ProtectedRoute isAllowed={!isAuthenticated} redirectTo="/dashboard" />}>
+              <Route path="/login" element={<Login />} />
+            </Route>
+
+            <Route element={<ProtectedRoute isAllowed={isAuthenticated} redirectTo="/login" />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </div>
       </div>
-    </div>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
