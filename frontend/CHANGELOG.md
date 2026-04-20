@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrated **Zen Antique** font specifically for the project logo.
 - Defined `text-logo` utility with 48px size and -5% letter spacing as per Figma
 - Added a `Header` component with logo.
+- Added a `Footer` component with copyright information.
+- Added left side navigation bar with icons and labels.
 
 ## [0.1.0] - 2026-04-20
 

@@ -10,6 +10,11 @@
     --text-logo--line-height: 1;
     --text-logo--letter-spacing: -0.05em;
 
+    --text-sm-logo: 24px;
+    --text-sm-logo--line-height: 1;
+    --text-sm-logo--letter-spacing: -0.05em;
+    --text-sm-logo--font-weight: 400;
+
     --text-title: 64px;
     --text-title--line-height: 1;
     --text-title--letter-spacing: -0.05em;

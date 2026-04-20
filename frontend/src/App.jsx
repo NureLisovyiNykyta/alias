@@ -3,6 +3,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import Landing from "@/pages/Landing.jsx";
 import Header from "@/components/Header.jsx";
 import Navigation from "@/components/Navigation.jsx";
+import Footer from "@/components/Footer.jsx";
 
 const Login = () => <div>Login Page</div>;
 const Dashboard = () => <div>Dashboard (Protected)</div>;
@@ -33,6 +34,8 @@ function App() {
           </Routes>
         </div>
       </div>
+
+      <Footer />
     </BrowserRouter>
   );
 }
