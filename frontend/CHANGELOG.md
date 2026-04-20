@@ -19,3 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Secondary**: Light-tinted alternative action button.
   - **Tertiary**: Bordered button with custom shadows and states (Hover, Active, Disabled).
 - Added core graphical assets and icon placeholders.
+
+## [0.1.1] - 2026-04-20
+
+### Added
+- Configured path aliases (using `@` for `src` directory) to simplify imports and avoid relative path nesting.
