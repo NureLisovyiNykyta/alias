@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
 from app.api.handlers import setup_exception_handlers
-from app.api.routers.auth import router as auth_router
-from app.api.routers.users import router as users_router
+from app.api.v1.auth import router as auth_router
+from app.api.v1.users import router as users_router
 
 app = FastAPI(title="Alias API")
 
