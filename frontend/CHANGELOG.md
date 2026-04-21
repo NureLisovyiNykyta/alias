@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-04-21
+
+### Added
+- Created a standalone `CodeInput` component for game code entry and registration flow.
+- Implemented a `DiscordLink` component to promote community engagement.
+- Added "Copy to Clipboard" functionality for the Discord invitation link.
+- Integrated the new semantic UI blocks into the primary landing page layout.
+
+### Changed
+- Refactored `Landing.jsx` by decomposing the large page structure into smaller, reusable functional components.
+- Improved code maintainability by isolating business logic (e.g., input handling and clipboard API) from the main page view.
+- Updated the grid layout in `MainLayout` to ensure consistent spacing between new UI sections.
+
 ## [0.1.1] - 2026-04-20
 
 ### Added

@@ -8,7 +8,7 @@ const variants = {
     active:bg-brand-900 active:text-white
     disabled:bg-surface disabled:text-text-label
     h-[48px]
-    w-[144px]
+    min-w-[144px]
   `,
   secondary: `
     bg-brand-100 text-text
@@ -16,7 +16,7 @@ const variants = {
     active:bg-brand-500
     disabled:bg-neutral-100 disabled:text-text-label  
     h-[48px]    
-    w-[144px]
+    min-w-[144px]
   `,
   tertiary: `
     bg-white border-2 border-surface shadow-buttons text-text
@@ -24,7 +24,7 @@ const variants = {
     active:bg-white active:border-brand-500
     disabled:border-surface disabled:text-text-label
     h-[48px]
-    w-[144px]
+    min-w-[144px]
   `,
 };
 

@@ -9,18 +9,16 @@ const PINNED_LINKS = [
 
 const Navigation = () => {
   return (
-    <aside className="w-50 shrink-0 sticky top-20 py-8 flex flex-col gap-8 mx-[60px] self-start border-r border-surface">
+    <aside className="w-50 shrink-0 sticky top-20 py-8 flex flex-col gap-8 self-start border-r border-surface">
       <nav aria-label="Sidebar Navigation">
         <div className="flex items-center gap-2 mb-4 px-2">
           <div className='w-6 h-6 flex items-center justify-center'>
             <img src={pin} alt="" />
           </div>
-          <h2 className="text-h2">
-            Pinned
-          </h2>
+          <h2 className="text-h2">Pinned</h2>
         </div>
 
-        <ul className="flex flex-col gap-2 px-2 gap-4">
+        <ul className="flex flex-col px-2 gap-4">
           {PINNED_LINKS.map((link) => (
             <li key={link.id}>
               <Link
