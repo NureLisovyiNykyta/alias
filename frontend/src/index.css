@@ -28,10 +28,12 @@
     --text-h2: 18px;
     --text-h2--line-height: 1.5;
     --text-h2--letter-spacing: -0.05em;
+    --text-h2--font-weight: 500;
 
     --text-btn: 16px;
     --text-btn--line-height: 1;
     --text-btn--letter-spacing: -0.05em;
+    --text-btn--font-weight: 600;
 
     --text-p: 16px;
     --text-p--line-height: 1.5;

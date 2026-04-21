@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-04-21
+
+### Added
+- Implemented a new `MAPS` data collection and integrated horizontal UI cards within the `InfoCards` component.
+- Created interactive "Map" preview cards featuring title, dimensions, and dynamic links to source card-packs.
+- Added decorative badges (pills) for map dimensions using `bg-brand-300` and `font-noto`.
+
+### Changed
+- Refined typography in `InfoCards.jsx` to support data mapping from arrays, improving scalability for community content.
+- Updated text decoration styles for internal links: applied `underline`, `decoration-solid`, and `decoration-skip-ink` to match Figma specifications.
+- Optimized layout spacing in `InfoCards`, transitioning from a single-column list to a structured grid/flex distribution for different content types (Card Packs vs. Maps).
+
 ## [0.2.0] - 2026-04-21
 
 ### Added
