@@ -3,6 +3,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import MainLayout from '@/components/MainLayout.jsx';
 import Landing from "@/pages/Landing.jsx";
 import Profile from "@/pages/Profile.jsx";
+import PacksGallery from "@/pages/PacksGallery.jsx";
 
 const Login = () => <div>Login Page</div>;
 const Dashboard = () => <div>Dashboard (Protected)</div>;
@@ -21,6 +22,7 @@ function App() {
           </Route>
 
           <Route path="/profile" element={<Profile />} />
+          <Route path="/packs" element={<PacksGallery />} />
 
           <Route element={<ProtectedRoute isAllowed={isAuthenticated} redirectTo="/login" />}>
             <Route path="/dashboard" element={<Dashboard />} />

@@ -1,29 +1,22 @@
-import arrow from '@/assets/navigationArrow.svg';
 import profile from '@/assets/profile.png';
 import upload from '@/assets/upload.svg';
 import email from '@/assets/darkMail.svg';
-import { Link } from "react-router-dom";
 import gamepad from "@/assets/gamepad.svg";
 import copy from "@/assets/darkCopy.svg";
 import cross from "@/assets/redCross.svg";
 import Input from "@/components/Input.jsx";
 import { Button } from "@/components/Button.jsx";
+import RowNavigation from "@/components/RowNavigation.jsx";
 
-const homepageLink = '/';
+const LINKS = [
+  { path: "/", label: "Main Page", id: 1 },
+  { label: "Accounts details", id: 2 },
+];
 
 const Profile = () => {
   return (
     <main className="flex flex-col w-full p-5 gap-5">
-      <div className="flex items-center gap-1">
-        <Link
-          to={homepageLink}
-          className='text-p font-noto hover:text-blue-800 transition-colors'
-        >
-          Main page
-        </Link>
-        <img className='w-5 h-5' src={arrow} alt="Right Arrow"/>
-        <span className='text-p font-noto'>Account details</span>
-      </div>
+      <RowNavigation links={LINKS}/>
 
       <h1 className='text-h1'>Account details</h1>
 

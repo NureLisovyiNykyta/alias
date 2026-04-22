@@ -6,6 +6,7 @@ import { Button } from "@/components/Button.jsx";
 import maps from '@/assets/maps.png';
 import map1 from '@/assets/map1.png';
 import map2 from '@/assets/map2.png';
+import { Link } from "react-router-dom";
 
 const CARD_PACKS = [
   {
@@ -47,6 +48,8 @@ const MAPS = [
   },
 ];
 
+const PACKS_LINK = '/packs';
+
 const InfoCards = () => {
   return (
     <div className='w-full flex flex-col gap-8'>
@@ -57,9 +60,12 @@ const InfoCards = () => {
           <span className='text-label font-noto text-text-label'>updated weekly</span>
         </div>
 
-        <button className='text-label font-noto text-brand-500'>
+        <Link
+          to={PACKS_LINK}
+          className='text-label font-noto text-brand-500'
+        >
           Browse the gallery →
-        </button>
+        </Link>
       </div>
 
       <ul className='flex flex-col gap-8 w-full'>
