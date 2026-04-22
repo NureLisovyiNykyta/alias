@@ -1,8 +1,8 @@
-"""Init database
+"""Initial migration
 
-Revision ID: 8279e133c892
+Revision ID: d0032af7248e
 Revises: 
-Create Date: 2026-04-19 19:28:53.028540
+Create Date: 2026-04-22 23:48:42.218177
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '8279e133c892'
+revision: str = 'd0032af7248e'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -49,8 +49,11 @@ def upgrade() -> None:
     sa.Column('username', sa.String(), nullable=False),
     sa.Column('nickname', sa.String(), nullable=False),
     sa.Column('avatar_url', sa.String(), nullable=True),
-    sa.Column('is_registration_finished', sa.Boolean(), nullable=False),
-    sa.Column('is_email_confirmed', sa.Boolean(), nullable=False),
+    sa.Column('is_email_verified', sa.Boolean(), nullable=False),
+    sa.Column('verification_code', sa.String(), nullable=True),
+    sa.Column('verification_code_expires_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('reset_password_code', sa.String(), nullable=True),
+    sa.Column('reset_password_code_expires_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('games_played', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),

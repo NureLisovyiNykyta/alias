@@ -5,7 +5,6 @@ from app.schemas.user import (
     UserCreate,
     UserGoogleLogin,
     UserGoogleRegister,
-    UserLogin,
     UserRead,
     UserUpdateProfile,
 )
@@ -18,7 +17,6 @@ __all__ = [
     "UserCreate",
     "UserGoogleLogin",
     "UserGoogleRegister",
-    "UserLogin",
     "UserRead",
     "UserUpdateProfile",
 ]

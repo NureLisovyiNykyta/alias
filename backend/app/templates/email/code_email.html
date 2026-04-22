@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }} — alias</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      color: #1a1a1a;
+    }
+    .wrapper {
+      max-width: 500px;
+      margin: 48px auto;
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+    }
+    .header {
+      background-color: #fa8c7a;
+      padding: 36px 40px 28px;
+      text-align: center;
+    }
+    .header .logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+    .header .tagline {
+      margin: 6px 0 0;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+      letter-spacing: 0.3px;
+    }
+    .body {
+      padding: 40px 40px 32px;
+      text-align: center;
+    }
+    .body h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+    .body p {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #555555;
+      margin: 0 0 28px;
+    }
+    .code-wrapper {
+      margin: 0 auto 28px;
+      display: inline-block;
+    }
+    .code-block {
+      background: #fff4f2;
+      border: 2px solid #fa8c7a;
+      border-radius: 12px;
+      padding: 18px 44px;
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: 12px;
+      color: #fa8c7a;
+      text-indent: 12px;
+    }
+    .expires {
+      display: inline-block;
+      margin-bottom: 28px;
+      background: #f5f5f5;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: #888888;
+    }
+    .expires strong {
+      color: #555555;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid #eeeeee;
+      margin: 0 0 24px;
+    }
+    .note {
+      font-size: 13px;
+      color: #aaaaaa;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .footer {
+      background: #f9f9f9;
+      border-top: 1px solid #eeeeee;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 12px;
+      color: #bbbbbb;
+    }
+    .footer a {
+      color: #bbbbbb;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="logo">Alias</div>
+      <div class="tagline">The word association game</div>
+    </div>
+
+    <div class="body">
+      <h2>{{ title }}</h2>
+      <p>{{ description }}<br>It's valid for <strong>15 minutes</strong>.</p>
+
+      <div class="code-wrapper">
+        <div class="code-block">{{ code }}</div>
+      </div>
+
+      <hr class="divider" />
+      <p class="note">Didn't request this? You can safely ignore this email.</p>
+    </div>
+
+    <div class="footer">
+      &copy; 2026 alias &nbsp;&middot;&nbsp;
+      <a href="#">Terms of use</a> &nbsp;&middot;&nbsp;
+      <a href="#">Privacy Policy</a>
+    </div>
+  </div>
+</body>
+</html>

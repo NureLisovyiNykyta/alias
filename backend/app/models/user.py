@@ -2,7 +2,7 @@ import datetime
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Integer, String, func
+from sqlalchemy import Boolean, DateTime, Integer, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -23,8 +23,15 @@ class User(Base):
     username: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     nickname: Mapped[str] = mapped_column(String, nullable=False)
     avatar_url: Mapped[str | None] = mapped_column(String, nullable=True)
-    is_registration_finished: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    is_email_confirmed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    verification_code: Mapped[str | None] = mapped_column(String, nullable=True, default=None)
+    verification_code_expires_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=None
+    )
+    reset_password_code: Mapped[str | None] = mapped_column(String, nullable=True, default=None)
+    reset_password_code_expires_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=None
+    )
     games_played: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)

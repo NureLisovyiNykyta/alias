@@ -1,4 +1,6 @@
 import datetime
+import secrets
+import string
 
 import bcrypt
 import jwt
@@ -8,6 +10,10 @@ from app.core.exceptions import UnauthorizedError
 from app.core.messages import ErrorMessage
 
 _ALGORITHM = "HS256"
+
+
+def generate_verification_code() -> str:
+    return "".join(secrets.choice(string.digits) for _ in range(6))
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

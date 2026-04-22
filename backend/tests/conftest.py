@@ -86,7 +86,7 @@ async def test_user(test_db: AsyncSession) -> User:
 async def tokens(client: AsyncClient, test_user: User) -> dict[str, str]:
     response = await client.post(
         "/api/auth/login",
-        json={"email": test_user.email, "password": "testpassword123"},
+        data={"username": test_user.email, "password": "testpassword123"},
     )
     return response.json()
 

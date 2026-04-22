@@ -1,11 +1,12 @@
+import datetime
 import uuid
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import AlreadyExistsError, NotFoundError, UnauthorizedError
+from app.core.exceptions import AlreadyExistsError, BadRequestError, BusinessLogicError, NotFoundError, UnauthorizedError
 from app.core.messages import ErrorMessage
-from app.core.security import decode_refresh_token, get_password_hash, verify_password
+from app.core.security import generate_verification_code, get_password_hash, verify_password
 from app.models.user import User
 
 
@@ -39,19 +40,17 @@ async def create_user(
         password_hash=get_password_hash(password),
         google_id=google_id,
     )
+
+    if google_id is not None:
+        user.is_email_verified = True
+    else:
+        code = generate_verification_code()
+        user.verification_code = code
+        user.verification_code_expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=15)
+
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    return user
-
-
-async def authenticate_user(db: AsyncSession, email: str, password: str) -> User:
-    result = await db.execute(select(User).where(User.email == email))
-    user: User | None = result.scalar_one_or_none()
-    if user is None or user.password_hash is None:
-        raise UnauthorizedError(ErrorMessage.INVALID_CREDENTIALS)
-    if not verify_password(password, user.password_hash):
-        raise UnauthorizedError(ErrorMessage.INVALID_CREDENTIALS)
     return user
 
 
@@ -71,15 +70,31 @@ async def get_user_by_email(db: AsyncSession, email: str) -> User:
     return user
 
 
-async def refresh_user_tokens(db: AsyncSession, refresh_token: str) -> User:
-    user_id_str = decode_refresh_token(refresh_token)
-    result = await db.execute(select(User).where(User.id == uuid.UUID(user_id_str)))
-    user: User | None = result.scalar_one_or_none()
-    if user is None:
-        raise UnauthorizedError(ErrorMessage.USER_NOT_FOUND)
+async def update_user_profile(db: AsyncSession, user: User, update_data: dict) -> User:
+    for field, value in update_data.items():
+        setattr(user, field, value)
+    await db.commit()
+    await db.refresh(user)
     return user
 
 
-def mock_verify_google_token(token: str) -> str:
-    """Temporary stub — returns a deterministic fake email from the token value."""
-    return f"{token}@gmail.com"
+async def change_user_password(
+    db: AsyncSession,
+    user: User,
+    old_password: str,
+    new_password: str,
+) -> None:
+    if user.password_hash is None:
+        raise BusinessLogicError(ErrorMessage.GOOGLE_USER_NO_PASSWORD)
+    if not verify_password(old_password, user.password_hash):
+        raise BadRequestError(ErrorMessage.INVALID_OLD_PASSWORD)
+    user.password_hash = get_password_hash(new_password)
+    await db.commit()
+
+
+async def get_public_user_by_username(db: AsyncSession, username: str) -> User:
+    result = await db.execute(select(User).where(User.username == username))
+    user: User | None = result.scalar_one_or_none()
+    if user is None:
+        raise NotFoundError(ErrorMessage.USER_NOT_FOUND)
+    return user

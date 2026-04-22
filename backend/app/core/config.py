@@ -9,5 +9,15 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
+    GOOGLE_CLIENT_ID: str
+
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int = 465
+    MAIL_SERVER: str
+    MAIL_STARTTLS: bool = False
+    MAIL_SSL_TLS: bool = True
+
 
 settings = Settings()
