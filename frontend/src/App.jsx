@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import MainLayout from '@/components/MainLayout.jsx';
 import Landing from "@/pages/Landing.jsx";
+import Profile from "@/pages/Profile.jsx";
 
 const Login = () => <div>Login Page</div>;
 const Dashboard = () => <div>Dashboard (Protected)</div>;
@@ -18,6 +19,8 @@ function App() {
           <Route element={<ProtectedRoute isAllowed={!isAuthenticated} redirectTo="/dashboard" />}>
             <Route path="/login" element={<Login />} />
           </Route>
+
+          <Route path="/profile" element={<Profile />} />
 
           <Route element={<ProtectedRoute isAllowed={isAuthenticated} redirectTo="/login" />}>
             <Route path="/dashboard" element={<Dashboard />} />
