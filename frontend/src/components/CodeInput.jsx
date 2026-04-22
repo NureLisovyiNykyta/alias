@@ -1,5 +1,5 @@
-import rightArrow from '@/assets/rightArrow.svg';
 import { Button } from "@/components/Button.jsx";
+import Input from "@/components/Input.jsx";
 
 const CodeInput = () => {
   return (
@@ -7,24 +7,12 @@ const CodeInput = () => {
       <h1 className="text-title w-full">Let’s play!</h1>
 
       <div className="flex items-center gap-16">
-        <div className="flex flex-col gap-2 min-w-[280px]">
-          <p className="font-noto text-p">Type the existing game code below</p>
-
-          <div
-            className="flex bg-surface items-center border border-text-label rounded-[8px] py-[10px] px-4 justify-between w-full h-[48px]">
-            <input
-              type="text"
-              placeholder="524106"
-              className="bg-transparent w-full outline-none text-label font-noto text-text-label"
-            />
-
-            <button
-              className="flex items-center justify-center w-8 h-6 rounded-[8px] bg-brand-500"
-            >
-              <img src={rightArrow} alt=""/>
-            </button>
-          </div>
-        </div>
+        <Input
+          id='code-input'
+          label='Type the existing game code below'
+          type="text"
+          placeholder='524106'
+        />
 
         <div className="flex flex-col gap-2 w-[267px]">
           <h2 className="text-h2">Would you like to register?</h2>
