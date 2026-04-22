@@ -1,10 +1,17 @@
 import RowNavigation from "@/components/RowNavigation.jsx";
 import CardPack from "@/components/CardPack.jsx";
 import { CARD_PACKS } from "@/components/InfoCards.jsx";
+import { Link } from "react-router-dom";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
   { label: "Packs Gallery", id: 2 },
+];
+
+const PACKS_LINKS = [
+  { path: "/packs/community" },
+  { path: "/packs/saved" },
+  { path: "/packs/created" },
 ];
 
 const PacksGallery = () => {
@@ -20,11 +27,12 @@ const PacksGallery = () => {
 
         <div className='w-full flex items-center justify-between gap-4'>
           <h1 className='text-h1'>Community</h1>
-          <button
+          <Link
+            to={PACKS_LINKS[0].path}
             className='text-label font-noto text-brand-500'
           >
             Browse all community packs →
-          </button>
+          </Link>
         </div>
 
         <ul className='flex flex-col gap-8 w-full'>
@@ -35,11 +43,12 @@ const PacksGallery = () => {
 
         <div className='w-full flex items-center justify-between gap-4'>
           <h1 className='text-h1'>Saved</h1>
-          <button
+          <Link
+            to={PACKS_LINKS[1].path}
             className='text-label font-noto text-brand-500'
           >
             Browse all saved packs →
-          </button>
+          </Link>
         </div>
 
         <ul className='flex flex-col gap-8 w-full'>
@@ -50,11 +59,12 @@ const PacksGallery = () => {
 
         <div className='w-full flex items-center justify-between gap-4'>
           <h1 className='text-h1'>My Creations</h1>
-          <button
+          <Link
+            to={PACKS_LINKS[2].path}
             className='text-label font-noto text-brand-500'
           >
             Browse all created packs →
-          </button>
+          </Link>
         </div>
 
         <ul className='flex flex-col gap-8 w-full'>
