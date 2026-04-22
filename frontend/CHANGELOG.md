@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-04-22
+
+### Added
+- **[Major Feature] Packs Gallery:** Implemented a new main "Packs Gallery" page displaying all available categories of packs in one place.
+- **[Major Feature] Category Lists:** Added dedicated pages for viewing comprehensive, filtered lists of packs based on their specific type.
+- Implemented global **automatic scroll-to-top** behavior on route changes using a dedicated `ScrollToTop` utility component to improve UX during page transitions.
+- Integrated `useLocation` hook from `react-router-dom` to dynamically detect navigation events and reset window scroll position.
+
+### Changed
+- Refactored the `RowNavigation` component using a more concise declarative syntax (ternary operators and object destructuring) for better code readability and maintainability.
+- Optimized overall Single Page Application (SPA) navigation flow to ensure smooth transitions between the Main, Profile, and the new Gallery pages.
+
 ## [0.3.0] - 2026-04-22
 
 ### Added
