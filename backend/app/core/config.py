@@ -19,5 +19,11 @@ class Settings(BaseSettings):
     MAIL_STARTTLS: bool = False
     MAIL_SSL_TLS: bool = True
 
+    FRONTEND_LINKS: str = ""
+
+    @property
+    def backend_cors_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.FRONTEND_LINKS.split(",") if origin.strip()]
+
 
 settings = Settings()
