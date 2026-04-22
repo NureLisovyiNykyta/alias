@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-04-22
+
+### Added
+- Implemented the **Profile** page (`Profile.jsx`) featuring account details, game statistics, and user settings.
+- Created a reusable and "dumb" `Input` component to handle various text and password entries across the application.
+- Integrated profile-specific UI elements:
+  - Profile picture container with a custom upload action overlay.
+  - User statistics dashboard (join date, games finished, and account credentials).
+  - Quick action buttons for profile link sharing and account deletion.
+- Added new graphical assets for the profile interface (`darkMail.svg`, `gamepad.svg`, `darkCopy.svg`, `redCross.svg`, etc.).
+
+### Changed
+- Refactored input logic by abstracting it into a standalone functional component to improve reusability and maintain consistency with Figma designs.
+- Enhanced `Profile` layout with breadcrumb navigation for better user experience.
+
 ## [0.2.1] - 2026-04-21
 
 ### Added
