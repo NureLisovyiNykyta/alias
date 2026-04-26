@@ -3,8 +3,7 @@ import enum
 
 class StatusEnum(enum.Enum):
     DRAFT = "DRAFT"
-    PUBLISHED = "PUBLISHED"
-    ARCHIVED = "ARCHIVED"
+    ACTIVE = "ACTIVE"
 
 
 class CardMechanicEnum(enum.Enum):

@@ -23,6 +23,14 @@ class ErrorMessage(StrEnum):
 
     RESET_CODE_INVALID = "Invalid or expired reset code"
 
+    CARD_TYPE_NOT_FOUND = "Card type not found"
+    CARD_PACK_NOT_FOUND = "Card pack not found"
+    CARD_PACK_RATE_OWN = "You cannot rate your own card pack"
+
+    MAP_TEMPLATE_NOT_FOUND = "Map template not found"
+    MAP_NOT_FOUND = "Map not found"
+    MAP_RATE_OWN = "You cannot rate your own map"
+
 
 @dataclass
 class EmailContent:
