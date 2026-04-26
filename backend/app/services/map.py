@@ -9,6 +9,7 @@ from app.models.enums import StatusEnum
 from app.models.map import Map, MapRating, MapTemplate, SavedMap
 from app.schemas.card_pack import SortOrder
 from app.schemas.map import MapCreate, MapUpdate
+from app.services.map_field import validate_map_for_activation
 
 
 async def _get_map_or_404(db: AsyncSession, map_id: uuid.UUID) -> Map:
@@ -61,10 +62,6 @@ async def update_map(
     return map_obj
 
 
-async def validate_map_for_publication(db: AsyncSession, map_id: uuid.UUID) -> None:
-    pass
-
-
 async def activate_map(
     db: AsyncSession,
     user_id: uuid.UUID,
@@ -78,7 +75,7 @@ async def activate_map(
     if map_obj.status == StatusEnum.ACTIVE.value:
         return map_obj
 
-    await validate_map_for_publication(db, map_id)
+    await validate_map_for_activation(db, map_id, map_obj.template_id)
 
     map_obj.status = StatusEnum.ACTIVE.value
     await db.commit()

@@ -21,6 +21,8 @@ class Settings(BaseSettings):
 
     FRONTEND_LINKS: str = ""
 
+    MIN_ACTIVE_CARDS: int = 10
+
     @property
     def backend_cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.FRONTEND_LINKS.split(",") if origin.strip()]

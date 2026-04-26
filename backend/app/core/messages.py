@@ -26,10 +26,20 @@ class ErrorMessage(StrEnum):
     CARD_TYPE_NOT_FOUND = "Card type not found"
     CARD_PACK_NOT_FOUND = "Card pack not found"
     CARD_PACK_RATE_OWN = "You cannot rate your own card pack"
+    CARD_PACK_MIN_CARDS = "A card pack must contain at least {min_cards} cards to be activated."
+    CARD_PACK_ACTIVE_MIN_CARDS = "An active card pack cannot have fewer than {min_cards} cards."
+    CARD_INVALID_FORMAT = "Invalid card format: {detail}"
+    CARD_NOT_FOUND_IN_PACK = "Card with ID {card_id} was not found in this card pack."
 
     MAP_TEMPLATE_NOT_FOUND = "Map template not found"
     MAP_NOT_FOUND = "Map not found"
     MAP_RATE_OWN = "You cannot rate your own map"
+    MAP_READY_FIELDS_COUNT = "The map must contain exactly {max_count} fields to be activated."
+    MAP_ACTIVE_FIELDS_COUNT = "An active map must contain exactly {max_count} fields."
+    MAP_FIELD_DUPLICATE_POSITIONS = "Map fields must not have duplicate position indices."
+    MAP_FIELD_INDEX_OUT_OF_BOUNDS = "Field position index is out of template bounds."
+    MAP_FIELD_NOT_FOUND_IN_MAP = "Map field with ID {field_id} was not found in this map."
+    MAP_FIELD_INVALID_CARD_PACK = "The specified card_pack_id does not exist."
 
 
 @dataclass

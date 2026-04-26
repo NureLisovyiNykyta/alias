@@ -10,6 +10,7 @@ from app.core.exceptions import UnauthorizedError
 from app.core.messages import ErrorMessage
 
 _ALGORITHM = "HS256"
+_BCRYPT_ROUNDS = 12
 
 
 def generate_verification_code() -> str:
@@ -21,7 +22,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str) -> str:
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=_BCRYPT_ROUNDS)).decode()
 
 
 def create_access_token(
