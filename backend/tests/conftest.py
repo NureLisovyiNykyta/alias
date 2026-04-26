@@ -1,3 +1,4 @@
+import uuid
 from collections.abc import AsyncGenerator
 
 import pytest
@@ -10,6 +11,9 @@ from app.api.dependencies import get_db
 from app.core.config import settings
 from app.db.session import Base
 from app.main import app
+from app.models.card import CardType
+from app.models.enums import CardMechanicEnum
+from app.models.map import MapTemplate
 from app.models.user import User
 from app.services.user import create_user
 
@@ -94,3 +98,57 @@ async def tokens(client: AsyncClient, test_user: User) -> dict[str, str]:
 @pytest_asyncio.fixture
 async def auth_headers(tokens: dict[str, str]) -> dict[str, str]:
     return {"Authorization": f"Bearer {tokens['access_token']}"}
+
+
+@pytest_asyncio.fixture
+async def second_user(test_db: AsyncSession) -> User:
+    return await create_user(
+        test_db,
+        email="second@example.com",
+        username="seconduser",
+        password="secondpassword123",
+    )
+
+
+@pytest_asyncio.fixture
+async def second_user_tokens(client: AsyncClient, second_user: User) -> dict[str, str]:
+    response = await client.post(
+        "/api/auth/login",
+        data={"username": second_user.email, "password": "secondpassword123"},
+    )
+    return response.json()
+
+
+@pytest_asyncio.fixture
+async def second_user_auth_headers(second_user_tokens: dict[str, str]) -> dict[str, str]:
+    return {"Authorization": f"Bearer {second_user_tokens['access_token']}"}
+
+
+@pytest_asyncio.fixture
+async def test_card_type(test_db: AsyncSession) -> CardType:
+    card_type = CardType(
+        id=uuid.uuid4(),
+        code="alias",
+        name="Alias",
+        description="Classic alias card type",
+        core_mechanic=CardMechanicEnum.CLASSIC_ALIAS.value,
+        allowed_modifiers=[],
+    )
+    test_db.add(card_type)
+    await test_db.commit()
+    await test_db.refresh(card_type)
+    return card_type
+
+
+@pytest_asyncio.fixture
+async def test_map_template(test_db: AsyncSession) -> MapTemplate:
+    template = MapTemplate(
+        id=uuid.uuid4(),
+        code="standard",
+        name="Standard",
+        max_fields_count=50,
+    )
+    test_db.add(template)
+    await test_db.commit()
+    await test_db.refresh(template)
+    return template
