@@ -1,26 +1,11 @@
 import pytest
-import pytest_asyncio
 from httpx import AsyncClient
 
+from app.core.config import settings
 from app.core.messages import ErrorMessage
 from app.models.card import CardType
 from app.models.user import User
-
-
-@pytest_asyncio.fixture
-async def created_pack(client: AsyncClient, test_card_type: CardType, auth_headers: dict[str, str]) -> dict:
-    response = await client.post(
-        "/api/card-packs/",
-        json={
-            "name": "Test Pack",
-            "description": "A test card pack",
-            "is_public": True,
-            "type_id": str(test_card_type.id),
-        },
-        headers=auth_headers,
-    )
-    assert response.status_code == 200
-    return response.json()
+from tests.conftest import VALID_CARD_CONTENT
 
 
 class TestCardPacks:
@@ -81,11 +66,37 @@ class TestCardPacks:
         client: AsyncClient,
         created_pack: dict,
         auth_headers: dict[str, str],
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
+        monkeypatch.setattr(settings, "MIN_ACTIVE_CARDS", 2)
         pack_id = created_pack["id"]
+
+        sync_resp = await client.put(
+            f"/api/card-packs/{pack_id}/cards",
+            json={"cards": [{"content": VALID_CARD_CONTENT}, {"content": VALID_CARD_CONTENT}]},
+            headers=auth_headers,
+        )
+        assert sync_resp.status_code == 200
+
         response = await client.post(f"/api/card-packs/{pack_id}/activate", headers=auth_headers)
         assert response.status_code == 200
         assert response.json()["status"] == "ACTIVE"
+
+    async def test_activate_pack_not_enough_cards(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        auth_headers: dict[str, str],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        monkeypatch.setattr(settings, "MIN_ACTIVE_CARDS", 2)
+        pack_id = created_pack["id"]
+
+        response = await client.post(f"/api/card-packs/{pack_id}/activate", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_MIN_CARDS.format(
+            min_cards=settings.MIN_ACTIVE_CARDS
+        )
 
     async def test_toggle_save_pack(
         self,
@@ -144,25 +155,28 @@ class TestCardPacks:
         response = await client.get("/api/card-packs/me", headers=auth_headers)
         assert response.status_code == 200
         data = response.json()
-        assert "items" in data
-        assert "total" in data
         assert data["total"] >= 1
-        ids = [item["id"] for item in data["items"]]
-        assert created_pack["id"] in ids
+        assert created_pack["id"] in [item["id"] for item in data["items"]]
 
     async def test_list_public_packs(
         self,
         client: AsyncClient,
         created_pack: dict,
         auth_headers: dict[str, str],
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
+        monkeypatch.setattr(settings, "MIN_ACTIVE_CARDS", 2)
         pack_id = created_pack["id"]
-        await client.post(f"/api/card-packs/{pack_id}/activate", headers=auth_headers)
+
+        await client.put(
+            f"/api/card-packs/{pack_id}/cards",
+            json={"cards": [{"content": VALID_CARD_CONTENT}, {"content": VALID_CARD_CONTENT}]},
+            headers=auth_headers,
+        )
+        activate_resp = await client.post(f"/api/card-packs/{pack_id}/activate", headers=auth_headers)
+        assert activate_resp.status_code == 200
 
         response = await client.get("/api/card-packs/public")
         assert response.status_code == 200
         data = response.json()
-        assert "items" in data
-        assert "total" in data
-        ids = [item["id"] for item in data["items"]]
-        assert pack_id in ids
+        assert pack_id in [item["id"] for item in data["items"]]

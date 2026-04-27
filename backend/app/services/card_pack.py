@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
 from app.models.card import CardPack, CardPackRating, CardType, SavedCardPack
+from app.services.card import validate_pack_for_activation
 from app.models.enums import StatusEnum
 from app.schemas.card_pack import CardPackCreate, CardPackUpdate, SortOrder
 
@@ -62,10 +63,6 @@ async def update_card_pack(
     return pack
 
 
-async def validate_pack_for_publication(db: AsyncSession, pack_id: uuid.UUID) -> None:
-    pass
-
-
 async def activate_card_pack(
     db: AsyncSession,
     user_id: uuid.UUID,
@@ -79,7 +76,7 @@ async def activate_card_pack(
     if pack.status == StatusEnum.ACTIVE.value:
         return pack
 
-    await validate_pack_for_publication(db, pack_id)
+    await validate_pack_for_activation(db, pack_id)
 
     pack.status = StatusEnum.ACTIVE.value
     await db.commit()

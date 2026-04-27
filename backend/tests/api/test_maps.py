@@ -1,25 +1,10 @@
 import pytest
-import pytest_asyncio
 from httpx import AsyncClient
 
 from app.core.messages import ErrorMessage
 from app.models.map import MapTemplate
 from app.models.user import User
-
-
-@pytest_asyncio.fixture
-async def created_map(client: AsyncClient, test_map_template: MapTemplate, auth_headers: dict[str, str]) -> dict:
-    response = await client.post(
-        "/api/maps/",
-        json={
-            "name": "Test Map",
-            "is_public": True,
-            "template_id": str(test_map_template.id),
-        },
-        headers=auth_headers,
-    )
-    assert response.status_code == 200
-    return response.json()
+from tests.conftest import MAP_FIELD_0, MAP_FIELD_1
 
 
 class TestMaps:
@@ -77,13 +62,32 @@ class TestMaps:
     async def test_activate_map(
         self,
         client: AsyncClient,
-        created_map: dict,
+        small_map: dict,
         auth_headers: dict[str, str],
     ) -> None:
-        map_id = created_map["id"]
+        map_id = small_map["id"]
+
+        sync_resp = await client.put(
+            f"/api/maps/{map_id}/fields",
+            json={"fields": [MAP_FIELD_0, MAP_FIELD_1]},
+            headers=auth_headers,
+        )
+        assert sync_resp.status_code == 200
+
         response = await client.post(f"/api/maps/{map_id}/activate", headers=auth_headers)
         assert response.status_code == 200
         assert response.json()["status"] == "ACTIVE"
+
+    async def test_activate_map_not_enough_fields(
+        self,
+        client: AsyncClient,
+        small_map: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        map_id = small_map["id"]
+        response = await client.post(f"/api/maps/{map_id}/activate", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.MAP_READY_FIELDS_COUNT.format(max_count=2)
 
     async def test_toggle_save_map(
         self,
@@ -142,25 +146,26 @@ class TestMaps:
         response = await client.get("/api/maps/me", headers=auth_headers)
         assert response.status_code == 200
         data = response.json()
-        assert "items" in data
-        assert "total" in data
         assert data["total"] >= 1
-        ids = [item["id"] for item in data["items"]]
-        assert created_map["id"] in ids
+        assert created_map["id"] in [item["id"] for item in data["items"]]
 
     async def test_list_public_maps(
         self,
         client: AsyncClient,
-        created_map: dict,
+        small_map: dict,
         auth_headers: dict[str, str],
     ) -> None:
-        map_id = created_map["id"]
-        await client.post(f"/api/maps/{map_id}/activate", headers=auth_headers)
+        map_id = small_map["id"]
+
+        await client.put(
+            f"/api/maps/{map_id}/fields",
+            json={"fields": [MAP_FIELD_0, MAP_FIELD_1]},
+            headers=auth_headers,
+        )
+        activate_resp = await client.post(f"/api/maps/{map_id}/activate", headers=auth_headers)
+        assert activate_resp.status_code == 200
 
         response = await client.get("/api/maps/public")
         assert response.status_code == 200
         data = response.json()
-        assert "items" in data
-        assert "total" in data
-        ids = [item["id"] for item in data["items"]]
-        assert map_id in ids
+        assert map_id in [item["id"] for item in data["items"]]

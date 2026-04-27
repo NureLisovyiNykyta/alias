@@ -23,6 +23,7 @@ class CardType(Base):
     description: Mapped[str] = mapped_column(String, nullable=False)
     core_mechanic: Mapped[str] = mapped_column(String, default=CardMechanicEnum.CLASSIC_ALIAS.value, nullable=False, index=True)
     allowed_modifiers: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
+    schema: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default='{}')
 
     card_packs: Mapped[list["CardPack"]] = relationship("CardPack", back_populates="type")
 
