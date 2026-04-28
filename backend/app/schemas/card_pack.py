@@ -4,6 +4,8 @@ import uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.user import UserPublicRead
+
 
 class SortOrder(str, enum.Enum):
     newest = "newest"
@@ -41,5 +43,21 @@ class CardPackRead(BaseModel):
     saves_count: int
     author_id: uuid.UUID
     type_id: uuid.UUID
+    deleted_at: datetime.datetime | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+
+class CardTypeRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    code: str
+    name: str
+    description: str
+    core_mechanic: str
+
+
+class CardPackReadDetailed(CardPackRead):
+    author: UserPublicRead
+    card_type: CardTypeRead = Field(validation_alias="type")

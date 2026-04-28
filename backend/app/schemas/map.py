@@ -3,6 +3,8 @@ import uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.user import UserPublicRead
+
 
 class MapCreate(BaseModel):
     name: str
@@ -32,5 +34,21 @@ class MapRead(BaseModel):
     cover_url: str | None
     author_id: uuid.UUID
     template_id: uuid.UUID
+    deleted_at: datetime.datetime | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+
+class MapTemplateRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    code: str
+    name: str
+    max_fields_count: int
+    model_3d_url: str | None
+
+
+class MapReadDetailed(MapRead):
+    author: UserPublicRead
+    template: MapTemplateRead

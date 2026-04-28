@@ -1,7 +1,14 @@
+import datetime
+import uuid
+
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.messages import ErrorMessage
+from app.core.security import generate_token_pair
+from app.models.card import CardPack, CardType
+from app.models.enums import StatusEnum
+from app.models.map import Map, MapTemplate
 from app.models.user import User
 
 
@@ -110,3 +117,81 @@ class TestGetUserByUsername:
     async def test_unauthorized(self, client: AsyncClient) -> None:
         response = await client.get("/api/users/someuser")
         assert response.status_code == 401
+
+
+class TestDeleteAccount:
+    async def test_delete_my_account(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_map_template: MapTemplate,
+        test_card_type: CardType,
+    ) -> None:
+        user = User(
+            id=uuid.uuid4(),
+            email="ghost@example.com",
+            username="ghostuser",
+            nickname="Ghost User",
+            password_hash="some_hash",
+        )
+        test_db.add(user)
+
+        private_map = Map(
+            id=uuid.uuid4(),
+            name="Private Map",
+            is_public=False,
+            template_id=test_map_template.id,
+            author_id=user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        public_map = Map(
+            id=uuid.uuid4(),
+            name="Public Map",
+            is_public=True,
+            template_id=test_map_template.id,
+            author_id=user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        private_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Private Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(private_map)
+        test_db.add(public_map)
+        test_db.add(private_pack)
+        await test_db.flush()
+
+        token = generate_token_pair(str(user.id)).access_token
+        headers = {"Authorization": f"Bearer {token}"}
+
+        response = await client.delete("/api/users/me", headers=headers)
+        assert response.status_code == 200
+        assert response.json() == {"status": "ok"}
+
+        # Anonymisation applied on the in-memory object (same session)
+        assert user.deleted_at is not None
+        assert user.email.startswith("deleted_")
+        assert user.username.startswith("deleted_")
+        assert user.nickname == "Deleted account"
+        assert user.password_hash is None
+
+        # Private content cascaded to trash (bulk UPDATE – need refresh)
+        await test_db.refresh(private_map)
+        assert private_map.deleted_at is not None
+
+        await test_db.refresh(private_pack)
+        assert private_pack.deleted_at is not None
+
+        # Public content untouched
+        await test_db.refresh(public_map)
+        assert public_map.deleted_at is None
+
+        # Subsequent request with the same token is rejected
+        response = await client.get("/api/users/me", headers=headers)
+        assert response.status_code == 401
+        assert response.json()["detail"] == ErrorMessage.ACCOUNT_DELETED

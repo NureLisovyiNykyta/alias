@@ -1,12 +1,14 @@
 import datetime
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import AlreadyExistsError, BadRequestError, BusinessLogicError, NotFoundError, UnauthorizedError
 from app.core.messages import ErrorMessage
 from app.core.security import generate_verification_code, get_password_hash, verify_password
+from app.models.card import CardPack
+from app.models.map import Map
 from app.models.user import User
 
 
@@ -98,3 +100,34 @@ async def get_public_user_by_username(db: AsyncSession, username: str) -> User:
     if user is None:
         raise NotFoundError(ErrorMessage.USER_NOT_FOUND)
     return user
+
+
+async def delete_account(db: AsyncSession, user: User) -> None:
+    now = datetime.datetime.now(datetime.timezone.utc)
+    suffix = uuid.uuid4().hex
+
+    user.email = f"deleted_{suffix}"
+    user.username = f"deleted_{suffix}"
+    user.nickname = "Deleted account"
+    user.password_hash = None
+    user.avatar_url = None
+    user.google_id = None
+    user.is_email_verified = False
+    user.verification_code = None
+    user.verification_code_expires_at = None
+    user.reset_password_code = None
+    user.reset_password_code_expires_at = None
+    user.deleted_at = now
+
+    await db.execute(
+        update(Map)
+        .where(Map.author_id == user.id, Map.is_public.is_(False), Map.deleted_at.is_(None))
+        .values(deleted_at=now)
+    )
+    await db.execute(
+        update(CardPack)
+        .where(CardPack.author_id == user.id, CardPack.is_public.is_(False), CardPack.deleted_at.is_(None))
+        .values(deleted_at=now)
+    )
+
+    await db.commit()

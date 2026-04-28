@@ -1,7 +1,9 @@
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
@@ -16,6 +18,30 @@ async def _get_pack_or_404(db: AsyncSession, pack_id: uuid.UUID) -> CardPack:
     pack: CardPack | None = result.scalar_one_or_none()
     if pack is None:
         raise NotFoundError(ErrorMessage.CARD_PACK_NOT_FOUND)
+    return pack
+
+
+async def get_pack_by_id(
+    db: AsyncSession,
+    pack_id: uuid.UUID,
+    user_id: uuid.UUID | None = None,
+) -> CardPack:
+    result = await db.execute(
+        select(CardPack)
+        .options(joinedload(CardPack.author), joinedload(CardPack.type))
+        .where(CardPack.id == pack_id)
+    )
+    pack: CardPack | None = result.scalar_one_or_none()
+
+    if pack is None or pack.deleted_at is not None:
+        raise NotFoundError(ErrorMessage.CARD_PACK_NOT_FOUND)
+
+    is_public_active = pack.is_public and pack.status == StatusEnum.ACTIVE.value
+    is_author = user_id is not None and pack.author_id == user_id
+
+    if not is_public_active and not is_author:
+        raise ForbiddenError()
+
     return pack
 
 
@@ -156,6 +182,68 @@ _SORT_COLUMNS = {
 }
 
 
+async def delete_pack(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    pack_id: uuid.UUID,
+) -> CardPack:
+    pack = await _get_pack_or_404(db, pack_id)
+
+    if pack.author_id != user_id:
+        raise ForbiddenError()
+
+    if pack.deleted_at is not None:
+        raise BadRequestError(ErrorMessage.CARD_PACK_ALREADY_DELETED)
+
+    pack.deleted_at = datetime.now(timezone.utc)
+    await db.commit()
+    await db.refresh(pack)
+    return pack
+
+
+async def restore_pack(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    pack_id: uuid.UUID,
+) -> CardPack:
+    pack = await _get_pack_or_404(db, pack_id)
+
+    if pack.author_id != user_id:
+        raise ForbiddenError()
+
+    if pack.deleted_at is None:
+        raise BadRequestError(ErrorMessage.CARD_PACK_NOT_IN_TRASH)
+
+    pack.deleted_at = None
+    await db.commit()
+    await db.refresh(pack)
+    return pack
+
+
+async def get_deleted_packs(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    limit: int,
+    offset: int,
+) -> tuple[list[CardPack], int]:
+    base_where = [
+        CardPack.author_id == user_id,
+        CardPack.deleted_at.is_not(None),
+    ]
+
+    total: int = (
+        await db.execute(select(func.count(CardPack.id)).select_from(CardPack).where(*base_where))
+    ).scalar_one()
+
+    items = (
+        await db.execute(
+            select(CardPack).where(*base_where).order_by(CardPack.deleted_at.desc()).limit(limit).offset(offset)
+        )
+    ).scalars().all()
+
+    return list(items), total
+
+
 async def get_public_packs(
     db: AsyncSession,
     limit: int,
@@ -166,7 +254,7 @@ async def get_public_packs(
 ) -> tuple[list[CardPack], int]:
     base_where = [
         CardPack.is_public.is_(True),
-        CardPack.is_deleted.is_(False),
+        CardPack.deleted_at.is_(None),
         CardPack.status == StatusEnum.ACTIVE.value,
     ]
     if q:
@@ -195,7 +283,7 @@ async def get_my_packs(
 ) -> tuple[list[CardPack], int]:
     base_where = [
         CardPack.author_id == user_id,
-        CardPack.is_deleted.is_(False),
+        CardPack.deleted_at.is_(None),
     ]
     if q:
         base_where.append(CardPack.name.ilike(f"%{q}%"))
@@ -222,7 +310,7 @@ async def get_saved_packs(
 ) -> tuple[list[CardPack], int]:
     base_where = [
         SavedCardPack.user_id == user_id,
-        CardPack.is_deleted.is_(False),
+        CardPack.deleted_at.is_(None),
     ]
     if q:
         base_where.append(CardPack.name.ilike(f"%{q}%"))

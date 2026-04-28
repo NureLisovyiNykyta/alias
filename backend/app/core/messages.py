@@ -40,6 +40,14 @@ class ErrorMessage(StrEnum):
     MAP_FIELD_INDEX_OUT_OF_BOUNDS = "Field position index is out of template bounds."
     MAP_FIELD_NOT_FOUND_IN_MAP = "Map field with ID {field_id} was not found in this map."
     MAP_FIELD_INVALID_CARD_PACK = "The specified card_pack_id does not exist."
+    MAP_FIELD_INACCESSIBLE_CARD_PACK = "One or more card packs are inaccessible or deleted."
+
+    MAP_ALREADY_DELETED = "Map is already in the trash."
+    MAP_NOT_IN_TRASH = "Map is not in the trash."
+    CARD_PACK_ALREADY_DELETED = "Card pack is already in the trash."
+    CARD_PACK_NOT_IN_TRASH = "Card pack is not in the trash."
+
+    ACCOUNT_DELETED = "This account has been deleted"
 
 
 @dataclass

@@ -2,7 +2,7 @@ import datetime
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, CheckConstraint, Float, ForeignKey, Index, Integer, SmallInteger, String, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, Integer, SmallInteger, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -32,7 +32,6 @@ class Map(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String, nullable=False)
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, index=True, nullable=False)
     status: Mapped[str] = mapped_column(String, default=StatusEnum.DRAFT.value, index=True, nullable=False)
     rating_average: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     rating_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -40,15 +39,44 @@ class Map(Base):
     cover_url: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+    deleted_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
 
     template_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("map_templates.id"), index=True, nullable=False)
     author_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), index=True, nullable=False)
 
     __table_args__ = (
-        Index("ix_maps_public_new", "is_public", "is_deleted", "status", "created_at"),
-        Index("ix_maps_public_top_rated", "is_public", "is_deleted", "status", "rating_average"),
-        Index("ix_maps_public_most_saved", "is_public", "is_deleted", "status", "saves_count"),
-        Index("ix_maps_author_list", "author_id", "is_deleted", "created_at"),
+        Index(
+            "ix_maps_public_new",
+            "created_at",
+            postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
+        ),
+        Index(
+            "ix_maps_public_top_rated",
+            "rating_average",
+            postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
+        ),
+        Index(
+            "ix_maps_public_most_saved",
+            "saves_count",
+            postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
+        ),
+        Index(
+            "ix_maps_public_template",
+            "template_id",
+            postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
+        ),
+        Index(
+            "ix_maps_author_active",
+            "author_id",
+            "created_at",
+            postgresql_where=deleted_at.is_(None)
+        ),
+        Index(
+            "ix_maps_author_trash",
+            "author_id",
+            "deleted_at",
+            postgresql_where=deleted_at.is_not(None)
+        ),
     )
 
     template: Mapped["MapTemplate"] = relationship("MapTemplate", back_populates="maps")

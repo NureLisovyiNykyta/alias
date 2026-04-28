@@ -1,7 +1,9 @@
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
@@ -17,6 +19,30 @@ async def _get_map_or_404(db: AsyncSession, map_id: uuid.UUID) -> Map:
     map_obj: Map | None = result.scalar_one_or_none()
     if map_obj is None:
         raise NotFoundError(ErrorMessage.MAP_NOT_FOUND)
+    return map_obj
+
+
+async def get_map_by_id(
+    db: AsyncSession,
+    map_id: uuid.UUID,
+    user_id: uuid.UUID | None = None,
+) -> Map:
+    result = await db.execute(
+        select(Map)
+        .options(joinedload(Map.author), joinedload(Map.template))
+        .where(Map.id == map_id)
+    )
+    map_obj: Map | None = result.scalar_one_or_none()
+
+    if map_obj is None or map_obj.deleted_at is not None:
+        raise NotFoundError(ErrorMessage.MAP_NOT_FOUND)
+
+    is_public_active = map_obj.is_public and map_obj.status == StatusEnum.ACTIVE.value
+    is_author = user_id is not None and map_obj.author_id == user_id
+
+    if not is_public_active and not is_author:
+        raise ForbiddenError()
+
     return map_obj
 
 
@@ -154,6 +180,68 @@ _SORT_COLUMNS = {
 }
 
 
+async def delete_map(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    map_id: uuid.UUID,
+) -> Map:
+    map_obj = await _get_map_or_404(db, map_id)
+
+    if map_obj.author_id != user_id:
+        raise ForbiddenError()
+
+    if map_obj.deleted_at is not None:
+        raise BadRequestError(ErrorMessage.MAP_ALREADY_DELETED)
+
+    map_obj.deleted_at = datetime.now(timezone.utc)
+    await db.commit()
+    await db.refresh(map_obj)
+    return map_obj
+
+
+async def restore_map(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    map_id: uuid.UUID,
+) -> Map:
+    map_obj = await _get_map_or_404(db, map_id)
+
+    if map_obj.author_id != user_id:
+        raise ForbiddenError()
+
+    if map_obj.deleted_at is None:
+        raise BadRequestError(ErrorMessage.MAP_NOT_IN_TRASH)
+
+    map_obj.deleted_at = None
+    await db.commit()
+    await db.refresh(map_obj)
+    return map_obj
+
+
+async def get_deleted_maps(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    limit: int,
+    offset: int,
+) -> tuple[list[Map], int]:
+    base_where = [
+        Map.author_id == user_id,
+        Map.deleted_at.is_not(None),
+    ]
+
+    total: int = (
+        await db.execute(select(func.count(Map.id)).select_from(Map).where(*base_where))
+    ).scalar_one()
+
+    items = (
+        await db.execute(
+            select(Map).where(*base_where).order_by(Map.deleted_at.desc()).limit(limit).offset(offset)
+        )
+    ).scalars().all()
+
+    return list(items), total
+
+
 async def get_public_maps(
     db: AsyncSession,
     limit: int,
@@ -164,7 +252,7 @@ async def get_public_maps(
 ) -> tuple[list[Map], int]:
     base_where = [
         Map.is_public.is_(True),
-        Map.is_deleted.is_(False),
+        Map.deleted_at.is_(None),
         Map.status == StatusEnum.ACTIVE.value,
     ]
     if q:
@@ -195,7 +283,7 @@ async def get_my_maps(
 ) -> tuple[list[Map], int]:
     base_where = [
         Map.author_id == user_id,
-        Map.is_deleted.is_(False),
+        Map.deleted_at.is_(None),
     ]
     if q:
         base_where.append(Map.name.ilike(f"%{q}%"))
@@ -224,7 +312,7 @@ async def get_saved_maps(
 ) -> tuple[list[Map], int]:
     base_where = [
         SavedMap.user_id == user_id,
-        Map.is_deleted.is_(False),
+        Map.deleted_at.is_(None),
     ]
     if q:
         base_where.append(Map.name.ilike(f"%{q}%"))
