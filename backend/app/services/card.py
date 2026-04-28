@@ -96,7 +96,7 @@ async def get_cards_by_pack(
     if pack is None:
         raise NotFoundError(ErrorMessage.CARD_PACK_NOT_FOUND)
 
-    is_publicly_visible = pack.is_public and pack.status == StatusEnum.ACTIVE.value and not pack.is_deleted
+    is_publicly_visible = pack.is_public and pack.status == StatusEnum.ACTIVE.value and pack.deleted_at is None
     if not is_publicly_visible and pack.author_id != user_id:
         raise ForbiddenError()
 

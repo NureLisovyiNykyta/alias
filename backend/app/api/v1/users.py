@@ -5,7 +5,7 @@ from app.api.dependencies import get_current_user, get_db
 from app.models.user import User
 from app.schemas.base import StatusResponse
 from app.schemas.user import UserChangePassword, UserPublicRead, UserRead, UserUpdateProfile
-from app.services.user import change_user_password, get_public_user_by_username, update_user_profile
+from app.services.user import change_user_password, delete_account, get_public_user_by_username, update_user_profile
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -22,6 +22,15 @@ async def update_me(
     db: AsyncSession = Depends(get_db),
 ) -> User:
     return await update_user_profile(db, current_user, body.model_dump(exclude_unset=True))
+
+
+@router.delete("/me", response_model=StatusResponse)
+async def delete_me(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> StatusResponse:
+    await delete_account(db, current_user)
+    return StatusResponse()
 
 
 @router.post("/me/password", response_model=StatusResponse)

@@ -2,7 +2,7 @@ import datetime
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, CheckConstraint, Float, ForeignKey, Index, Integer, SmallInteger, String, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, Integer, SmallInteger, String, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -35,7 +35,6 @@ class CardPack(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=False)
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     status: Mapped[str] = mapped_column(String, default=StatusEnum.DRAFT.value, index=True, nullable=False)
     rating_average: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     rating_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -43,15 +42,44 @@ class CardPack(Base):
     saves_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+    deleted_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
 
     author_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), index=True, nullable=False)
     type_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("card_types.id"), index=True, nullable=False)
 
     __table_args__ = (
-        Index("ix_card_packs_public_new", "is_public", "is_deleted", "status", "created_at"),
-        Index("ix_card_packs_public_top_rated", "is_public", "is_deleted", "status", "rating_average"),
-        Index("ix_card_packs_public_most_saved", "is_public", "is_deleted", "status", "saves_count"),
-        Index("ix_card_packs_author_list", "author_id", "is_deleted", "created_at"),
+        Index(
+            "ix_card_packs_public_new",
+            "created_at",
+            postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
+        ),
+        Index(
+            "ix_card_packs_public_top_rated",
+            "rating_average",
+            postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
+        ),
+        Index(
+            "ix_card_packs_public_most_saved",
+            "saves_count",
+            postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
+        ),
+        Index(
+            "ix_card_packs_public_type",
+            "type_id",
+            postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
+        ),
+        Index(
+            "ix_card_packs_author_active",
+            "author_id",
+            "created_at",
+            postgresql_where=deleted_at.is_(None)
+        ),
+        Index(
+            "ix_card_packs_author_trash",
+            "author_id",
+            "deleted_at",
+            postgresql_where=deleted_at.is_not(None)
+        ),
     )
 
     author: Mapped["User"] = relationship("User", back_populates="card_packs")

@@ -1,14 +1,16 @@
+import datetime
 import uuid
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.messages import ErrorMessage
-from app.models.map import MapTemplate
-from tests.conftest import MAP_FIELD_0, MAP_FIELD_1
-
-_FIELD_0 = MAP_FIELD_0
-_FIELD_1 = MAP_FIELD_1
+from app.models.card import CardPack, CardType
+from app.models.enums import StatusEnum
+from app.models.map import Map, MapField, MapTemplate
+from app.models.user import User
+from tests.conftest import MAP_FIELD_0 as _FIELD_0, MAP_FIELD_1 as _FIELD_1
 
 
 class TestMapFields:
@@ -38,29 +40,28 @@ class TestMapFields:
     async def test_list_fields_public(
         self,
         client: AsyncClient,
+        test_db: AsyncSession,
         small_map_template: MapTemplate,
+        test_user: User,
         auth_headers: dict[str, str],
     ) -> None:
         """Guest can read fields of a public ACTIVE map."""
-        response = await client.post(
-            "/api/maps/",
-            json={"name": "Public Map", "is_public": True, "template_id": str(small_map_template.id)},
-            headers=auth_headers,
+        map_obj = Map(
+            id=uuid.uuid4(),
+            name="Public Map",
+            is_public=True,
+            template_id=small_map_template.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
         )
-        assert response.status_code == 200
-        map_id = response.json()["id"]
+        test_db.add(map_obj)
+        field_0 = MapField(map_id=map_obj.id, **_FIELD_0)
+        field_1 = MapField(map_id=map_obj.id, **_FIELD_1)
+        test_db.add(field_0)
+        test_db.add(field_1)
+        await test_db.flush()
 
-        sync_resp = await client.put(
-            f"/api/maps/{map_id}/fields",
-            json={"fields": [_FIELD_0, _FIELD_1]},
-            headers=auth_headers,
-        )
-        assert sync_resp.status_code == 200
-
-        activate_resp = await client.post(f"/api/maps/{map_id}/activate", headers=auth_headers)
-        assert activate_resp.status_code == 200
-
-        response = await client.get(f"/api/maps/{map_id}/fields")
+        response = await client.get(f"/api/maps/{map_obj.id}/fields")
         assert response.status_code == 200
         assert len(response.json()) == 2
 
@@ -134,7 +135,7 @@ class TestMapFields:
         small_map: dict,
         auth_headers: dict[str, str],
     ) -> None:
-        """A non-existent card_pack_id triggers IntegrityError → 400."""
+        """A non-existent card_pack_id is caught by the accessibility check → 400."""
         map_id = small_map["id"]
         response = await client.put(
             f"/api/maps/{map_id}/fields",
@@ -142,7 +143,7 @@ class TestMapFields:
             headers=auth_headers,
         )
         assert response.status_code == 400
-        assert response.json()["detail"] == ErrorMessage.MAP_FIELD_INVALID_CARD_PACK
+        assert response.json()["detail"] == ErrorMessage.MAP_FIELD_INACCESSIBLE_CARD_PACK
 
     async def test_sync_fields_forbidden(
         self,
@@ -183,3 +184,102 @@ class TestMapFields:
         )
         assert response.status_code == 400
         assert response.json()["detail"] == ErrorMessage.MAP_READY_FIELDS_COUNT.format(max_count=2)
+
+
+class TestMapFieldsIDOR:
+    async def test_sync_map_fields_with_deleted_pack(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        small_map: dict,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """Attaching a soft-deleted pack returns 400."""
+        deleted_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Deleted Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+            deleted_at=datetime.datetime.now(datetime.timezone.utc),
+        )
+        test_db.add(deleted_pack)
+        await test_db.flush()
+
+        response = await client.put(
+            f"/api/maps/{small_map['id']}/fields",
+            json={"fields": [{**_FIELD_0, "card_pack_id": str(deleted_pack.id)}]},
+            headers=auth_headers,
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.MAP_FIELD_INACCESSIBLE_CARD_PACK
+
+    async def test_sync_map_fields_with_others_private_pack(
+        self,
+        client: AsyncClient,
+        small_map: dict,
+        test_pack_second_user: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """Attaching another user's private pack returns 400."""
+        response = await client.put(
+            f"/api/maps/{small_map['id']}/fields",
+            json={"fields": [{**_FIELD_0, "card_pack_id": test_pack_second_user["id"]}]},
+            headers=auth_headers,
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.MAP_FIELD_INACCESSIBLE_CARD_PACK
+
+    async def test_sync_map_fields_success(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        small_map: dict,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """Public foreign pack and own private pack can both be attached."""
+        public_foreign_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Public Pack from Second User",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        own_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Own Private Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(public_foreign_pack)
+        test_db.add(own_pack)
+        await test_db.flush()
+
+        response = await client.put(
+            f"/api/maps/{small_map['id']}/fields",
+            json={
+                "fields": [
+                    {**_FIELD_0, "card_pack_id": str(public_foreign_pack.id)},
+                    {**_FIELD_1, "card_pack_id": str(own_pack.id)},
+                ]
+            },
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+        fields = response.json()
+        assert len(fields) == 2
+        pack_ids = {f["card_pack_id"] for f in fields}
+        assert str(public_foreign_pack.id) in pack_ids
+        assert str(own_pack.id) in pack_ids

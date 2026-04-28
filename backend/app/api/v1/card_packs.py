@@ -3,18 +3,22 @@ import uuid
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.dependencies import get_current_user, get_db
+from app.api.dependencies import get_current_user, get_current_user_optional, get_db
 from app.models.card import CardPack
 from app.models.enums import StatusEnum
 from app.models.user import User
 from app.schemas.base import PaginatedResponse
-from app.schemas.card_pack import CardPackCreate, CardPackRatingInput, CardPackRead, CardPackUpdate, SortOrder
+from app.schemas.card_pack import CardPackCreate, CardPackRatingInput, CardPackRead, CardPackReadDetailed, CardPackUpdate, SortOrder
 from app.services.card_pack import (
     activate_card_pack,
     create_card_pack,
+    delete_pack,
+    get_deleted_packs,
     get_my_packs,
+    get_pack_by_id,
     get_public_packs,
     get_saved_packs,
+    restore_pack,
     set_card_pack_rating,
     toggle_save_card_pack,
     update_card_pack,
@@ -50,6 +54,23 @@ async def activate_pack(
 ) -> CardPack:
     return await activate_card_pack(db, current_user.id, pack_id)
 
+
+@router.post("/{pack_id}/restore", response_model=CardPackRead)
+async def restore_pack_route(
+    pack_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> CardPack:
+    return await restore_pack(db, current_user.id, pack_id)
+
+
+@router.delete("/{pack_id}", response_model=CardPackRead)
+async def delete_pack_route(
+    pack_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> CardPack:
+    return await delete_pack(db, current_user.id, pack_id)
 
 
 @router.post("/{pack_id}/save")
@@ -108,3 +129,23 @@ async def list_saved_packs(
 ) -> PaginatedResponse[CardPackRead]:
     items, total = await get_saved_packs(db, current_user.id, limit, offset, q)
     return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
+
+
+@router.get("/trash", response_model=PaginatedResponse[CardPackRead])
+async def list_trash_packs(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> PaginatedResponse[CardPackRead]:
+    items, total = await get_deleted_packs(db, current_user.id, limit, offset)
+    return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
+
+
+@router.get("/{pack_id}", response_model=CardPackReadDetailed)
+async def get_pack_route(
+    pack_id: uuid.UUID,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db),
+) -> CardPack:
+    return await get_pack_by_id(db, pack_id, current_user.id if current_user else None)
