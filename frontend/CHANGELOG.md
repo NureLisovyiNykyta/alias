@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-04-30
+
+### Added
+- Integrated `react-hook-form` and `zod` for robust client-side form validation on the **Sign In** page.
+- Implemented dynamic error handling within the reusable `Input` component, visually indicating validation failures (red borders and error text).
+- Added submitting state management to the login form, disabling the submit button during API calls to prevent duplicate requests.
+- Resolved an issue with the "Show Password" toggle functionality in the `Input` component by correctly managing the DOM input type via local component state.
+- Applied CSS workarounds to neutralize native browser autofill background colors, maintaining design consistency across Chromium-based browsers.
+
 ## [0.5.0] - 2026-04-30
 
 ### Added
