@@ -7,6 +7,7 @@ import PacksGallery from "@/pages/PacksGallery.jsx";
 import ScrollToTop from "@/components/ScrollToTop.jsx";
 import PacksList from "@/pages/PacksList.jsx";
 import SignIn from "@/pages/SignIn.jsx";
+import SignUpFlow from "@/pages/sign-up/SignUpFlow.jsx";
 
 const Dashboard = () => <div>Dashboard (Protected)</div>;
 
@@ -31,6 +32,7 @@ function App() {
 
         <Route path='/auth' element={<ProtectedRoute isAllowed={!isAuthenticated} redirectTo="/"/>}>
           <Route path="sign-in" element={<SignIn/>}/>
+          <Route path="sign-up" element={<SignUpFlow/>}/>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace/>}/>

@@ -71,7 +71,10 @@ const SignIn = () => {
         <div className='w-[400px] h-[695px] rounded-r-[12px] flex justify-center bg-surface px-[60px] py-[53px]'>
           <div className='flex flex-col gap-[95px]'>
 
-            <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col w-[280px] gap-[25px] items-center'>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className='flex flex-col w-[280px] gap-[25px] items-center'
+            >
               <div className='w-full flex flex-col gap-[34px]'>
                 <h1 className='text-h1 text-center'>Sign In</h1>
 
@@ -102,7 +105,7 @@ const SignIn = () => {
 
               <Button
                 type="submit"
-                className='w-full disabled:opacity-50 disabled:cursor-not-allowed'
+                className='w-full disabled:cursor-not-allowed'
                 disabled={isSubmitting}
               >
                 <span>{isSubmitting ? 'Signing in...' : 'Sign In'}</span>
@@ -119,7 +122,7 @@ const SignIn = () => {
             <div className='flex items-center gap-1 justify-center'>
               <p className='text-text-label'>Don’t have an account?</p>
               <Link
-                to='/sign-up'
+                to='/auth/sign-up'
                 className='font-noto text-p text-brand-500 hover:text-blue-500 transition-colors'
               >
                 Sign up
