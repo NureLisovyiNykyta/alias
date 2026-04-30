@@ -6,12 +6,12 @@ import closedEye from "@/assets/closedEye.svg";
 
 const FORGOT_PASS_LINK = '/auth/forgot-password';
 
-const Input = forwardRef(({ label = '', placeholder = '', type = 'text', showArrow = true, helpText = null, id, error, ...props }, ref) => {
+const Input = forwardRef(({ label = '', placeholder = '', type = 'text', showArrow = true, helpText = null, id, error, wide = false, ...props }, ref) => {
   const [showPassword, setShowPassword] = useState(false);
   const inputType = type === 'password' && showPassword ? 'text' : type;
 
   return (
-    <div className="flex flex-col gap-2 w-[280px]">
+    <div className={`flex flex-col gap-2 ${wide ? 'w-full': 'w-[280px]'}`}>
       <label htmlFor={id} className="font-noto text-p">{label}</label>
 
       <div
