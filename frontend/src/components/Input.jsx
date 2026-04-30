@@ -6,7 +6,7 @@ import closedEye from "@/assets/closedEye.svg";
 
 const FORGOT_PASS_LINK = '/auth/forgot-password';
 
-const Input = forwardRef(({ label = '', placeholder = '', type = 'text', showArrow = true, helpText = null, id, error, wide = false, ...props }, ref) => {
+const Input = forwardRef(({ label = '', placeholder = '', type = 'text', showArrow = true, helpText = null, id, error, wide = false, isLogin = false, ...props }, ref) => {
   const [showPassword, setShowPassword] = useState(false);
   const inputType = type === 'password' && showPassword ? 'text' : type;
 
@@ -51,7 +51,7 @@ const Input = forwardRef(({ label = '', placeholder = '', type = 'text', showArr
           <span className={`text-label font-noto ${error ? 'text-red-500' : 'text-text-label'}`}>
             {helpText}
           </span>
-          {type === 'password' && <Link to={FORGOT_PASS_LINK} className='text-label text-text-label font-noto hover:text-blue-500 transition-colors'>Forgot password?</Link>}
+          {(type === 'password' && isLogin) && <Link to={FORGOT_PASS_LINK} className='text-label text-text-label font-noto hover:text-blue-500 transition-colors'>Forgot password?</Link>}
         </div>
       )}
     </div>

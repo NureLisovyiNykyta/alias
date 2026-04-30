@@ -1,11 +1,13 @@
 import { useState } from "react";
 import AuthLayout from "@/components/AuthLayout.jsx";
 import EmailStep from "@/components/sign-up/EmailStep.jsx";
-import { Button } from "@/components/Button.jsx";
+import UsernameStep from "@/components/sign-up/UsernameStep.jsx";
+import PasswordStep from "@/components/sign-up/PasswordStep.jsx";
 
 const SignUpFlow = () => {
   const [formData, setFormData] = useState({
     email: "",
+    username: "",
   });
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -18,11 +20,13 @@ const SignUpFlow = () => {
   const titles = {
     1: 'Enter your email',
     2: "Choose a username",
+    3: "Create a password",
   };
 
   const subtitles = {
     1: "This will be used to secure your account and future logins.",
     2: "Your unique identity on the platform. You can always change this later.",
+    3: "Make sure it's strong and secure to keep your account safe.",
   };
 
   const handleStepSuccess = (stepData) => {
@@ -51,23 +55,20 @@ const SignUpFlow = () => {
       )}
 
       {currentStep === 2 && (
-        <div className="text-center p-10 flex flex-col items-center gap-10">
-          <h2>Username Step Placeholder</h2>
-          <p>Email is: {formData.email}</p>
-          <div className="flex w-full justify-between">
-            <Button
-              variant='tertiary'
-              onClick={handleBack}
-            >
-              Previous step
-            </Button>
-            <Button
-              onClick={() => setCurrentStep(3)}
-            >
-              Next step
-            </Button>
-          </div>
-        </div>
+        <UsernameStep
+          initialData={formData.username || formData.email.split('@')[0]}
+          onSuccess={handleStepSuccess}
+          onBack={handleBack}
+        />
+      )}
+
+      {currentStep === 3 && (
+        <PasswordStep
+          email={formData.email}
+          username={formData.username}
+          onSuccess={handleStepSuccess}
+          onBack={handleBack}
+        />
       )}
     </AuthLayout>
   );
