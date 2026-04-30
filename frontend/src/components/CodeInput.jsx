@@ -1,5 +1,6 @@
 import { Button } from "@/components/Button.jsx";
 import Input from "@/components/Input.jsx";
+import { Link } from "react-router-dom";
 
 const CodeInput = () => {
   return (
@@ -14,14 +15,16 @@ const CodeInput = () => {
           placeholder='524106'
         />
 
-        <div className="flex flex-col gap-2 w-[267px]">
-          <h2 className="text-h2">Would you like to register?</h2>
-          <Button
-            className="w-full"
-          >
-            <span>Sign up</span>
-          </Button>
-        </div>
+        {/*<div className="flex flex-col gap-2 w-[267px]">*/}
+        {/*  <h2 className="text-h2">Would you like to register?</h2>*/}
+        {/*  <Button*/}
+        {/*    as={Link}*/}
+        {/*    to="/auth/sign-in"*/}
+        {/*    className="w-full"*/}
+        {/*  >*/}
+        {/*    <span>Sign up</span>*/}
+        {/*  </Button>*/}
+        {/*</div>*/}
       </div>
     </div>
   );

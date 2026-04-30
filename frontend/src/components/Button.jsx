@@ -34,6 +34,7 @@ const sizes = {
 };
 
 export const Button = ({
+                         as: Component = 'button',
                          variant = 'primary',
                          size = 'default',
                          disabled = false,
@@ -42,12 +43,12 @@ export const Button = ({
                          ...props
                        }) => {
   return (
-    <button
+    <Component
       disabled={disabled}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {children}
-    </button>
+    </Component>
   );
 };

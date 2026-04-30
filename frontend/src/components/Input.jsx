@@ -1,6 +1,6 @@
 import rightArrow from '@/assets/rightArrow.svg';
 
-const Input = ({ label = '', placeholder = '', type = 'text', id }) => {
+const Input = ({ label = '', placeholder = '', type = 'text', showArrow = true, helpText = null, id }) => {
   return (
     <div className="flex flex-col gap-2 w-[280px]">
       <label htmlFor={id} className="font-noto text-p">{label}</label>
@@ -14,12 +14,16 @@ const Input = ({ label = '', placeholder = '', type = 'text', id }) => {
           className="bg-transparent w-full outline-none text-label font-noto text-text-label"
         />
 
-        <button
-          className="flex items-center justify-center w-8 h-6 rounded-[8px] bg-brand-500"
-        >
-          <img src={rightArrow} alt=""/>
-        </button>
+        {showArrow &&
+          <button
+            className="flex items-center justify-center w-8 h-6 rounded-[8px] bg-brand-500"
+          >
+            <img src={rightArrow} alt=""/>
+          </button>
+        }
       </div>
+
+      {helpText && <span className='inline text-label text-text-label font-noto'>{helpText}</span>}
     </div>
   );
 };

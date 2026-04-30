@@ -6,8 +6,8 @@ import Profile from "@/pages/Profile.jsx";
 import PacksGallery from "@/pages/PacksGallery.jsx";
 import ScrollToTop from "@/components/ScrollToTop.jsx";
 import PacksList from "@/pages/PacksList.jsx";
+import SignIn from "@/pages/SignIn.jsx";
 
-const Login = () => <div>Login Page</div>;
 const Dashboard = () => <div>Dashboard (Protected)</div>;
 
 function App() {
@@ -20,10 +20,6 @@ function App() {
         <Route element={<MainLayout/>}>
           <Route path="/" element={<Landing/>}/>
 
-          <Route element={<ProtectedRoute isAllowed={!isAuthenticated} redirectTo="/dashboard"/>}>
-            <Route path="/login" element={<Login/>}/>
-          </Route>
-
           <Route path="/profile" element={<Profile/>}/>
           <Route path="/gallery" element={<PacksGallery/>}/>
           <Route path="/packs/:type" element={<PacksList/>}/>
@@ -31,6 +27,10 @@ function App() {
           <Route element={<ProtectedRoute isAllowed={isAuthenticated} redirectTo="/login"/>}>
             <Route path="/dashboard" element={<Dashboard/>}/>
           </Route>
+        </Route>
+
+        <Route path='/auth' element={<ProtectedRoute isAllowed={!isAuthenticated} redirectTo="/"/>}>
+          <Route path="sign-in" element={<SignIn/>}/>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace/>}/>
