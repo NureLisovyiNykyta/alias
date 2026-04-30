@@ -16,3 +16,5 @@ google-auth~=2.49.2
 requests~=2.33.1
 python-multipart~=0.0.26
 jsonschema~=4.26.0
+passlib~=1.7.4
+python-dotenv~=1.2.2
