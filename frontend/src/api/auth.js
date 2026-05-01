@@ -34,6 +34,16 @@ export const loginUser = async (credentials) => {
   return response.data;
 };
 
+export const googleLogin = async (google_token) => {
+  const response = await api.post('/auth/google/login', { google_token });
+  return response.data;
+};
+
+export const googleRegister = async (data) => {
+  const response = await api.post('/auth/google/register', data);
+  return response.data;
+};
+
 export const useCheckUsernameMutation = (options) => {
   return useMutation({
     mutationFn: (username) => checkUsername(username),
@@ -58,6 +68,20 @@ export const useVerifyEmailMutation = (options) => {
 export const useLoginMutation = (options) => {
   return useMutation({
     mutationFn: (credentials) => loginUser(credentials),
+    ...options,
+  });
+};
+
+export const useGoogleLoginMutation = (options) => {
+  return useMutation({
+    mutationFn: (token) => googleLogin(token),
+    ...options,
+  });
+};
+
+export const useGoogleRegisterMutation = (options) => {
+  return useMutation({
+    mutationFn: (data) => googleRegister(data),
     ...options,
   });
 };

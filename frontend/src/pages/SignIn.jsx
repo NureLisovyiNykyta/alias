@@ -8,7 +8,8 @@ import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLoginMutation } from "@/api/auth.js";
+import { useGoogleLoginMutation, useLoginMutation } from "@/api/auth.js";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
@@ -40,10 +41,10 @@ const SignIn = () => {
     name: ["email", "password"],
   });
 
-  const { mutate, isPending } = useLoginMutation({
+  const loginMutation = useLoginMutation({
     onSuccess: (data) => {
       setTokens(data.access_token, data.refresh_token);
-      navigate('/');
+      navigate('/dashboard');
     },
     onError: (error) => {
       const errorMessage = error.response?.data?.detail || error.response?.data?.message || "Invalid email or password";
@@ -52,11 +53,31 @@ const SignIn = () => {
   });
 
   const onSubmit = (data) => {
-    mutate({
+    loginMutation.mutate({
       email: data.email,
       password: data.password,
     });
   };
+
+  const googleLoginMutation = useGoogleLoginMutation({
+    onSuccess: (data) => {
+      setTokens(data.access_token, data.refresh_token);
+      navigate('/');
+    },
+    onError: (error, googleToken) => {
+      sessionStorage.setItem('temp_google_token', googleToken);
+      navigate('/auth/google-sign-up');
+    }
+  });
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      googleLoginMutation.mutate(tokenResponse.access_token);
+    },
+    onError: () => {
+      console.error('Google Login Failed');
+    }
+  });
 
   const isEmailValid = !!currentEmail && currentEmail.length > 0 && !errors.email;
   const isPasswordValid = !!currentPassword && currentPassword.length > 0 && !errors.password;
@@ -127,17 +148,19 @@ const SignIn = () => {
               <Button
                 type="submit"
                 className='w-full'
-                disabled={isPending || !isEmailValid || !isPasswordValid}
+                disabled={loginMutation.isPending || !isEmailValid || !isPasswordValid}
               >
-                <span>{isPending ? 'Signing in' : 'Sign In'}</span>
+                <span>{loginMutation.isPending ? 'Signing in' : 'Sign In'}</span>
               </Button>
 
-              <a
-                href='https://google.com'
-                className='w-[39px] h-[39px] flex items-center justify-center rounded-full p-[10px] bg-white shadow-buttons transition-transform hover:scale-105'
+              <button
+                type="button"
+                onClick={() => handleGoogleLogin()}
+                disabled={googleLoginMutation.isPending || loginMutation.isPending}
+                className='w-[39px] h-[39px] flex items-center justify-center rounded-full p-[10px] bg-white shadow-buttons transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100'
               >
                 <img className='object-cover w-5 h-5' src={google} alt="Google Icon"/>
-              </a>
+              </button>
             </form>
 
             <div className='flex items-center gap-1 justify-center'>
