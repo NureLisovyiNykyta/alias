@@ -1,11 +1,11 @@
 import { useState } from "react";
 import AuthLayout from "@/components/AuthLayout.jsx";
-import EmailStep from "@/components/sign-up/EmailStep.jsx";
-import UsernameStep from "@/components/sign-up/UsernameStep.jsx";
-import PasswordStep from "@/components/sign-up/PasswordStep.jsx";
-import VerificationStep from "@/components/sign-up/VerificationStep.jsx";
+import EmailStep from "@/components/auth/EmailStep.jsx";
+import UsernameStep from "@/components/auth/UsernameStep.jsx";
+import PasswordStep from "@/components/auth/PasswordStep.jsx";
+import VerificationStep from "@/components/auth/VerificationStep.jsx";
 
-const SignUpFlow = () => {
+const SignUp = () => {
   const [formData, setFormData] = useState({
     email: "",
     username: "",
@@ -84,4 +84,4 @@ const SignUpFlow = () => {
   );
 };
 
-export default SignUpFlow;
+export default SignUp;

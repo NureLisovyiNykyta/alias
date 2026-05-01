@@ -4,10 +4,11 @@ import { Button } from "@/components/Button.jsx";
 import Input from "@/components/Input.jsx";
 import RowNavigation from "@/components/RowNavigation.jsx";
 import google from '@/assets/googleLogo.png';
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoginMutation } from "@/api/auth.js";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
@@ -16,34 +17,49 @@ const LINKS = [
 
 const signInSchema = z.object({
   email: z.string().min(1, "Email is required").email("Enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
+  password: z.string().min(1, "Password is required"),
 });
 
 const SignIn = () => {
-  const { login } = useAuth();
+  const { setTokens } = useAuth();
   const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    control,
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(signInSchema),
+    mode: "onChange",
   });
 
-  const onSubmit = async (data) => {
-    const result = await login(data.email, data.password);
+  const [currentEmail, currentPassword] = useWatch({
+    control,
+    name: ["email", "password"],
+  });
 
-    if (result.success) {
+  const { mutate, isPending } = useLoginMutation({
+    onSuccess: (data) => {
+      setTokens(data.access_token, data.refresh_token);
       navigate('/');
-    } else {
-      setError("password", {
-        type: "server",
-        message: result.error || "Invalid email or password"
-      });
-    }
+    },
+    onError: (error) => {
+      const errorMessage = error.response?.data?.detail || error.response?.data?.message || "Invalid email or password";
+      setError("password", { type: "server", message: errorMessage });
+    },
+  });
+
+  const onSubmit = (data) => {
+    mutate({
+      email: data.email,
+      password: data.password,
+    });
   };
+
+  const isEmailValid = !!currentEmail && currentEmail.length > 0 && !errors.email;
+  const isPasswordValid = !!currentPassword && currentPassword.length > 0 && !errors.password;
 
   return (
     <div className='flex flex-col gap-3 absolute top-[70px] left-1/2 -translate-x-1/2'>
@@ -87,7 +103,9 @@ const SignIn = () => {
                     showArrow={false}
                     {...register('email')}
                     error={!!errors.email}
+                    isValid={isEmailValid}
                     helpText={errors.email ? errors.email.message : 'Enter a valid email address'}
+                    successText="Correct format"
                   />
 
                   <Input
@@ -98,7 +116,9 @@ const SignIn = () => {
                     showArrow={false}
                     {...register('password')}
                     error={!!errors.password}
-                    helpText={errors.password ? errors.password.message : 'Enter a valid password'}
+                    isValid={isPasswordValid}
+                    helpText={errors.password ? errors.password.message : 'Enter your password'}
+                    successText=""
                     showForgot={true}
                   />
                 </div>
@@ -106,15 +126,15 @@ const SignIn = () => {
 
               <Button
                 type="submit"
-                className='w-full disabled:cursor-not-allowed'
-                disabled={isSubmitting}
+                className='w-full'
+                disabled={isPending || !isEmailValid || !isPasswordValid}
               >
-                <span>{isSubmitting ? 'Signing in...' : 'Sign In'}</span>
+                <span>{isPending ? 'Signing in' : 'Sign In'}</span>
               </Button>
 
               <a
                 href='https://google.com'
-                className='w-[39px] h-[39px] flex items-center justify-center rounded-full p-[10px] bg-white shadow-buttons'
+                className='w-[39px] h-[39px] flex items-center justify-center rounded-full p-[10px] bg-white shadow-buttons transition-transform hover:scale-105'
               >
                 <img className='object-cover w-5 h-5' src={google} alt="Google Icon"/>
               </a>
