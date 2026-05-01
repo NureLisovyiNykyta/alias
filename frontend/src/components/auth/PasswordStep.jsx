@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "@/components/Input.jsx";
 import { Button } from "@/components/Button.jsx";
 import { useRegisterMutation } from "@/api/auth.js";
+import { useAuth } from "@/contexts/AuthContext.jsx";
 
 const passwordSchema = z.object({
   password: z.string()
@@ -17,12 +18,14 @@ const passwordSchema = z.object({
 });
 
 const PasswordStep = ({ email, username, onSuccess, onBack }) => {
+  const { setTokens } = useAuth();
+
   const {
     register,
     handleSubmit,
     setError,
     control,
-    formState: { errors, dirtyFields }, // Достаем dirtyFields
+    formState: { errors, dirtyFields },
   } = useForm({
     resolver: zodResolver(passwordSchema),
     mode: "onChange"
@@ -35,6 +38,7 @@ const PasswordStep = ({ email, username, onSuccess, onBack }) => {
 
   const { mutate, isPending } = useRegisterMutation({
     onSuccess: (data) => {
+      setTokens(data.access_token, data.refresh_token);
       onSuccess();
     },
     onError: (error) => {

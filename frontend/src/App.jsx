@@ -1,3 +1,4 @@
+// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import MainLayout from '@/components/MainLayout.jsx';
@@ -7,12 +8,17 @@ import PacksGallery from "@/pages/PacksGallery.jsx";
 import ScrollToTop from "@/components/ScrollToTop.jsx";
 import PacksList from "@/pages/PacksList.jsx";
 import SignIn from "@/pages/SignIn.jsx";
-import SignUpFlow from "@/pages/sign-up/SignUpFlow.jsx";
+import SignUp from "@/pages/SignUp.jsx";
+import { useAuth } from '@/contexts/AuthContext.jsx';
 
 const Dashboard = () => <div>Dashboard (Protected)</div>;
 
 function App() {
-  const isAuthenticated = false;
+  const { isAuthenticated, user } = useAuth();
+
+  const isFullyVerified = isAuthenticated && user?.is_email_verified;
+
+  const canAccessAuth = !isAuthenticated || (isAuthenticated && !user?.is_email_verified);
 
   return (
     <BrowserRouter>
@@ -25,14 +31,14 @@ function App() {
           <Route path="/gallery" element={<PacksGallery/>}/>
           <Route path="/packs/:type" element={<PacksList/>}/>
 
-          <Route element={<ProtectedRoute isAllowed={isAuthenticated} redirectTo="/login"/>}>
+          <Route element={<ProtectedRoute isAllowed={isFullyVerified} redirectTo="/auth/sign-in"/>}>
             <Route path="/dashboard" element={<Dashboard/>}/>
           </Route>
         </Route>
 
-        <Route path='/auth' element={<ProtectedRoute isAllowed={!isAuthenticated} redirectTo="/"/>}>
+        <Route path='/auth' element={<ProtectedRoute isAllowed={canAccessAuth} redirectTo="/"/>}>
           <Route path="sign-in" element={<SignIn/>}/>
-          <Route path="sign-up" element={<SignUpFlow/>}/>
+          <Route path="sign-up" element={<SignUp/>}/>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace/>}/>

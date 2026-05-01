@@ -1,59 +1,58 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/axios';
 import Cookies from 'js-cookie';
 
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!Cookies.get('refreshToken') || !!Cookies.get('authToken')
+  );
 
   useEffect(() => {
-    const initAuth = async () => {
-      const hasAuth = Cookies.get('authToken') || Cookies.get('refreshToken');
-
-      if (hasAuth) {
-        try {
-          const response = await api.get('/users/me');
-          setUser(response.data);
-        } catch (error) {
-          console.error('Session has expired', error);
-        }
-      }
-      setIsLoading(false);
+    const checkAuth = () => {
+      const hasToken = !!Cookies.get('refreshToken') || !!Cookies.get('authToken');
+      setIsAuthenticated(hasToken);
     };
 
-    initAuth();
+    const intervalId = setInterval(checkAuth, 1000);
+    return () => clearInterval(intervalId);
   }, []);
 
-  const login = async (email, password) => {
-    try {
-      const response = await api.post('/auth/login', { email, password });
+  const { data: user, isLoading, isError } = useQuery({
+    queryKey: ['user'],
+    queryFn: async () => {
+      const hasToken = !!Cookies.get('refreshToken') || !!Cookies.get('authToken');
+      if (!hasToken) return null;
 
-      const { authToken, refreshToken, user: userData } = response.data;
+      const response = await api.get('/users/me');
+      return response.data;
+    },
+    enabled: isAuthenticated,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
 
-      Cookies.set('authToken', authToken);
-      Cookies.set('refreshToken', refreshToken, { expires: 30 });
-
-      setUser(userData);
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Authentication failed',
-      };
-    }
+  const setTokens = (accessToken, refreshToken) => {
+    Cookies.set('authToken', accessToken);
+    Cookies.set('refreshToken', refreshToken, { expires: 30 });
+    setIsAuthenticated(true);
+    queryClient.invalidateQueries({ queryKey: ['user'] });
   };
 
   const logout = () => {
     Cookies.remove('authToken');
     Cookies.remove('refreshToken');
-    setUser(null);
+    setIsAuthenticated(false);
+    queryClient.setQueryData(['user'], null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
-      {!isLoading && children}
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, setTokens, logout }}>
+      {children}
     </AuthContext.Provider>
   );
 };

@@ -21,6 +21,19 @@ export const verifyEmail = async (data) => {
   return response.data;
 };
 
+export const loginUser = async (credentials) => {
+  const params = new URLSearchParams();
+  params.append('username', credentials.email);
+  params.append('password', credentials.password);
+
+  const response = await api.post('/auth/login', params, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+  return response.data;
+};
+
 export const useCheckUsernameMutation = (options) => {
   return useMutation({
     mutationFn: (username) => checkUsername(username),
@@ -38,6 +51,13 @@ export const useRegisterMutation = (options) => {
 export const useVerifyEmailMutation = (options) => {
   return useMutation({
     mutationFn: (data) => verifyEmail(data),
+    ...options,
+  });
+};
+
+export const useLoginMutation = (options) => {
+  return useMutation({
+    mutationFn: (credentials) => loginUser(credentials),
     ...options,
   });
 };

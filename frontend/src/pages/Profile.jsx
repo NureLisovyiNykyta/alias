@@ -7,6 +7,7 @@ import cross from "@/assets/redCross.svg";
 import Input from "@/components/Input.jsx";
 import { Button } from "@/components/Button.jsx";
 import RowNavigation from "@/components/RowNavigation.jsx";
+import { useAuth } from "@/contexts/AuthContext.jsx";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
@@ -14,6 +15,8 @@ const LINKS = [
 ];
 
 const Profile = () => {
+  const { user } = useAuth();
+
   return (
     <main className="flex flex-col w-full p-5 gap-5">
       <RowNavigation links={LINKS}/>
@@ -49,7 +52,7 @@ const Profile = () => {
               <span className='text-label text-text-label font-noto'>E-mail</span>
               <div className='flex items-center gap-2'>
                 <img src={email} alt=""/>
-                <p className='font-noto text-p'>aleks@alias.com</p>
+                <p className='font-noto text-p'>{user?.email}</p>
               </div>
             </li>
 
@@ -57,7 +60,7 @@ const Profile = () => {
               <span className='text-label text-text-label font-noto'>Username</span>
               <div className='flex items-center gap-2'>
                 <img src={gamepad} alt=""/>
-                <p className='font-noto text-p'>sakuramai</p>
+                <p className='font-noto text-p'>{user?.username}</p>
               </div>
             </li>
           </ul>
