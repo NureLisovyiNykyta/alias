@@ -10,6 +10,7 @@ import PacksList from "@/pages/PacksList.jsx";
 import SignIn from "@/pages/SignIn.jsx";
 import SignUp from "@/pages/SignUp.jsx";
 import { useAuth } from '@/contexts/AuthContext.jsx';
+import GoogleSignUp from "@/pages/GoogleSignUp.jsx";
 
 const Dashboard = () => <div>Dashboard (Protected)</div>;
 
@@ -39,6 +40,7 @@ function App() {
         <Route path='/auth' element={<ProtectedRoute isAllowed={canAccessAuth} redirectTo="/"/>}>
           <Route path="sign-in" element={<SignIn/>}/>
           <Route path="sign-up" element={<SignUp/>}/>
+          <Route path="google-sign-up" element={<GoogleSignUp/>}/>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace/>}/>

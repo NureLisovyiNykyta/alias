@@ -68,11 +68,11 @@ api.interceptors.response.use(
 
       try {
         const response = await axios.post(`${BASE_URL}/auth/refresh`, {
-          refreshToken: refreshToken
+          refresh_token: refreshToken
         });
 
-        const newAuthToken = response.data.authToken;
-        const newRefreshToken = response.data.refreshToken || refreshToken;
+        const newAuthToken = response.data.access_token;
+        const newRefreshToken = response.data.refresh_token || refreshToken;
 
         Cookies.set('authToken', newAuthToken);
         Cookies.set('refreshToken', newRefreshToken, { expires: 30 });
