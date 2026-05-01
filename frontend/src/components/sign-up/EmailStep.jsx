@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -15,10 +15,17 @@ const EmailStep = ({ initialData = "", onSuccess }) => {
     register,
     handleSubmit,
     setError,
-    formState: { errors },
+    control,
+    formState: { errors, dirtyFields },
   } = useForm({
     resolver: zodResolver(emailSchema),
     defaultValues: { email: initialData },
+    mode: "onChange"
+  });
+
+  const currentEmail = useWatch({
+    control,
+    name: "email",
   });
 
   const mutation = useMutation({
@@ -36,6 +43,8 @@ const EmailStep = ({ initialData = "", onSuccess }) => {
     mutation.mutate(data.email);
   };
 
+  const isEmailValid = !!currentEmail && currentEmail.length > 0 && !errors.email;
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -49,7 +58,9 @@ const EmailStep = ({ initialData = "", onSuccess }) => {
           showArrow={false}
           {...register("email")}
           error={!!errors.email}
+          isValid={isEmailValid}
           helpText={errors.email ? errors.email.message : "Enter a valid email address"}
+          successText="Correct format"
           wide={true}
         />
       </div>
@@ -57,10 +68,9 @@ const EmailStep = ({ initialData = "", onSuccess }) => {
       <div className="w-full flex justify-end">
         <Button
           type="submit"
-          disabled={mutation.isPending}
-          className="disabled:cursor-not-allowed"
+          disabled={mutation.isPending || !isEmailValid}
         >
-          {mutation.isPending ? "Checking" : "Next step"}
+          {mutation.isPending ? "Checking" : "Check"}
         </Button>
       </div>
     </form>

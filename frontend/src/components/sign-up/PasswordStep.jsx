@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "@/components/Input.jsx";
@@ -21,9 +21,16 @@ const PasswordStep = ({ email, username, onSuccess, onBack }) => {
     register,
     handleSubmit,
     setError,
-    formState: { errors },
+    control,
+    formState: { errors, dirtyFields }, // Достаем dirtyFields
   } = useForm({
     resolver: zodResolver(passwordSchema),
+    mode: "onChange"
+  });
+
+  const [currentPassword, currentConfirm] = useWatch({
+    control,
+    name: ["password", "confirmPassword"],
   });
 
   const { mutate, isPending } = useRegisterMutation({
@@ -32,6 +39,7 @@ const PasswordStep = ({ email, username, onSuccess, onBack }) => {
     },
     onError: (error) => {
       const errorMessage = error.response?.data?.message || "Registration failed. Please try again.";
+      setError("password", { type: "server", message: errorMessage });
       setError("confirmPassword", { type: "server", message: errorMessage });
     },
   });
@@ -43,6 +51,9 @@ const PasswordStep = ({ email, username, onSuccess, onBack }) => {
       password: data.password,
     });
   };
+
+  const isPasswordValid = !!currentPassword && currentPassword.length > 0 && !errors.password;
+  const isConfirmPasswordValid = !!currentConfirm && currentConfirm.length > 0 && !errors.confirmPassword;
 
   return (
     <form
@@ -58,7 +69,9 @@ const PasswordStep = ({ email, username, onSuccess, onBack }) => {
           showArrow={false}
           {...register("password")}
           error={!!errors.password}
+          isValid={isPasswordValid}
           helpText={errors.password ? errors.password.message : "Enter a valid password"}
+          successText="Correct format"
           wide={true}
         />
 
@@ -70,7 +83,9 @@ const PasswordStep = ({ email, username, onSuccess, onBack }) => {
           showArrow={false}
           {...register("confirmPassword")}
           error={!!errors.confirmPassword}
-          helpText={errors.confirmPassword ? errors.confirmPassword.message : "Enter a valid password"}
+          isValid={isConfirmPasswordValid}
+          helpText={errors.confirmPassword ? errors.confirmPassword.message : "Confirm your password"}
+          successText="Passwords match"
           wide={true}
         />
       </div>
@@ -86,8 +101,7 @@ const PasswordStep = ({ email, username, onSuccess, onBack }) => {
 
         <Button
           type="submit"
-          disabled={isPending}
-          className="disabled:cursor-not-allowed"
+          disabled={isPending || !isPasswordValid || !isConfirmPasswordValid}
         >
           {isPending ? "Signing Up" : "Sign Up"}
         </Button>

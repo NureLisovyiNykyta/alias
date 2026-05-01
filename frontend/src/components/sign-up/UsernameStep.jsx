@@ -1,9 +1,9 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "@/components/Input.jsx";
 import { Button } from "@/components/Button.jsx";
-import { useCheckUsernameMutation } from "@/api/auth.js";
+import { useCheckUsernameMutation, useRegisterMutation } from "@/api/auth.js";
 
 const usernameSchema = z.object({
   username: z.string()
@@ -17,10 +17,17 @@ const UsernameStep = ({ initialData = "", onSuccess, onBack }) => {
     register,
     handleSubmit,
     setError,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(usernameSchema),
     defaultValues: { username: initialData },
+    mode: "onChange"
+  });
+
+  const currentUsername = useWatch({
+    control,
+    name: "username",
   });
 
   const { mutate, isPending } = useCheckUsernameMutation({
@@ -37,6 +44,8 @@ const UsernameStep = ({ initialData = "", onSuccess, onBack }) => {
     mutate(data.username);
   };
 
+  const isUsernameValid = !!currentUsername && currentUsername.length > 0 && !errors.username;
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -50,7 +59,9 @@ const UsernameStep = ({ initialData = "", onSuccess, onBack }) => {
           showArrow={false}
           {...register("username")}
           error={!!errors.username}
+          isValid={isUsernameValid}
           helpText={errors.username ? errors.username.message : "Enter a valid username"}
+          successText="Correct format"
           wide={true}
         />
       </div>
@@ -66,10 +77,9 @@ const UsernameStep = ({ initialData = "", onSuccess, onBack }) => {
 
         <Button
           type="submit"
-          disabled={isPending}
-          className="disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isPending || !isUsernameValid}
         >
-          {isPending ? "Checking" : "Next step"}
+          {isPending ? "Checking" : "Check"}
         </Button>
       </div>
     </form>
