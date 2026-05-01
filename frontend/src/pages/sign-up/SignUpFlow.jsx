@@ -3,6 +3,7 @@ import AuthLayout from "@/components/AuthLayout.jsx";
 import EmailStep from "@/components/sign-up/EmailStep.jsx";
 import UsernameStep from "@/components/sign-up/UsernameStep.jsx";
 import PasswordStep from "@/components/sign-up/PasswordStep.jsx";
+import VerificationStep from "@/components/sign-up/VerificationStep.jsx";
 
 const SignUpFlow = () => {
   const [formData, setFormData] = useState({
@@ -21,12 +22,14 @@ const SignUpFlow = () => {
     1: 'Enter your email',
     2: "Choose a username",
     3: "Create a password",
+    4: "Verify your email",
   };
 
   const subtitles = {
     1: "This will be used to secure your account and future logins.",
     2: "Your unique identity on the platform. You can always change this later.",
     3: "Make sure it's strong and secure to keep your account safe.",
+    4: "We've sent a 6-digit code to your inbox. Enter it below to continue.",
   };
 
   const handleStepSuccess = (stepData) => {
@@ -66,6 +69,13 @@ const SignUpFlow = () => {
         <PasswordStep
           email={formData.email}
           username={formData.username}
+          onSuccess={handleStepSuccess}
+          onBack={handleBack}
+        />
+      )}
+
+      {currentStep === 4 && (
+        <VerificationStep
           onSuccess={handleStepSuccess}
           onBack={handleBack}
         />

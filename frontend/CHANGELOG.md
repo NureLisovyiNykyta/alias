@@ -70,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-04-21
 
 ### Added
-- Created a standalone `CodeInput` component for game code entry and registration flow.
+- Created a standalone `VerificationCodeInput` component for game code entry and registration flow.
 - Implemented a `DiscordLink` component to promote community engagement.
 - Added "Copy to Clipboard" functionality for the Discord invitation link.
 - Integrated the new semantic UI blocks into the primary landing page layout.

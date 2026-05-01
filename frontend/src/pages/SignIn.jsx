@@ -99,7 +99,7 @@ const SignIn = () => {
                     {...register('password')}
                     error={!!errors.password}
                     helpText={errors.password ? errors.password.message : 'Enter a valid password'}
-                    isLogin={true}
+                    showForgot={true}
                   />
                 </div>
               </div>

@@ -16,6 +16,11 @@ export const registerUser = async (userData) => {
   return response.data;
 };
 
+export const verifyEmail = async (data) => {
+  const response = await api.post('/auth/verify-email', data);
+  return response.data;
+};
+
 export const useCheckUsernameMutation = (options) => {
   return useMutation({
     mutationFn: (username) => checkUsername(username),
@@ -26,6 +31,13 @@ export const useCheckUsernameMutation = (options) => {
 export const useRegisterMutation = (options) => {
   return useMutation({
     mutationFn: (userData) => registerUser(userData),
+    ...options,
+  });
+};
+
+export const useVerifyEmailMutation = (options) => {
+  return useMutation({
+    mutationFn: (data) => verifyEmail(data),
     ...options,
   });
 };
