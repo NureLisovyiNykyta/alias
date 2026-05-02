@@ -18,6 +18,7 @@ from app.services.card_pack import (
     get_pack_by_id,
     get_public_packs,
     get_saved_packs,
+    publish_pack,
     restore_pack,
     set_card_pack_rating,
     toggle_save_card_pack,
@@ -44,6 +45,15 @@ async def update_pack(
     db: AsyncSession = Depends(get_db),
 ) -> CardPack:
     return await update_card_pack(db, current_user.id, pack_id, body)
+
+
+@router.post("/{pack_id}/publish", response_model=CardPackReadDetailed)
+async def publish_pack_route(
+    pack_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> CardPack:
+    return await publish_pack(db, current_user.id, pack_id)
 
 
 @router.post("/{pack_id}/activate", response_model=CardPackRead)

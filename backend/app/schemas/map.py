@@ -8,13 +8,11 @@ from app.schemas.user import UserPublicRead
 
 class MapCreate(BaseModel):
     name: str
-    is_public: bool
     template_id: uuid.UUID
 
 
 class MapUpdate(BaseModel):
     name: str | None = None
-    is_public: bool | None = None
 
 
 class MapRatingInput(BaseModel):

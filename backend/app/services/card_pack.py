@@ -58,7 +58,7 @@ async def create_card_pack(
         id=uuid.uuid4(),
         name=data.name,
         description=data.description,
-        is_public=data.is_public,
+        is_public=False,
         type_id=data.type_id,
         author_id=author_id,
         status=StatusEnum.DRAFT.value,
@@ -87,6 +87,36 @@ async def update_card_pack(
     await db.commit()
     await db.refresh(pack)
     return pack
+
+
+async def publish_pack(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    pack_id: uuid.UUID,
+) -> CardPack:
+    pack = await _get_pack_or_404(db, pack_id)
+
+    if pack.author_id != user_id:
+        raise ForbiddenError()
+
+    if pack.deleted_at is not None:
+        raise NotFoundError(ErrorMessage.CARD_PACK_NOT_FOUND)
+
+    if pack.is_public:
+        raise BadRequestError(ErrorMessage.CARD_PACK_ALREADY_PUBLISHED)
+
+    if pack.status != StatusEnum.ACTIVE.value:
+        raise BadRequestError(ErrorMessage.CARD_PACK_NOT_ACTIVE_FOR_PUBLISH)
+
+    pack.is_public = True
+    await db.commit()
+
+    result = await db.execute(
+        select(CardPack)
+        .options(joinedload(CardPack.author), joinedload(CardPack.type))
+        .where(CardPack.id == pack_id)
+    )
+    return result.scalar_one()
 
 
 async def activate_card_pack(

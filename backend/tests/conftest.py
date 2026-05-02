@@ -283,7 +283,7 @@ async def small_map(test_db: AsyncSession, small_map_template: MapTemplate, test
     map_obj = Map(
         id=uuid.uuid4(),
         name="Small Map",
-        is_public=True,
+        is_public=False,
         template_id=small_map_template.id,
         author_id=test_user.id,
         status=StatusEnum.DRAFT.value,

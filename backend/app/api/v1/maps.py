@@ -19,6 +19,7 @@ from app.services.map import (
     get_my_maps,
     get_public_maps,
     get_saved_maps,
+    publish_map,
     restore_map,
     set_map_rating,
     toggle_save_map,
@@ -45,6 +46,15 @@ async def update_map_route(
     db: AsyncSession = Depends(get_db),
 ) -> Map:
     return await update_map(db, current_user.id, map_id, body)
+
+
+@router.post("/{map_id}/publish", response_model=MapReadDetailed)
+async def publish_map_route(
+    map_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Map:
+    return await publish_map(db, current_user.id, map_id)
 
 
 @router.post("/{map_id}/activate", response_model=MapRead)

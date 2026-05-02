@@ -69,17 +69,24 @@ async def sync_map_fields(
 
     incoming_pack_ids = {f.card_pack_id for f in data.fields if f.card_pack_id is not None}
     if incoming_pack_ids:
+        if map_obj.is_public:
+            visibility_condition = CardPack.is_public.is_(True)
+            error = ErrorMessage.MAP_FIELD_PUBLIC_MAP_PRIVATE_PACK
+        else:
+            visibility_condition = (CardPack.is_public.is_(True)) | (CardPack.author_id == user_id)
+            error = ErrorMessage.MAP_FIELD_INACCESSIBLE_CARD_PACK
+
         accessible = (
             await db.execute(
                 select(CardPack.id).where(
                     CardPack.id.in_(incoming_pack_ids),
                     CardPack.deleted_at.is_(None),
-                    (CardPack.is_public.is_(True)) | (CardPack.author_id == user_id),
+                    visibility_condition,
                 )
             )
         ).scalars().all()
         if len(set(accessible)) != len(incoming_pack_ids):
-            raise BadRequestError(ErrorMessage.MAP_FIELD_INACCESSIBLE_CARD_PACK)
+            raise BadRequestError(error)
 
     existing_fields = (
         await db.execute(select(MapField).where(MapField.map_id == map_id))

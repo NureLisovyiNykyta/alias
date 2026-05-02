@@ -283,3 +283,90 @@ class TestMapFieldsIDOR:
         pack_ids = {f["card_pack_id"] for f in fields}
         assert str(public_foreign_pack.id) in pack_ids
         assert str(own_pack.id) in pack_ids
+
+
+class TestCascadingVisibilitySync:
+    async def test_sync_fields_public_map_private_pack_fail(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        small_map_template: MapTemplate,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """Adding own private pack to a public map is forbidden."""
+        map_obj = Map(
+            id=uuid.uuid4(),
+            name="Public Map For Sync",
+            is_public=True,
+            template_id=small_map_template.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(map_obj)
+        private_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Own Private Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(private_pack)
+        await test_db.flush()
+
+        response = await client.put(
+            f"/api/maps/{map_obj.id}/fields",
+            json={"fields": [{**_FIELD_0, "card_pack_id": str(private_pack.id)}]},
+            headers=auth_headers,
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.MAP_FIELD_PUBLIC_MAP_PRIVATE_PACK
+
+    async def test_sync_fields_private_map_own_private_pack_success(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        small_map: dict,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """Own private pack can be added to a private map."""
+        own_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Own Private Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(own_pack)
+        await test_db.flush()
+
+        response = await client.put(
+            f"/api/maps/{small_map['id']}/fields",
+            json={"fields": [{**_FIELD_0, "card_pack_id": str(own_pack.id)}]},
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+        assert response.json()[0]["card_pack_id"] == str(own_pack.id)
+
+    async def test_sync_fields_private_map_others_private_pack_fail(
+        self,
+        client: AsyncClient,
+        small_map: dict,
+        test_pack_second_user: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """Another user's private pack cannot be added to any map."""
+        response = await client.put(
+            f"/api/maps/{small_map['id']}/fields",
+            json={"fields": [{**_FIELD_0, "card_pack_id": test_pack_second_user["id"]}]},
+            headers=auth_headers,
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.MAP_FIELD_INACCESSIBLE_CARD_PACK

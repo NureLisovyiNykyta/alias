@@ -4,6 +4,7 @@ from enum import StrEnum
 
 class ErrorMessage(StrEnum):
     EMAIL_TAKEN = "Email is already taken"
+    EMAIL_DOMAIN_INVALID = "Email domain does not exist"
     USERNAME_TAKEN = "Username is already taken"
 
     INVALID_CREDENTIALS = "Invalid email or password"
@@ -44,8 +45,16 @@ class ErrorMessage(StrEnum):
 
     MAP_ALREADY_DELETED = "Map is already in the trash."
     MAP_NOT_IN_TRASH = "Map is not in the trash."
+    MAP_ALREADY_PUBLISHED = "Map is already published."
+    MAP_NOT_ACTIVE_FOR_PUBLISH = "Only active maps can be published."
+    MAP_PUBLISH_PRIVATE_PACKS = "The map contains private card packs. Publish them first."
+
     CARD_PACK_ALREADY_DELETED = "Card pack is already in the trash."
     CARD_PACK_NOT_IN_TRASH = "Card pack is not in the trash."
+    CARD_PACK_ALREADY_PUBLISHED = "Card pack is already published."
+    CARD_PACK_NOT_ACTIVE_FOR_PUBLISH = "Only active card packs can be published."
+
+    MAP_FIELD_PUBLIC_MAP_PRIVATE_PACK = "Cannot add private card packs to a public map."
 
     ACCOUNT_DELETED = "This account has been deleted"
 

@@ -1,6 +1,8 @@
+import asyncio
 import datetime
 import uuid
 
+import dns.resolver
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +12,14 @@ from app.core.security import generate_verification_code, get_password_hash, ver
 from app.models.card import CardPack
 from app.models.map import Map
 from app.models.user import User
+
+
+async def check_email_domain_mx(email: str) -> None:
+    domain = email.split("@")[1]
+    try:
+        await asyncio.to_thread(dns.resolver.resolve, domain, "MX")
+    except Exception:
+        raise BadRequestError(ErrorMessage.EMAIL_DOMAIN_INVALID)
 
 
 async def check_email_unique(db: AsyncSession, email: str) -> None:

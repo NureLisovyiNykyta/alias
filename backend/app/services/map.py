@@ -8,7 +8,8 @@ from sqlalchemy.orm import joinedload
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
 from app.models.enums import StatusEnum
-from app.models.map import Map, MapRating, MapTemplate, SavedMap
+from app.models.card import CardPack
+from app.models.map import Map, MapField, MapRating, MapTemplate, SavedMap
 from app.schemas.card_pack import SortOrder
 from app.schemas.map import MapCreate, MapUpdate
 from app.services.map_field import validate_map_for_activation
@@ -58,7 +59,7 @@ async def create_map(
     map_obj = Map(
         id=uuid.uuid4(),
         name=data.name,
-        is_public=data.is_public,
+        is_public=False,
         template_id=data.template_id,
         author_id=author_id,
         status=StatusEnum.DRAFT.value,
@@ -86,6 +87,52 @@ async def update_map(
     await db.commit()
     await db.refresh(map_obj)
     return map_obj
+
+
+async def publish_map(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    map_id: uuid.UUID,
+) -> Map:
+    map_obj = await _get_map_or_404(db, map_id)
+
+    if map_obj.author_id != user_id:
+        raise ForbiddenError()
+
+    if map_obj.deleted_at is not None:
+        raise NotFoundError(ErrorMessage.MAP_NOT_FOUND)
+
+    if map_obj.is_public:
+        raise BadRequestError(ErrorMessage.MAP_ALREADY_PUBLISHED)
+
+    if map_obj.status != StatusEnum.ACTIVE.value:
+        raise BadRequestError(ErrorMessage.MAP_NOT_ACTIVE_FOR_PUBLISH)
+
+    private_pack_exists = (
+        await db.execute(
+            select(MapField.id)
+            .join(CardPack, CardPack.id == MapField.card_pack_id)
+            .where(
+                MapField.map_id == map_id,
+                MapField.card_pack_id.is_not(None),
+                CardPack.is_public.is_(False),
+            )
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+
+    if private_pack_exists is not None:
+        raise BadRequestError(ErrorMessage.MAP_PUBLISH_PRIVATE_PACKS)
+
+    map_obj.is_public = True
+    await db.commit()
+
+    result = await db.execute(
+        select(Map)
+        .options(joinedload(Map.author), joinedload(Map.template))
+        .where(Map.id == map_id)
+    )
+    return result.scalar_one()
 
 
 async def activate_map(

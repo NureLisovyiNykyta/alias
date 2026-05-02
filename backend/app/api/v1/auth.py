@@ -30,6 +30,7 @@ from app.services.auth import (
 )
 from app.services.email import send_code_email
 from app.services.user import (
+    check_email_domain_mx,
     check_email_unique,
     check_username_unique,
     create_user,
@@ -41,6 +42,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/check-email", response_model=StatusResponse)
 async def check_email(body: EmailCheck, db: AsyncSession = Depends(get_db)) -> StatusResponse:
+    await check_email_domain_mx(body.email)
     await check_email_unique(db, body.email)
     return StatusResponse()
 
