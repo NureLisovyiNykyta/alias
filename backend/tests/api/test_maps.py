@@ -6,8 +6,9 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.messages import ErrorMessage
+from app.models.card import CardPack, CardType
 from app.models.enums import StatusEnum
-from app.models.map import Map, MapTemplate
+from app.models.map import Map, MapField, MapTemplate
 from app.models.user import User
 from tests.conftest import MAP_FIELD_0, MAP_FIELD_1
 
@@ -24,7 +25,6 @@ class TestMaps:
             "/api/maps/",
             json={
                 "name": "My Map",
-                "is_public": True,
                 "template_id": str(test_map_template.id),
             },
             headers=auth_headers,
@@ -175,6 +175,110 @@ class TestMaps:
         response = await client.get("/api/maps/public")
         assert response.status_code == 200
         assert str(map_obj.id) in [item["id"] for item in response.json()["items"]]
+
+
+class TestPublishMap:
+    async def test_publish_map_success(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_map_template: MapTemplate,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """ACTIVE private map with only public packs in fields publishes successfully."""
+        public_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Public Pack For Map",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(public_pack)
+
+        map_obj = Map(
+            id=uuid.uuid4(),
+            name="Map To Publish",
+            is_public=False,
+            template_id=test_map_template.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(map_obj)
+        test_db.add(MapField(map_id=map_obj.id, position_index=0, time_limit=60, award=1, penalty=1, card_pack_id=public_pack.id))
+        await test_db.flush()
+
+        response = await client.post(f"/api/maps/{map_obj.id}/publish", headers=auth_headers)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["is_public"] is True
+        assert "author" in data
+        assert "template" in data
+
+    async def test_publish_map_with_private_packs_fail(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_map_template: MapTemplate,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """ACTIVE private map with a private pack in fields cannot be published."""
+        private_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Private Pack In Map",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(private_pack)
+
+        map_obj = Map(
+            id=uuid.uuid4(),
+            name="Map With Private Pack",
+            is_public=False,
+            template_id=test_map_template.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(map_obj)
+        test_db.add(MapField(map_id=map_obj.id, position_index=0, time_limit=60, award=1, penalty=1, card_pack_id=private_pack.id))
+        await test_db.flush()
+
+        response = await client.post(f"/api/maps/{map_obj.id}/publish", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.MAP_PUBLISH_PRIVATE_PACKS
+
+    async def test_publish_map_draft_fail(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_map_template: MapTemplate,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """DRAFT map cannot be published."""
+        map_obj = Map(
+            id=uuid.uuid4(),
+            name="Draft Map",
+            is_public=False,
+            template_id=test_map_template.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(map_obj)
+        await test_db.flush()
+
+        response = await client.post(f"/api/maps/{map_obj.id}/publish", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.MAP_NOT_ACTIVE_FOR_PUBLISH
 
 
 class TestSavedMaps:

@@ -16,14 +16,12 @@ class SortOrder(str, enum.Enum):
 class CardPackCreate(BaseModel):
     name: str
     description: str
-    is_public: bool
     type_id: uuid.UUID
 
 
 class CardPackUpdate(BaseModel):
     name: str | None = None
     description: str | None = None
-    is_public: bool | None = None
 
 
 class CardPackRatingInput(BaseModel):

@@ -26,7 +26,6 @@ class TestCardPacks:
             json={
                 "name": "My Pack",
                 "description": "Pack description",
-                "is_public": True,
                 "type_id": str(test_card_type.id),
             },
             headers=auth_headers,
@@ -353,6 +352,83 @@ class TestSoftDeleteCardPack:
         ids = [item["id"] for item in response.json()["items"]]
         assert str(deleted_pack.id) in ids
         assert created_pack["id"] not in ids
+
+
+class TestPublishCardPack:
+    async def test_publish_pack_success(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Active Private Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.post(f"/api/card-packs/{pack.id}/publish", headers=auth_headers)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["is_public"] is True
+        assert "author" in data
+        assert "card_type" in data
+
+    async def test_publish_pack_draft_fail(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Draft Private Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.post(f"/api/card-packs/{pack.id}/publish", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_NOT_ACTIVE_FOR_PUBLISH
+
+    async def test_publish_pack_already_published(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Already Public Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.post(f"/api/card-packs/{pack.id}/publish", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_ALREADY_PUBLISHED
 
 
 class TestDetailedCardPackView:

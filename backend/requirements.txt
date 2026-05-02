@@ -13,6 +13,7 @@ pytest~=9.0.3
 pytest-asyncio~=1.3.0
 fastapi-mail~=1.6.2
 google-auth~=2.49.2
+dnspython~=2.8.0
 requests~=2.33.1
 python-multipart~=0.0.26
 jsonschema~=4.26.0
