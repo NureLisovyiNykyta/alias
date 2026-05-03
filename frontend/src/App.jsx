@@ -6,12 +6,20 @@ import Profile from "@/pages/Profile.jsx";
 import PacksGallery from "@/pages/PacksGallery.jsx";
 import ScrollToTop from "@/components/ScrollToTop.jsx";
 import PacksList from "@/pages/PacksList.jsx";
+import SignIn from "@/pages/SignIn.jsx";
+import SignUp from "@/pages/SignUp.jsx";
+import { useAuth } from '@/contexts/AuthContext.jsx';
+import GoogleSignUp from "@/pages/GoogleSignUp.jsx";
+import ForgotPassword from "@/pages/ForgotPassword.jsx";
 
-const Login = () => <div>Login Page</div>;
 const Dashboard = () => <div>Dashboard (Protected)</div>;
 
 function App() {
-  const isAuthenticated = false;
+  const { isAuthenticated, user } = useAuth();
+
+  const isFullyVerified = isAuthenticated && user?.is_email_verified;
+
+  const canAccessAuth = !isAuthenticated || (isAuthenticated && !user?.is_email_verified);
 
   return (
     <BrowserRouter>
@@ -20,17 +28,20 @@ function App() {
         <Route element={<MainLayout/>}>
           <Route path="/" element={<Landing/>}/>
 
-          <Route element={<ProtectedRoute isAllowed={!isAuthenticated} redirectTo="/dashboard"/>}>
-            <Route path="/login" element={<Login/>}/>
-          </Route>
-
           <Route path="/profile" element={<Profile/>}/>
           <Route path="/gallery" element={<PacksGallery/>}/>
           <Route path="/packs/:type" element={<PacksList/>}/>
 
-          <Route element={<ProtectedRoute isAllowed={isAuthenticated} redirectTo="/login"/>}>
+          <Route element={<ProtectedRoute isAllowed={isFullyVerified} redirectTo="/auth/sign-in"/>}>
             <Route path="/dashboard" element={<Dashboard/>}/>
           </Route>
+        </Route>
+
+        <Route path='/auth' element={<ProtectedRoute isAllowed={canAccessAuth} redirectTo="/"/>}>
+          <Route path="sign-in" element={<SignIn/>}/>
+          <Route path="sign-up" element={<SignUp/>}/>
+          <Route path="google-sign-up" element={<GoogleSignUp/>}/>
+          <Route path="forgot-password" element={<ForgotPassword/>}/>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace/>}/>

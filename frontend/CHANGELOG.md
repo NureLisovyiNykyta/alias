@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-05-03
+
+### Added
+- Implemented a multi-step **Forgot Password** flow (`ForgotPassword.jsx`) encompassing email request, new password creation, and verification code submission.
+- Created `ResetPasswordStep.jsx` to handle the specific logic and UI for entering and confirming a new password during the recovery process.
+- Updated `EmailStep` and `VerificationStep` components with `customSubmit` and `isExternalPending` props to support reusability across both Sign Up and Forgot Password flows.
+- Added API integration for `/auth/forgot-password` and `/auth/reset-password` endpoints.
+
+### Changed
+- Refactored `SignIn.jsx` to use the official `<GoogleLogin>` component from `@react-oauth/google` to properly retrieve a JWT `id_token` (credential) as required by the backend, replacing the custom button implementation.
+
+### Fixed
+- Resolved a race condition in `App.jsx` causing premature redirects by introducing an `isCheckingAuth` state to temporarily suspend routing decisions while user data is being fetched.
+- Ensured a stable and fully functional Google OAuth authentication process.
+
+## [0.6.2] - 2026-05-01
+
+### Added
+- Integrated `@react-oauth/google` for seamless Google Single Sign-On (SSO) authentication.
+- Implemented `GoogleSignUpFlow` (`GoogleSignUp.jsx`) to handle registration for new users authenticating via Google, bypassing email verification steps.
+- Created `GooglePasswordStep` component to specifically handle password creation and final registration submission using the Google token.
+- Configured API hooks (`useGoogleLoginMutation`, `useGoogleRegisterMutation`) to communicate with the respective backend Google authentication endpoints.
+
+## [0.6.1] - 2026-05-01
+
+### Added
+- Implemented **Step 4 (Email Verification)** in the Sign Up flow (`VerificationStep.jsx`) to handle 6-digit OTP codes.
+- Added visual success indicators (green borders and specific success messages) for all input fields across the Sign Up wizard upon valid `react-hook-form` validation.
+- Displayed real user data (email, username) dynamically in the `Profile` and `ProfileSettings` components using the updated `AuthContext`.
+
+### Changed
+- Refactored `AuthContext` to use a cookie-based `isAuthenticated` state (`refreshToken`), eliminating UI blocking while waiting for `/users/me` requests.
+- Updated the `SignIn` page to utilize `react-query` (`useLoginMutation`) and URL-encoded form data submissions as required by the backend API.
+- Integrated programmatic token storage (`setTokens`) into the Sign In and Sign Up (Step 3) processes to maintain session persistence.
+
+## [0.6.0] - 2026-04-30
+
+### Added
+- Implemented a multi-step **Sign Up** flow (`SignUp.jsx`) using a Stateful Wizard pattern with a reusable `AuthLayout` wrapper for progress tracking.
+- Added dedicated UI components for registration stages: `EmailStep`, `UsernameStep`, and `PasswordStep`, featuring independent `react-hook-form` and `zod` validation.
+- Integrated `@tanstack/react-query` to handle API requests (`/auth/check-email`, `/auth/check-username`, `/auth/register`) as separate mutations for each registration step.
+
+## [0.5.1] - 2026-04-30
+
+### Added
+- Integrated `react-hook-form` and `zod` for robust client-side form validation on the **Sign In** page.
+- Implemented dynamic error handling within the reusable `Input` component, visually indicating validation failures (red borders and error text).
+- Added submitting state management to the login form, disabling the submit button during API calls to prevent duplicate requests.
+- Resolved an issue with the "Show Password" toggle functionality in the `Input` component by correctly managing the DOM input type via local component state.
+- Applied CSS workarounds to neutralize native browser autofill background colors, maintaining design consistency across Chromium-based browsers.
+
+## [0.5.0] - 2026-04-30
+
+### Added
+- Implemented the **Sign In** UI page (`SignIn.jsx`) featuring a stylized two-column layout with a branded visual panel, email/password input fields, and a Google SSO placeholder.
+- Added the **Profile Settings** modal (`ProfileSettings.jsx`) accessible directly from the global application Header.
+- Integrated `@headlessui/react` to handle the Profile Settings dropdown, utilizing the `Popover` and `Transition` components for accessible, animated opening/closing behaviors and proper routing interception.
+
 ## [0.4.0] - 2026-04-22
 
 ### Added
@@ -47,7 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-04-21
 
 ### Added
-- Created a standalone `CodeInput` component for game code entry and registration flow.
+- Created a standalone `VerificationCodeInput` component for game code entry and registration flow.
 - Implemented a `DiscordLink` component to promote community engagement.
 - Added "Copy to Clipboard" functionality for the Discord invitation link.
 - Integrated the new semantic UI blocks into the primary landing page layout.
