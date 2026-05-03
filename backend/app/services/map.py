@@ -385,3 +385,8 @@ async def get_saved_maps(
     ).scalars().all()
 
     return list(items), total
+
+
+async def get_all_map_templates(db: AsyncSession) -> list[MapTemplate]:
+    result = await db.execute(select(MapTemplate).order_by(MapTemplate.name))
+    return list(result.scalars().all())

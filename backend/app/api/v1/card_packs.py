@@ -8,11 +8,12 @@ from app.models.card import CardPack
 from app.models.enums import StatusEnum
 from app.models.user import User
 from app.schemas.base import PaginatedResponse
-from app.schemas.card_pack import CardPackCreate, CardPackRatingInput, CardPackRead, CardPackReadDetailed, CardPackUpdate, SortOrder
+from app.schemas.card_pack import CardPackCreate, CardPackRatingInput, CardPackRead, CardPackReadDetailed, CardPackUpdate, CardTypeRead, SortOrder
 from app.services.card_pack import (
     activate_card_pack,
     create_card_pack,
     delete_pack,
+    get_all_card_types,
     get_deleted_packs,
     get_my_packs,
     get_pack_by_id,
@@ -26,6 +27,14 @@ from app.services.card_pack import (
 )
 
 router = APIRouter(prefix="/api/card-packs", tags=["card-packs"])
+
+
+@router.get("/types", response_model=list[CardTypeRead])
+async def list_card_types(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list:
+    return await get_all_card_types(db)
 
 
 @router.post("/", response_model=CardPackRead)
