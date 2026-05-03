@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }) => {
     Cookies.remove('refreshToken');
     setIsAuthenticated(false);
     queryClient.setQueryData(['user'], null);
+    window.location.href = '/';
   };
 
   return (

@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-05-03
+
+### Added
+- Implemented a multi-step **Forgot Password** flow (`ForgotPassword.jsx`) encompassing email request, new password creation, and verification code submission.
+- Created `ResetPasswordStep.jsx` to handle the specific logic and UI for entering and confirming a new password during the recovery process.
+- Updated `EmailStep` and `VerificationStep` components with `customSubmit` and `isExternalPending` props to support reusability across both Sign Up and Forgot Password flows.
+- Added API integration for `/auth/forgot-password` and `/auth/reset-password` endpoints.
+
+### Changed
+- Refactored `SignIn.jsx` to use the official `<GoogleLogin>` component from `@react-oauth/google` to properly retrieve a JWT `id_token` (credential) as required by the backend, replacing the custom button implementation.
+
+### Fixed
+- Resolved a race condition in `App.jsx` causing premature redirects by introducing an `isCheckingAuth` state to temporarily suspend routing decisions while user data is being fetched.
+- Ensured a stable and fully functional Google OAuth authentication process.
+
 ## [0.6.2] - 2026-05-01
 
 ### Added

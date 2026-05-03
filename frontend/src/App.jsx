@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import MainLayout from '@/components/MainLayout.jsx';
@@ -11,6 +10,7 @@ import SignIn from "@/pages/SignIn.jsx";
 import SignUp from "@/pages/SignUp.jsx";
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import GoogleSignUp from "@/pages/GoogleSignUp.jsx";
+import ForgotPassword from "@/pages/ForgotPassword.jsx";
 
 const Dashboard = () => <div>Dashboard (Protected)</div>;
 
@@ -41,6 +41,7 @@ function App() {
           <Route path="sign-in" element={<SignIn/>}/>
           <Route path="sign-up" element={<SignUp/>}/>
           <Route path="google-sign-up" element={<GoogleSignUp/>}/>
+          <Route path="forgot-password" element={<ForgotPassword/>}/>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace/>}/>

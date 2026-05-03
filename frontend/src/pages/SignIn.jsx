@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGoogleLoginMutation, useLoginMutation } from "@/api/auth.js";
 import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
@@ -44,7 +45,7 @@ const SignIn = () => {
   const loginMutation = useLoginMutation({
     onSuccess: (data) => {
       setTokens(data.access_token, data.refresh_token);
-      navigate('/dashboard');
+      navigate('/');
     },
     onError: (error) => {
       const errorMessage = error.response?.data?.detail || error.response?.data?.message || "Invalid email or password";
@@ -70,14 +71,9 @@ const SignIn = () => {
     }
   });
 
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      googleLoginMutation.mutate(tokenResponse.access_token);
-    },
-    onError: () => {
-      console.error('Google Login Failed');
-    }
-  });
+  const handleGoogleSuccess = (credentialResponse) => {
+    googleLoginMutation.mutate(credentialResponse.credential);
+  };
 
   const isEmailValid = !!currentEmail && currentEmail.length > 0 && !errors.email;
   const isPasswordValid = !!currentPassword && currentPassword.length > 0 && !errors.password;
@@ -90,12 +86,13 @@ const SignIn = () => {
         <div className='relative w-[400px] h-[695px] rounded-l-[12px] flex items-center justify-center overflow-hidden'>
           <div
             className="absolute inset-0 bg-cover bg-center opacity-[0.52]"
-            style={{backgroundImage: `url(${bg})`}}
+            style={{ backgroundImage: `url(${bg})` }}
           />
           <div className='flex flex-col w-[296px] gap-[50px] relative z-10'>
-            <span className='uppercase text-center text-[32px] font-medium leading-[100%] tracking-[0.3em]'>Welcome</span>
+            <span
+              className='uppercase text-center text-[32px] font-medium leading-[100%] tracking-[0.3em]'>Welcome</span>
             <div className='flex'>
-              {Array.from({ length: 2}).map((_, index) => (
+              {Array.from({ length: 2 }).map((_, index) => (
                 <div key={index} className={`w-[145px] h-[221px] rounded-[16px] border-10 border-white flex items-center justify-center bg-brand-500 shadow-card-combined
                 ${index % 2 !== 0 ? 'z-1 rotate-5' : 'z-2 rotate-[-5deg]'}`}>
                   <span className='font-zen text-logo text-white flex'>alias</span>
@@ -153,14 +150,16 @@ const SignIn = () => {
                 <span>{loginMutation.isPending ? 'Signing in' : 'Sign In'}</span>
               </Button>
 
-              <button
-                type="button"
-                onClick={() => handleGoogleLogin()}
-                disabled={googleLoginMutation.isPending || loginMutation.isPending}
-                className='w-[39px] h-[39px] flex items-center justify-center rounded-full p-[10px] bg-white shadow-buttons transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100'
-              >
-                <img className='object-cover w-5 h-5' src={google} alt="Google Icon"/>
-              </button>
+              <div className="flex justify-center w-full h-[39px] mt-2 overflow-hidden rounded-full">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => {
+                    console.error('Google Login Failed');
+                  }}
+                  shape="circle"
+                  size="large"
+                />
+              </div>
             </form>
 
             <div className='flex items-center gap-1 justify-center'>

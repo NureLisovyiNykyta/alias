@@ -10,13 +10,20 @@ const emailSchema = z.object({
   email: z.string().min(1, "Email is required").email("Enter a valid email address"),
 });
 
-const EmailStep = ({ initialData = "", onSuccess }) => {
+const EmailStep = ({
+                     initialData = "",
+                     onSuccess,
+                     // Новые пропсы для поддержки ForgotPasswordFlow
+                     customSubmit = null,
+                     isExternalPending = false,
+                     buttonText = "Check"
+                   }) => {
   const {
     register,
     handleSubmit,
     setError,
     control,
-    formState: { errors, dirtyFields },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(emailSchema),
     defaultValues: { email: initialData },
@@ -28,7 +35,7 @@ const EmailStep = ({ initialData = "", onSuccess }) => {
     name: "email",
   });
 
-  const mutation = useMutation({
+  const defaultMutation = useMutation({
     mutationFn: (email) => checkEmail(email),
     onSuccess: (_, variables) => {
       onSuccess({ email: variables });
@@ -40,10 +47,15 @@ const EmailStep = ({ initialData = "", onSuccess }) => {
   });
 
   const onSubmit = (data) => {
-    mutation.mutate(data.email);
+    if (customSubmit) {
+      customSubmit(data.email, setError);
+    } else {
+      defaultMutation.mutate(data.email);
+    }
   };
 
   const isEmailValid = !!currentEmail && currentEmail.length > 0 && !errors.email;
+  const isPending = customSubmit ? isExternalPending : defaultMutation.isPending;
 
   return (
     <form
@@ -68,9 +80,9 @@ const EmailStep = ({ initialData = "", onSuccess }) => {
       <div className="w-full flex justify-end">
         <Button
           type="submit"
-          disabled={mutation.isPending || !isEmailValid}
+          disabled={isPending || !isEmailValid}
         >
-          {mutation.isPending ? "Checking" : "Check"}
+          {isPending ? "Processing" : buttonText}
         </Button>
       </div>
     </form>

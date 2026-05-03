@@ -9,7 +9,13 @@ const verificationSchema = z.object({
   code: z.string().length(6, "Code must be exactly 6 digits"),
 });
 
-const VerificationStep = ({ onSuccess, onBack }) => {
+const VerificationStep = ({
+                            onSuccess,
+                            onBack,
+                            customSubmit = null,
+                            isExternalPending = false,
+                            externalError = null
+                          }) => {
   const {
     control,
     handleSubmit,
@@ -21,10 +27,8 @@ const VerificationStep = ({ onSuccess, onBack }) => {
     mode: "onChange",
   });
 
-  const { mutate, isPending } = useVerifyEmailMutation({
-    onSuccess: () => {
-      onSuccess();
-    },
+  const defaultMutation = useVerifyEmailMutation({
+    onSuccess: () => onSuccess(),
     onError: (error) => {
       const errorMessage = error.response?.data?.message || "Invalid verification code.";
       setError("code", { type: "server", message: errorMessage });
@@ -32,24 +36,25 @@ const VerificationStep = ({ onSuccess, onBack }) => {
   });
 
   const onSubmit = (data) => {
-    mutate({
-      code: data.code,
-    });
+    if (customSubmit) {
+      customSubmit(data.code, setError);
+    } else {
+      defaultMutation.mutate({ code: data.code });
+    }
   };
 
   const currentCode = useWatch({ control, name: "code" });
-  const isCodeValid = currentCode?.length === 6 && !errors.code;
+  const isCodeValid = currentCode?.length === 6 && !errors.code && !externalError;
 
-  let messageToDisplay = errors.code ? errors.code.message : "Enter correct code";
-  let messageColorClass = errors.code ? 'text-red-500' : isCodeValid ? 'text-decorative-700' : 'text-text-label';
+  const isPending = customSubmit ? isExternalPending : defaultMutation.isPending;
+
+  const displayError = errors.code?.message || externalError;
+  let messageToDisplay = displayError ? displayError : "Enter correct code";
+  let messageColorClass = displayError ? 'text-red-500' : isCodeValid ? 'text-decorative-700' : 'text-text-label';
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        console.log("Нажали на сабмит!");
-        handleSubmit(onSubmit)(e);
-      }}
+      onSubmit={handleSubmit(onSubmit)}
       className="w-full flex flex-col gap-10 items-center"
     >
       <div className="w-full border border-text-label rounded-[8px] py-10 px-21 flex flex-col gap-6 bg-white items-center">
@@ -62,7 +67,7 @@ const VerificationStep = ({ onSuccess, onBack }) => {
             render={({ field }) => (
               <VerificationCodeInput
                 {...field}
-                error={!!errors.code}
+                error={!!displayError}
                 isValid={isCodeValid}
               />
             )}
@@ -76,7 +81,6 @@ const VerificationStep = ({ onSuccess, onBack }) => {
 
       <div className="w-full flex justify-between">
         <Button
-          disabled={true}
           type="button"
           onClick={onBack}
           variant="tertiary"

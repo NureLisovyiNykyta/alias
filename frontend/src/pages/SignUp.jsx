@@ -11,7 +11,7 @@ const SignUp = () => {
     username: "",
   });
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 4;
 
   const breadcrumbs = [
     { id: 1, path: "/", label: "Main menu" },

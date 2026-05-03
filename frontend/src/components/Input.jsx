@@ -81,16 +81,18 @@ const Input = forwardRef(({
           <span className={`text-label font-noto ${messageColorClass}`}>
             {messageToDisplay}
           </span>
-          {showForgot &&
-            <Link
-              to={FORGOT_PASS_LINK}
-              className='text-label text-text-label font-noto hover:text-blue-500 transition-colors'
-            >
-              Forgot password?
-            </Link>
-          }
+
         </div>
       )}
+
+      {showForgot &&
+        <Link
+          to={FORGOT_PASS_LINK}
+          className='text-label text-text-label font-noto hover:text-blue-500 transition-colors self-end'
+        >
+          Forgot password?
+        </Link>
+      }
     </div>
   );
 });

@@ -39,7 +39,7 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
 
-      if (originalRequest.url.includes('/auth/refresh') || originalRequest.url.includes('/auth/login')) {
+      if (originalRequest.url.includes('/auth/refresh') || originalRequest.url.includes('/auth/login') || originalRequest.url.includes('/auth/google/login') || originalRequest.url.includes('/auth/google/register')) {
         return Promise.reject(error);
       }
 

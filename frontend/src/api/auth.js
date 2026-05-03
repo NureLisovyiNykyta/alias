@@ -21,6 +21,16 @@ export const verifyEmail = async (data) => {
   return response.data;
 };
 
+export const forgotPassword = async (email) => {
+  const response = await api.post('/auth/forgot-password', { email });
+  return response.data;
+};
+
+export const resetPassword = async (data) => {
+  const response = await api.post('/auth/reset-password', data);
+  return response.data;
+};
+
 export const loginUser = async (credentials) => {
   const params = new URLSearchParams();
   params.append('username', credentials.email);
@@ -82,6 +92,20 @@ export const useGoogleLoginMutation = (options) => {
 export const useGoogleRegisterMutation = (options) => {
   return useMutation({
     mutationFn: (data) => googleRegister(data),
+    ...options,
+  });
+};
+
+export const useForgotPasswordMutation = (options) => {
+  return useMutation({
+    mutationFn: (email) => forgotPassword(email),
+    ...options,
+  });
+};
+
+export const useResetPasswordMutation = (options) => {
+  return useMutation({
+    mutationFn: (data) => resetPassword(data),
     ...options,
   });
 };
