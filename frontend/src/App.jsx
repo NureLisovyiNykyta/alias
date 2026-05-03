@@ -13,6 +13,7 @@ import GoogleSignUp from "@/pages/GoogleSignUp.jsx";
 import ForgotPassword from "@/pages/ForgotPassword.jsx";
 import CardPackCreator from "@/pages/CardPackCreator.jsx";
 import EditMapValues from "@/pages/EditMapValues.jsx";
+import MapCreator from "@/pages/MapCreator.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -34,6 +35,7 @@ function App() {
 
           <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
             <Route path="card-pack" element={<CardPackCreator/>}/>
+            <Route path="map" element={<MapCreator/>}/>
           </Route>
 
           <Route path="/edit" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>

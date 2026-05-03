@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-05-03
+
+### Added
+- **Creation & Editing Pages UI**: Implemented the layout and interface for the core game entity creation and management flows.
+- **New Pages**:
+  - `CardPackCreator.jsx` (and `TaskCreator.jsx`): UI page for creating and configuring new card-packs, including naming, availability, and image upload.
+  - `MapCreatorPage.jsx`: UI page for creating new maps, integrating map template selection and draft saving capabilities.
+  - `EditMapValuesPage.jsx`: UI page for editing existing map metadata and configurations with integrated breadcrumb navigation.
+- **New Components**:
+  - `MapTemplateSelector.jsx`: A composite, reusable component that combines a `DropDown` with a dynamic visual map preview area to select map layouts.
+  - `StatusLabel.jsx`: A standardized label component to display the current state/status of an entity (e.g., "Draft").
+
+### Changed
+- Integrated existing UI elements (`RowNavigation`, `TransparentInput`, `ImageInput`, `Switch`, `TextArea`) into complex page layouts to form cohesive entity creation forms.
+
 ## [0.7.1] - 2026-05-03
 
 ### Added
