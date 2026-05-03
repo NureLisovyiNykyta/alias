@@ -11,8 +11,8 @@ import SignUp from "@/pages/SignUp.jsx";
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import GoogleSignUp from "@/pages/GoogleSignUp.jsx";
 import ForgotPassword from "@/pages/ForgotPassword.jsx";
-
-const Dashboard = () => <div>Dashboard (Protected)</div>;
+import TaskCreator from "@/pages/TaskCreator.jsx";
+import FormExample from "@/pages/FormExample.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -32,8 +32,8 @@ function App() {
           <Route path="/gallery" element={<PacksGallery/>}/>
           <Route path="/packs/:type" element={<PacksList/>}/>
 
-          <Route element={<ProtectedRoute isAllowed={isFullyVerified} redirectTo="/auth/sign-in"/>}>
-            <Route path="/dashboard" element={<Dashboard/>}/>
+          <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
+            <Route path="card-pack" element={<FormExample/>}/>
           </Route>
         </Route>
 

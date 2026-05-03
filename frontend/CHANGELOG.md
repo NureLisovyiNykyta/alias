@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-05-03
+
+### Added
+- **UI Expansion & Refactoring**: Implemented a suite of new specialized input components to avoid "God Object" complexity in the core `Input` component and prepare for the card-pack creation UI.
+- **New Components**:
+  - `TransparentInput.jsx`: A minimalist, underlined input field designed for secondary forms and entity naming (e.g., card-pack titles).
+  - `TextArea.jsx`: A fixed-size (636x144px) multi-line text input with custom scroll styling and disabled resizing to maintain layout integrity.
+  - `ImageInput.jsx`: A stylized file upload component that masks native browser inputs, featuring dynamic filename display and specific image format constraints (`.png`, `.jpg`, `.jpeg`).
+  - `Switch.jsx`: A high-fidelity toggle component with "pill" background animations using `framer-motion` and `layoutId` for smooth transitions between states.
+  - `DropDown.jsx`: A fully accessible, animated select component built with `@headlessui/react`, supporting custom icons, search-like styling, and `framer-motion` transitions.
+- **Animation System**: Integrated `framer-motion` for spring-based UI transitions, specifically for the new `Switch` and `DropDown` components.
+
+### Changed
+- Improved component architecture by separating form-style inputs (Auth) from content-creation inputs (Gallery/Editor), ensuring better maintainability and cleaner CSS via Tailwind.
+
 ## [0.7.0] - 2026-05-03
 
 ### Added

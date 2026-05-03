@@ -18,7 +18,7 @@ const Profile = () => {
   const { user } = useAuth();
 
   return (
-    <main className="flex flex-col w-full p-5 gap-5">
+    <main className="flex flex-col w-full gap-5">
       <RowNavigation links={LINKS}/>
 
       <h1 className='text-h1'>Account details</h1>
