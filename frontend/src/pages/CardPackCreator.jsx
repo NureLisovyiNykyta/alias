@@ -4,7 +4,7 @@ import StatusLabel from "@/components/StatusLabel.jsx";
 import TextArea from "@/components/TextArea.jsx";
 import { Button } from "@/components/Button.jsx";
 
-const TaskCreator = () => {
+const CardPackCreator = () => {
   return (
     <div className='flex flex-col w-full gap-8'>
       <div className='flex flex-col w-[492px] gap-4'>
@@ -39,4 +39,4 @@ const TaskCreator = () => {
   );
 };
 
-export default TaskCreator;
+export default CardPackCreator;
