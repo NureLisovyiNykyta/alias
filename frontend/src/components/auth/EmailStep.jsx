@@ -13,7 +13,6 @@ const emailSchema = z.object({
 const EmailStep = ({
                      initialData = "",
                      onSuccess,
-                     // Новые пропсы для поддержки ForgotPasswordFlow
                      customSubmit = null,
                      isExternalPending = false,
                      buttonText = "Check"
