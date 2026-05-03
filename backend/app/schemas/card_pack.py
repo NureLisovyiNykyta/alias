@@ -54,6 +54,7 @@ class CardTypeRead(BaseModel):
     name: str
     description: str
     core_mechanic: str
+    allowed_modifiers: list[str]
 
 
 class CardPackReadDetailed(CardPackRead):

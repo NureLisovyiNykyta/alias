@@ -366,3 +366,8 @@ async def get_saved_packs(
     ).scalars().all()
 
     return list(items), total
+
+
+async def get_all_card_types(db: AsyncSession) -> list[CardType]:
+    result = await db.execute(select(CardType).order_by(CardType.name))
+    return list(result.scalars().all())

@@ -67,6 +67,7 @@ async def verify_google_token(token: str) -> dict:
             token,
             google_requests.Request(),
             settings.GOOGLE_CLIENT_ID,
+            clock_skew_in_seconds=10,
         )
     except Exception:
         raise UnauthorizedError(ErrorMessage.GOOGLE_TOKEN_INVALID)
@@ -77,6 +78,7 @@ async def verify_google_token(token: str) -> dict:
 
 async def link_google_account(db: AsyncSession, user: User, google_id: str) -> None:
     user.google_id = google_id
+    user.is_email_verified = True
     await db.commit()
 
 

@@ -9,11 +9,12 @@ from app.models.map import Map
 from app.models.user import User
 from app.schemas.base import PaginatedResponse
 from app.schemas.card_pack import SortOrder
-from app.schemas.map import MapCreate, MapRatingInput, MapRead, MapReadDetailed, MapUpdate
+from app.schemas.map import MapCreate, MapRatingInput, MapRead, MapReadDetailed, MapTemplateRead, MapUpdate
 from app.services.map import (
     activate_map,
     create_map,
     delete_map,
+    get_all_map_templates,
     get_deleted_maps,
     get_map_by_id,
     get_my_maps,
@@ -27,6 +28,14 @@ from app.services.map import (
 )
 
 router = APIRouter(prefix="/api/maps", tags=["maps"])
+
+
+@router.get("/templates", response_model=list[MapTemplateRead])
+async def list_map_templates(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list:
+    return await get_all_map_templates(db)
 
 
 @router.post("/", response_model=MapRead)

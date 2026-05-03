@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
@@ -41,6 +42,8 @@ class UserRead(BaseModel):
     nickname: str
     avatar_url: str | None
     is_email_verified: bool
+    games_played: int
+    created_at: datetime.datetime
 
 
 class UserPublicRead(BaseModel):
