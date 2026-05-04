@@ -14,7 +14,6 @@ import ForgotPassword from "@/pages/ForgotPassword.jsx";
 import CardPackCreator from "@/pages/CardPackCreator.jsx";
 import EditMapValues from "@/pages/EditMapValues.jsx";
 import MapCreator from "@/pages/MapCreator.jsx";
-import { NotificationProvider } from "@/contexts/NotificationContext.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -24,7 +23,6 @@ function App() {
   const canAccessAuth = !isAuthenticated || (isAuthenticated && !user?.is_email_verified);
 
   return (
-    <NotificationProvider>
       <BrowserRouter>
         <ScrollToTop/>
         <Routes>
@@ -54,7 +52,6 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace/>}/>
         </Routes>
       </BrowserRouter>
-    </NotificationProvider>
   );
 }
 

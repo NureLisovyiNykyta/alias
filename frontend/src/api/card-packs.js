@@ -2,6 +2,7 @@ import { api } from "./axios";
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 
+// API Calls ------------------
 export const getPublicPacks = async (params) => {
   const response = await api.get('/card-packs/public', { params });
   return response.data;
@@ -21,6 +22,18 @@ export const savePack = async (packId) => {
   const response = await api.post(`/card-packs/${packId}/save`);
   return response.data;
 };
+
+export const createPack = async (packData) => {
+  const response = await api.post('/card-packs/', packData);
+  return response.data;
+};
+
+export const getPackTypes = async () => {
+  const response = await api.get('/card-packs/types');
+  return response.data;
+};
+
+// Query Hooks ------------------
 
 export const usePublicPacksQuery = (params, options) => {
   return useQuery({
@@ -58,6 +71,21 @@ export const useSavePackMutation = (options) => {
         isSuccess: true,
       });
     },
+    ...options,
+  });
+};
+
+export const useCreatePackMutation = (options) => {
+  return useMutation({
+    mutationFn: (packData) => createPack(packData),
+    ...options,
+  });
+};
+
+export const usePackTypesQuery = (options) => {
+  return useQuery({
+    queryKey: ['packTypes'],
+    queryFn: getPackTypes,
     ...options,
   });
 };

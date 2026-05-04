@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.3] - 2026-05-04
+
+### Added
+- **API Integration for Pack Creation**: Integrated the `/api/card-packs/` endpoint (POST) within `CardPackCreator.jsx` to allow users to save drafts of new card packs.
+- **Dynamic Pack Types Fetching**: Replaced mock data in the `DropDown` component with a dynamic fetch from the `/api/card-packs/types` endpoint (GET), automatically mapping the response `name` to the component's expected `label`.
+- **Form Validation & UX**: Implemented client-side validation in `CardPackCreator.jsx`, disabling the "Save to Draft" button until all required fields (Name, Type, Description) are populated.
+- **Seamless Redirection Flow**: Added a delayed redirection mechanism using `react-router-dom`'s `useNavigate`. After successfully saving a draft, users are shown a success notification for 2.5 seconds before being automatically routed to the next step (`/edit/card-pack/:id/words`), utilizing the newly generated pack `id` from the API response.
+
+### Changed
+- **Input Component Updates**: Modified `TransparentInput.jsx` to function as a controlled component, accepting `value` and `onChange` props to manage local state within the creator form.
+- **Hook Refactoring**: Adjusted `useCreatePackMutation` to accept and execute an `onSuccess` callback provided by the component, ensuring the automatic redirection logic correctly utilizes the returned API data without interfering with global notifications.
+- 
 ## [0.8.2] - 2026-05-04
 
 ### Added
