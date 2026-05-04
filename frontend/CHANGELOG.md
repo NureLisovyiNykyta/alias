@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2026-05-04
+
+### Added
+- **New Component**: `Spinner.jsx` - A reusable circular loading spinner component utilizing `framer-motion` and Tailwind CSS.
+- **API Integration**: Integrated backend endpoints (`/api/card-packs/public`, `/api/card-packs/saved`, `/api/card-packs/me`) via `@tanstack/react-query` to fetch and display card packs.
+- **Gallery Features**: Implemented pagination and dropdown sorting functionality for the Packs Gallery.
+- **Save Pack Action**: Added API integration (`/api/card-packs/{pack_id}/save`) to allow users to save community packs to their personal collection.
+
+### Changed
+- Refactored `PacksGallery.jsx` to use a tabbed UI interface (Community, Saved, My Creations) instead of separate routes.
+- Updated `CardPack.jsx` to conditionally render the "+ Save to My packs" button strictly for public packs, including an inline spinner during the save mutation.
+
 ## [0.8.0] - 2026-05-03
 
 ### Added

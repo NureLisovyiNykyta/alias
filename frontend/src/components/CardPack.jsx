@@ -1,7 +1,16 @@
 import star from '@/assets/star.svg';
+import plus from '@/assets/plus.svg';
 import { Button } from "@/components/Button.jsx";
+import { useSavePackMutation } from "@/api/card-packs";
+import Spinner from "@/components/Spinner.jsx";
 
-const CardPack = ({ pack }) => {
+const CardPack = ({ pack, type }) => {
+  const { mutate: savePack, isPending } = useSavePackMutation();
+
+  const handleSave = () => {
+    savePack(pack.id);
+  };
+
   return (
     <li className='flex gap-8 p-6 rounded-[12px] w-full min-h-[250px] bg-surface'>
       <img
@@ -37,10 +46,25 @@ const CardPack = ({ pack }) => {
             </li>
           </ul>
 
-          <div className='flex items-center'>
+          <div className='flex items-center gap-7'>
             <Button variant='tertiary'>
               <span>Review {pack.title} pack</span>
             </Button>
+
+            {type === 'public' && (
+              <Button
+                variant='secondary'
+                onClick={handleSave}
+                disabled={isPending}
+              >
+                {isPending ? <Spinner size='sm'/> :
+                  <div className='flex items-center justify-center gap-2'>
+                    <img src={plus} alt="Plus"/>
+                    <span>Save to My packs</span>
+                  </div>
+                }
+              </Button>
+            )}
           </div>
         </div>
       </div>
