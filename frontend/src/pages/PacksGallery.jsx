@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import RowNavigation from "@/components/RowNavigation.jsx";
 import CardPack from "@/components/CardPack.jsx";
 import { Button } from "@/components/Button.jsx";
 import DropDown from "@/components/DropDown.jsx";
 import {
-  usePublicPacksQuery,
-  useSavedPacksQuery,
-  useMyPacksQuery
+  getPublicPacks,
+  getSavedPacks,
+  getMyPacks
 } from "@/api/card-packs";
 import Spinner from "@/components/Spinner.jsx";
+import { useNotification } from "@/contexts/NotificationContext.jsx";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
   { label: "Packs Gallery", id: 2 },
 ];
 
-const TABS = {
-  COMMUNITY: 'community',
-  SAVED: 'saved',
-  MY_CREATIONS: 'my_creations',
-};
+const TABS = [
+  { id: 'community', label: 'Community', fetchFn: getPublicPacks },
+  { id: 'saved', label: 'Saved', fetchFn: getSavedPacks },
+  { id: 'my_creations', label: 'My creations', fetchFn: getMyPacks },
+];
 
 const SORT_OPTIONS = [
   { id: 'newest', label: 'Newest' },
@@ -30,42 +32,30 @@ const SORT_OPTIONS = [
 const ITEMS_PER_PAGE = 20;
 
 const PacksGallery = () => {
-  const [activeTab, setActiveTab] = useState(TABS.COMMUNITY);
+  const [activeTab, setActiveTab] = useState(TABS[0]);
   const [sortOption, setSortOption] = useState(SORT_OPTIONS[0]);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const { showNotification } = useNotification();
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, sortOption]);
+  }, [activeTab.id, sortOption.id]);
 
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const queryParams = {
     limit: ITEMS_PER_PAGE,
     offset,
-    ...(activeTab === TABS.COMMUNITY && { sort_by: sortOption.id })
+    ...(activeTab.id === 'community' && { sort_by: sortOption.id })
   };
 
-  const { data: publicData, isLoading: isPublicLoading } = usePublicPacksQuery(queryParams, {
-    enabled: activeTab === TABS.COMMUNITY
+  const { data: currentData = { items: [], total: 0 }, isLoading } = useQuery({
+    queryKey: ['packs', activeTab.id, queryParams],
+    queryFn: () => activeTab.fetchFn(queryParams),
   });
 
-  const { data: savedData, isLoading: isSavedLoading } = useSavedPacksQuery(queryParams, {
-    enabled: activeTab === TABS.SAVED
-  });
-
-  const { data: myData, isLoading: isMyLoading } = useMyPacksQuery(queryParams, {
-    enabled: activeTab === TABS.MY_CREATIONS
-  });
-
-  const isLoading = isPublicLoading || isSavedLoading || isMyLoading;
-
-  let currentData = { items: [], total: 0 };
-  if (activeTab === TABS.COMMUNITY && publicData) currentData = publicData;
-  if (activeTab === TABS.SAVED && savedData) currentData = savedData;
-  if (activeTab === TABS.MY_CREATIONS && myData) currentData = myData;
-
-  const totalPages = Math.ceil(currentData.total / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil((currentData?.total || 0) / ITEMS_PER_PAGE);
 
   const getPageNumbers = () => {
     const pages = [];
@@ -88,27 +78,20 @@ const PacksGallery = () => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button
-              variant={activeTab === TABS.COMMUNITY ? 'primary' : 'tertiary'}
-              onClick={() => setActiveTab(TABS.COMMUNITY)}
-            >
-              Community
-            </Button>
-            <Button
-              variant={activeTab === TABS.SAVED ? 'primary' : 'tertiary'}
-              onClick={() => setActiveTab(TABS.SAVED)}
-            >
-              Saved
-            </Button>
-            <Button
-              variant={activeTab === TABS.MY_CREATIONS ? 'primary' : 'tertiary'}
-              onClick={() => setActiveTab(TABS.MY_CREATIONS)}
-            >
-              My creations
-            </Button>
+            {TABS.map((tab) => (
+              <Button
+                key={tab.id}
+                variant={activeTab.id === tab.id ? 'primary' : 'tertiary'}
+                onClick={() => {
+                  setActiveTab(tab)
+                }}
+              >
+                {tab.label}
+              </Button>
+            ))}
           </div>
 
-          {activeTab === TABS.COMMUNITY && (
+          {activeTab.id === 'community' && (
             <div className="flex items-center gap-[10px]">
               <span className="text-p font-noto">Sort by:</span>
               <DropDown
@@ -126,7 +109,7 @@ const PacksGallery = () => {
             <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
               <Spinner size='md'/>
             </div>
-          ) : currentData.items.length > 0 ? (
+          ) : currentData.items?.length > 0 ? (
             currentData.items.map((item) => {
               const mappedPack = {
                 id: item.id,
@@ -139,7 +122,9 @@ const PacksGallery = () => {
                 ...item,
               };
 
-              return <CardPack key={item.id} pack={mappedPack}/>;
+              const packType = activeTab.id === 'community' ? 'public' : 'other';
+
+              return <CardPack key={item.id} pack={mappedPack} type={packType} />;
             })
           ) : (
             <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
@@ -153,7 +138,9 @@ const PacksGallery = () => {
             {getPageNumbers().map((page) => (
               <button
                 key={page}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => {
+                  setCurrentPage(page)
+                }}
                 className={`flex items-center justify-center w-12 h-12 rounded-[12px] text-h2 transition-all shadow-buttons ${
                   currentPage === page
                     ? 'bg-brand-500'

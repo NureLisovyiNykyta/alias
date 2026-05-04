@@ -8,6 +8,7 @@ import Input from "@/components/Input.jsx";
 import { Button } from "@/components/Button.jsx";
 import RowNavigation from "@/components/RowNavigation.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
+import { formatPackDate } from "@/utils/parseTime.js";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
@@ -40,12 +41,12 @@ const Profile = () => {
           <ul className='flex items-center gap-8'>
             <li className='flex flex-col gap-2'>
               <span className='text-label text-text-label font-noto'>Playing on Alias.com since</span>
-              <p className='font-noto text-p'>January, 2026</p>
+              <p className='font-noto text-p'>{formatPackDate(user?.created_at)}</p>
             </li>
 
             <li className='flex flex-col gap-2'>
               <span className='text-label text-text-label font-noto'>Finished</span>
-              <p className='font-noto text-p'>142 games</p>
+              <p className='font-noto text-p'>{user?.games_played} games</p>
             </li>
 
             <li className='flex flex-col gap-2'>

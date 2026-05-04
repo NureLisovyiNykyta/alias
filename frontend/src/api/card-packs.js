@@ -1,5 +1,6 @@
 import { api } from "./axios";
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { useNotification } from "@/contexts/NotificationContext.jsx";
 
 export const getPublicPacks = async (params) => {
   const response = await api.get('/card-packs/public', { params });
@@ -46,8 +47,17 @@ export const useMyPacksQuery = (params, options) => {
 };
 
 export const useSavePackMutation = (options) => {
+  const { showNotification } = useNotification();
+
   return useMutation({
     mutationFn: (packId) => savePack(packId),
+    onSuccess: () => {
+      showNotification({
+        title: "Success!",
+        message: "Pack has been saved to your collection.",
+        isSuccess: true,
+      });
+    },
     ...options,
   });
 };

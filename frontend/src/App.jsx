@@ -14,6 +14,7 @@ import ForgotPassword from "@/pages/ForgotPassword.jsx";
 import CardPackCreator from "@/pages/CardPackCreator.jsx";
 import EditMapValues from "@/pages/EditMapValues.jsx";
 import MapCreator from "@/pages/MapCreator.jsx";
+import { NotificationProvider } from "@/contexts/NotificationContext.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -23,36 +24,37 @@ function App() {
   const canAccessAuth = !isAuthenticated || (isAuthenticated && !user?.is_email_verified);
 
   return (
-    <BrowserRouter>
-      <ScrollToTop/>
-      <Routes>
-        <Route element={<MainLayout/>}>
-          <Route path="/" element={<Landing/>}/>
+    <NotificationProvider>
+      <BrowserRouter>
+        <ScrollToTop/>
+        <Routes>
+          <Route element={<MainLayout/>}>
+            <Route path="/" element={<Landing/>}/>
 
-          <Route path="/profile" element={<Profile/>}/>
-          <Route path="/gallery" element={<PacksGallery/>}/>
-          <Route path="/packs/:type" element={<PacksList/>}/>
+            <Route path="/profile" element={<Profile/>}/>
+            <Route path="/packs-gallery" element={<PacksGallery/>}/>
 
-          <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
-            <Route path="card-pack" element={<CardPackCreator/>}/>
-            <Route path="map" element={<MapCreator/>}/>
+            <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
+              <Route path="card-pack" element={<CardPackCreator/>}/>
+              <Route path="map" element={<MapCreator/>}/>
+            </Route>
+
+            <Route path="/edit" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
+              <Route path="map" element={<EditMapValues/>}/>
+            </Route>
           </Route>
 
-          <Route path="/edit" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
-            <Route path="map" element={<EditMapValues/>}/>
+          <Route path='/auth' element={<ProtectedRoute isAllowed={canAccessAuth} redirectTo="/"/>}>
+            <Route path="sign-in" element={<SignIn/>}/>
+            <Route path="sign-up" element={<SignUp/>}/>
+            <Route path="google-sign-up" element={<GoogleSignUp/>}/>
+            <Route path="forgot-password" element={<ForgotPassword/>}/>
           </Route>
-        </Route>
 
-        <Route path='/auth' element={<ProtectedRoute isAllowed={canAccessAuth} redirectTo="/"/>}>
-          <Route path="sign-in" element={<SignIn/>}/>
-          <Route path="sign-up" element={<SignUp/>}/>
-          <Route path="google-sign-up" element={<GoogleSignUp/>}/>
-          <Route path="forgot-password" element={<ForgotPassword/>}/>
-        </Route>
-
-        <Route path="*" element={<Navigate to="/" replace/>}/>
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/" replace/>}/>
+        </Routes>
+      </BrowserRouter>
+    </NotificationProvider>
   );
 }
 

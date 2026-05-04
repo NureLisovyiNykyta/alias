@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.2] - 2026-05-04
+
+### Added
+- **Global Notifications**: Implemented a global `NotificationContext` and a `Notification` component utilizing `framer-motion` for smooth slide-in animations from the right side of the screen (`x: 100`).
+- **Date Formatting Utility**: Created `formatPackDate` helper (`utils/parseTime.js`) using `Intl.DateTimeFormat` to convert ISO 8601 strings into a localized "Month, Year" format (e.g., "May, 2026").
+- **Profile Enhancements**: Updated the `Profile.jsx` page to display the user's registration date (`created_at`) and total games played (`games_played`), utilizing the new date formatting utility.
+- **Save Pack Feedback**: Integrated the `useNotification` hook into the `useSavePackMutation` to provide immediate, auto-dismissing visual feedback upon successfully saving a community pack.
+
+### Changed
+- Refined the `Notification` component styling, applying a `bg-decorative-500/22` background with a 22% opacity modifier for success states.
+- Optimized API hook structure by consolidating `getPublicPacks`, `getSavedPacks`, and `getMyPacks` into a unified `useQuery` call driven by the active tab configuration in the Packs Gallery.
+
 ## [0.8.1] - 2026-05-04
 
 ### Added
