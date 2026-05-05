@@ -5,7 +5,6 @@ import Landing from "@/pages/Landing.jsx";
 import Profile from "@/pages/Profile.jsx";
 import PacksGallery from "@/pages/PacksGallery.jsx";
 import ScrollToTop from "@/components/ScrollToTop.jsx";
-import PacksList from "@/pages/PacksList.jsx";
 import SignIn from "@/pages/SignIn.jsx";
 import SignUp from "@/pages/SignUp.jsx";
 import { useAuth } from '@/contexts/AuthContext.jsx';
