@@ -5,7 +5,7 @@ import dropDownArrow from '@/assets/dropDownArrow.svg';
 
 const   DropDown = ({
                     label,
-                    placeholder = 'Choose the task',
+                    placeholder = 'Choose the card pack type',
                     options = [],
                     value,
                     onChange,

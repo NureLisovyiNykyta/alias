@@ -87,10 +87,22 @@ const CardPackCreator = () => {
           onChange={(e) => setName(e.target.value)}
         />
 
-        <ImageInput/>
-
-        <StatusLabel status='Draft'/>
+        <StatusLabel status='Draft' helpText='Current progress state'/>
       </div>
+
+      <div className='w-full flex items-center gap-23'>
+        <ImageInput/>
+        <StatusLabel
+          title='Deck’s availability'
+          status='Private'
+          helpText='Public access is only available after activation.'
+        />
+      </div>
+
+      <TextArea
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
 
       <div className='flex items-center gap-8'>
         <div className='flex flex-col gap-2'>
@@ -127,11 +139,6 @@ const CardPackCreator = () => {
           </div>
         </div>
       </div>
-
-      <TextArea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
 
       <Button
         className='self-end'
