@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -109,12 +109,12 @@ const MapEditor = () => {
       <div className="flex flex-col w-full gap-4">
         <div className="flex items-center justify-between w-full">
           <h1 className="text-h1">Edit the map values</h1>
-          <button
-            onClick={() => navigate(`/edit/map/${mapId}/fields`)}
+          <Link
+            to={`/edit/map/${mapId}/fields`}
             className="text-brand-500 hover:text-brand-700 transition-colors text-label font-noto"
           >
             Edit the map fields →
-          </button>
+          </Link>
         </div>
         <span className="text-label text-text-label font-noto w-[492px]">
           Set up your map by filling in the required details and selecting your preferences.
