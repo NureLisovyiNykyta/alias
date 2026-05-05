@@ -23,6 +23,8 @@ class Settings(BaseSettings):
 
     MIN_ACTIVE_CARDS: int = 10
 
+    REDIS_URL: str
+
     @property
     def backend_cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.FRONTEND_LINKS.split(",") if origin.strip()]

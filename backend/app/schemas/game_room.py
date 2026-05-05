@@ -110,6 +110,7 @@ class CurrentTurn(BaseModel):
 
 class RoomStateJSON(BaseModel):
     room_code: str
+    name: str
     host_id: UUID
     status: RoomStatus
 

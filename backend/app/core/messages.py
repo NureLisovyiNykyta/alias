@@ -58,6 +58,8 @@ class ErrorMessage(StrEnum):
 
     ACCOUNT_DELETED = "This account has been deleted"
 
+    REDIS_NOT_INITIALISED = "Redis connection is not initialised. Call connect_to_redis() first."
+
 
 @dataclass
 class EmailContent:
