@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-05-05
+
+### Added
+- **Word Import Modal**: Transformed `WordImportForm` into a fully accessible modal using `@headlessui/react` `Dialog`, featuring a dark background overlay and clean open/close state management from the editor.
+- **Dynamic Vocabulary List**: Implemented a "Show all" / "Show less" toggle in the `WordsEditor` component. The list now intelligently truncates at 20 items to keep the UI clean, allowing users to expand the view when needed.
+- **List Animations**: Integrated `framer-motion` into the `WordsEditor` vocabulary list. Word cards now feature smooth entrance/exit animations (sliding in from the left), and the container dynamically and smoothly resizes using the `layout` prop when the list expands or collapses.
+
+### Changed
+- **Words Editor State**: Upgraded `WordsEditor.jsx` to manage local states for the import modal visibility and the expanded/collapsed view of the vocabulary array.
+
+### Fixed
+- **Git Tracking Chore**: Removed local `.env` files from the Git tracking index and updated `.gitignore` to securely handle local environment variables and prevent accidental leaks.
+
 ## [0.9.0] - 2026-05-05
 
 ### Added

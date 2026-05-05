@@ -1,17 +1,24 @@
 import RowNavigation from "@/components/RowNavigation.jsx";
-import React from "react";
+import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/Button.jsx";
 import cross from '@/assets/smallCross.svg';
 import WordInput from "@/components/WordInput.jsx";
+import WordImportForm from "@/components/WordImportForm.jsx";
 
 const WordsEditor = () => {
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [showAllWords, setShowAllWords] = useState(false);
+
   const navLinks = [
     { id: 1, label: 'Main Page', path: '/' },
     { id: 2, label: 'Edit Card Pack Words', path: null }
   ];
 
   const { id: packId } = useParams();
+
+  const wordsList = Array.from({ length: 40 });
+  const displayedWords = showAllWords ? wordsList : wordsList.slice(0, 20);
 
   return (
     <div className='flex flex-col w-full gap-8'>
@@ -41,7 +48,7 @@ const WordsEditor = () => {
         </div>
 
         <div className="flex items-center w-full p-4 gap-4 flex-wrap">
-          {Array.from({ length: 20 }).map((_, index) => (
+          {displayedWords.map((_, index) => (
             <div key={index} className='flex items-center h-12 border border-text-label gap-8 py-[10px] px-4 rounded-[8px] bg-white'>
               <span className='text-label font-noto'>Pikachu</span>
               <button
@@ -51,9 +58,25 @@ const WordsEditor = () => {
               </button>
             </div>
           ))}
+
+          {(wordsList.length > 20 && !showAllWords) ? (
+            <button
+              className='text-btn font-noto text-label flex items-center justify-center text-text-label hover:text-text transition-colors'
+              onClick={() => setShowAllWords(true)}
+            >
+              Show all
+            </button>
+          ) :
+            <button
+              className='text-btn font-noto text-label flex items-center justify-center text-text-label hover:text-text transition-colors'
+              onClick={() => setShowAllWords(false)}
+            >
+              Show less
+            </button>
+          }
         </div>
 
-        <div className='w-full flex flex-col rounded-b-[12px] border border-text-label bg-surface-light p-4 gap-4'>
+        <div className='w-full flex flex-col rounded-b-[12px] border-t border-text-label bg-surface-light p-4 gap-4'>
           <WordInput />
           <div className='w-full flex items-center justify-between'>
             <div className='flex items-center gap-2'>
@@ -68,6 +91,7 @@ const WordsEditor = () => {
             <div className='flex items-center gap-2'>
               <Button
                 variant='tertiary'
+                onClick={() => setIsImportOpen(true)}
               >
                 Import
               </Button>
@@ -91,6 +115,8 @@ const WordsEditor = () => {
           Publish
         </Button>
       </div>
+
+      <WordImportForm isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
     </div>
   );
 };

@@ -6,7 +6,7 @@ const WordInput = () => {
       <input
         placeholder='Add new word'
         type="text"
-        className='font-noto text-label placeholder:text-text-label outline-none'
+        className='font-noto text-label placeholder:text-text-label outline-none w-full'
       />
       <button
         className='h-6 w-6 flex items-center justify-center rounded-[8px] bg-brand-500 hover:bg-brand-700 transition-colors'

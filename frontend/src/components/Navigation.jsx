@@ -3,6 +3,7 @@ import pin from '@/assets/pin.svg';
 import grayPlus from '@/assets/grayPlus.svg';
 import greenGlove from '@/assets/greenGlobe.svg';
 import redGlove from '@/assets/redGlobe.svg';
+import { useAuth } from "@/contexts/AuthContext.jsx";
 
 const PINNED_LINKS = [
   { id: 1, label: 'How to play Alias?', path: '/start', color: 'bg-decorative-500' },
@@ -25,6 +26,8 @@ const MY_MAPS = [
 ];
 
 const Navigation = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <aside className="w-50 shrink-0 sticky top-20 py-8 flex flex-col gap-8 self-start border-r border-surface">
       <nav aria-label="Pinned Navigation">
@@ -52,79 +55,81 @@ const Navigation = () => {
         </ul>
       </nav>
 
-      <nav aria-label="My Packs Navigation">
-        <div className="flex items-center justify-between mb-4 px-2">
-          <h2 className="text-h2">My packs</h2>
-          <Link
-            to="/new/card-pack"
-            className="flex items-center gap-1 text-sm text-text-label hover:text-gray-600 transition-colors"
-          >
-            <img src={grayPlus} alt="" className="w-4 h-4" /> Create new
-          </Link>
-        </div>
+      { isAuthenticated && <>
+        <nav aria-label="My Packs Navigation">
+          <div className="flex items-center justify-between mb-4 px-2">
+            <h2 className="text-h2">My packs</h2>
+            <Link
+              to="/new/card-pack"
+              className="flex items-center gap-1 text-sm text-text-label hover:text-gray-600 transition-colors"
+            >
+              <img src={grayPlus} alt="" className="w-4 h-4" /> Create new
+            </Link>
+          </div>
 
-        <ul className="flex flex-col px-2 gap-4">
-          {MY_PACKS.map((link) => (
-            <li key={link.id}>
-              <Link
-                to={link.path}
-                className="flex items-center gap-2 rounded-lg hover:text-brand-500"
-              >
+          <ul className="flex flex-col px-2 gap-4">
+            {MY_PACKS.map((link) => (
+              <li key={link.id}>
+                <Link
+                  to={link.path}
+                  className="flex items-center gap-2 rounded-lg hover:text-brand-500"
+                >
                 <span className="font-noto text-p truncate">
                   {link.label}
                 </span>
+                </Link>
+              </li>
+            ))}
+
+            <li className="pt-2">
+              <Link
+                to="/gallery/packs"
+                className="flex items-center gap-2 rounded-lg text-decorative-700 hover:text-decorative-900 transition-colors"
+              >
+                <img src={greenGlove} alt="" className="w-6 h-6 shrink-0" />
+                <span className="font-noto text-p">Browse the gallery</span>
               </Link>
             </li>
-          ))}
+          </ul>
+        </nav>
 
-          <li className="pt-2">
+        <nav aria-label="My Maps Navigation">
+          <div className="flex items-center justify-between mb-4 px-2">
+            <h2 className="text-h2">My maps</h2>
             <Link
-              to="/gallery/packs"
-              className="flex items-center gap-2 rounded-lg text-decorative-700 hover:text-decorative-900 transition-colors"
+              to="/new/map"
+              className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <img src={greenGlove} alt="" className="w-6 h-6 shrink-0" />
-              <span className="font-noto text-p">Browse the gallery</span>
+              <img src={grayPlus} alt="" className="w-4 h-4" /> Create new
             </Link>
-          </li>
-        </ul>
-      </nav>
+          </div>
 
-      <nav aria-label="My Maps Navigation">
-        <div className="flex items-center justify-between mb-4 px-2">
-          <h2 className="text-h2">My maps</h2>
-          <Link
-            to="/new/map"
-            className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <img src={grayPlus} alt="" className="w-4 h-4" /> Create new
-          </Link>
-        </div>
-
-        <ul className="flex flex-col px-2 gap-4">
-          {MY_MAPS.map((link) => (
-            <li key={link.id}>
-              <Link
-                to={link.path}
-                className="flex items-center gap-2 rounded-lg hover:text-brand-500"
-              >
+          <ul className="flex flex-col px-2 gap-4">
+            {MY_MAPS.map((link) => (
+              <li key={link.id}>
+                <Link
+                  to={link.path}
+                  className="flex items-center gap-2 rounded-lg hover:text-brand-500"
+                >
                 <span className="font-noto text-p truncate">
                   {link.label}
                 </span>
+                </Link>
+              </li>
+            ))}
+
+            <li className="pt-2">
+              <Link
+                to="/gallery/maps"
+                className="flex items-center gap-2 rounded-lg text-orange-500 hover:text-orange-600 transition-colors"
+              >
+                <img src={redGlove} alt="" className="w-6 h-6 shrink-0" />
+                <span className="font-noto text-p">Browse the gallery</span>
               </Link>
             </li>
-          ))}
-
-          <li className="pt-2">
-            <Link
-              to="/gallery/maps"
-              className="flex items-center gap-2 rounded-lg text-orange-500 hover:text-orange-600 transition-colors"
-            >
-              <img src={redGlove} alt="" className="w-6 h-6 shrink-0" />
-              <span className="font-noto text-p">Browse the gallery</span>
-            </Link>
-          </li>
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      </>}
     </aside>
   );
 };
