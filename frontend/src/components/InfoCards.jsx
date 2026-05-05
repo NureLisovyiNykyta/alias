@@ -48,7 +48,7 @@ const MAPS = [
   },
 ];
 
-const PACKS_LINK = '/packs-gallery';
+const PACKS_LINK = '/gallery/packs';
 
 const InfoCards = () => {
   return (

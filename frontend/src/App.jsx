@@ -29,7 +29,9 @@ function App() {
             <Route path="/" element={<Landing/>}/>
 
             <Route path="/profile" element={<Profile/>}/>
-            <Route path="/packs-gallery" element={<PacksGallery/>}/>
+            <Route path='/gallery'>
+              <Route path="packs" element={<PacksGallery/>}/>
+            </Route>
 
             <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
               <Route path="card-pack" element={<CardPackCreator/>}/>
