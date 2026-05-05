@@ -9,12 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Card Pack Editing**: Implemented the `CardPackEditor.jsx` component to handle updates to existing card packs. It pre-fills data and restricts changing the pack type.
-- **Editor API Integration**: Added `getPackById` (GET) and `updatePack` (PATCH) endpoints to `api/card-packs.js` along with their respective `react-query` hooks (`usePackQuery`, `useUpdatePackMutation`).
+- **Map Editing**: Implemented the `MapEditor.jsx` component to allow users to update existing map details (name and image). It fetches current map data and restricts template modification.
+- **Editor API Integration**: Added `getPackById` (GET) and `updatePack` (PATCH) endpoints for card packs to `api/card-packs.js`, and equivalent endpoints (`getMapById`, `updateMap`) for maps to `api/maps.js` along with their respective `react-query` hooks.
 - **Navigation Assets**: Added new SVG icons (`grayPlus.svg`, `greenGlove.svg`, `redGlove.svg`) for the sidebar navigation.
 
 ### Changed
 - **Navigation Menu Update**: Refactored `Navigation.jsx` to include "My packs" and "My maps" sections. Implemented conditional rendering for pack/map avatars (displaying grey placeholders if no image exists) and integrated the new SVG icons.
-- **Creator Form Validation**: Upgraded `CardPackCreator.jsx` to use `react-hook-form` and `zod` for strict client-side validation on the `name` and `image` fields, aligning the UX with the authentication forms.
+- **Creator Form Validation**: Upgraded `CardPackCreator.jsx` and `MapCreator.jsx` to use `react-hook-form` and `zod` for strict client-side validation on the `name` and `image` fields, aligning the UX with the authentication forms.
 - **Input Components Refactoring**:
   - Wrapped `TransparentInput.jsx` and `ImageInput.jsx` in `React.forwardRef` to seamlessly integrate with `react-hook-form`.
   - Added dynamic visual states (red/green borders and helper texts) for success and error validation outcomes.

@@ -11,9 +11,9 @@ import { useAuth } from '@/contexts/AuthContext.jsx';
 import GoogleSignUp from "@/pages/GoogleSignUp.jsx";
 import ForgotPassword from "@/pages/ForgotPassword.jsx";
 import CardPackCreator from "@/pages/CardPackCreator.jsx";
-import EditMapValues from "@/pages/EditMapValues.jsx";
 import MapCreator from "@/pages/MapCreator.jsx";
 import CardPackEditor from "@/pages/CardPackEditor.jsx";
+import MapEditor from "@/pages/MapEditor.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -41,7 +41,7 @@ function App() {
 
             <Route path="/edit" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
               <Route path='card-pack/:id' element={<CardPackEditor/>}/>
-              <Route path="map" element={<EditMapValues/>}/>
+              <Route path="map/:id" element={<MapEditor/>}/>
             </Route>
           </Route>
 

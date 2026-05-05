@@ -1,39 +1,41 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import RowNavigation from '@/components/RowNavigation.jsx';
 import TransparentInput from '@/components/TransparentInput.jsx';
 import ImageInput from '@/components/ImageInput.jsx';
-import MapTemplateSelector from '@/components/MapTemplateSelector.jsx';
 import { Button } from '@/components/Button.jsx';
 import Spinner from '@/components/Spinner.jsx';
-import { useNotification } from "@/contexts/NotificationContext.jsx";
-import { useMapTemplatesQuery, useCreateMapMutation } from "@/api/maps";
 import StatusLabel from "@/components/StatusLabel.jsx";
+import { useNotification } from "@/contexts/NotificationContext.jsx";
+import { useMapQuery, useUpdateMapMutation } from "@/api/maps";
+import { parseUpperCase } from "@/utils/parseUpperCase.js";
 
-const createMapSchema = z.object({
+const updateMapSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  image: z.any().refine((file) => file !== null && file !== undefined, "Image is required"),
+  image: z.any().nullable(),
 });
 
-const MapCreator = () => {
+const MapEditor = () => {
+  const { id: mapId } = useParams();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
   const navLinks = [
     { id: 1, label: 'Main Page', path: '/' },
-    { id: 2, label: 'Map Creator', path: null }
+    { id: 2, label: 'Edit Map', path: null }
   ];
 
   const {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(createMapSchema),
+    resolver: zodResolver(updateMapSchema),
     mode: "onChange",
     defaultValues: {
       name: '',
@@ -46,57 +48,75 @@ const MapCreator = () => {
     name: ["name", "image"],
   });
 
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const { data: mapData, isLoading: isMapLoading } = useMapQuery(mapId);
 
-  const { data: rawTemplates, isLoading: isTemplatesLoading } = useMapTemplatesQuery();
+  useEffect(() => {
+    if (mapData) {
+      reset({
+        name: mapData.name || '',
+        image: mapData.cover_url || null,
+      });
+    }
+  }, [mapData, reset]);
 
-  const templates = rawTemplates?.map(template => ({
-    ...template,
-    label: template.name,
-    previewImage: template.model_3d_url
-  })) || [];
-
-  const { mutate: createMapDraft, isPending } = useCreateMapMutation({
-    onSuccess: (data) => {
+  const { mutate: updateMap, isPending } = useUpdateMapMutation({
+    onSuccess: () => {
       showNotification({
-        title: "Draft Saved!",
-        message: "Your new map has been successfully created. Redirecting.",
+        title: "Changes Saved!",
+        message: "Your map has been successfully updated.",
         isSuccess: true,
       });
 
       setTimeout(() => {
-        navigate(`/edit/map/${data.id}/fields`);
+        navigate(`/edit/map/${mapId}/fields`);
       }, 2500);
     },
     onError: () => {
       showNotification({
         title: "Error",
-        message: "Failed to create the map.",
+        message: "Failed to update the map.",
         isSuccess: false,
       });
     },
   });
 
   const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.name;
-  const isImageValid = !!currentImage && !errors.image;
-  const isFormValid = isNameValid && isImageValid && selectedTemplate !== null;
+  const isFormValid = isNameValid;
 
   const onSubmit = (data) => {
     if (!isFormValid) return;
 
-    createMapDraft({
-      name: data.name,
-      template_id: selectedTemplate.id
+    updateMap({
+      mapId,
+      mapData: {
+        name: data.name,
+      }
     });
   };
+
+  if (isMapLoading) {
+    return (
+      <div className="w-full flex justify-center items-center h-64">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col w-full gap-8">
       <RowNavigation links={navLinks}/>
 
       <div className="flex flex-col w-full gap-4">
-        <h1 className="text-h1">Create new map</h1>
-        <span className="text-label text-text-label font-noto">
+        <div className="flex items-center justify-between w-full">
+          <h1 className="text-h1">Edit the map values</h1>
+          <button
+            onClick={() => navigate(`/edit/map/${mapId}/fields`)}
+            className="text-brand-500 hover:text-brand-700 transition-colors text-label font-noto"
+          >
+            Edit the map fields →
+          </button>
+        </div>
+        <span className="text-label text-text-label font-noto w-[492px]">
           Set up your map by filling in the required details and selecting your preferences.
         </span>
       </div>
@@ -109,8 +129,8 @@ const MapCreator = () => {
           {...register('name')}
           error={!!errors.name}
           isValid={isNameValid}
-          helpText={errors.name ? errors.name.message : 'You will be able to rename it later'}
-          successText='Сorrect Аormat'
+          helpText={errors.name ? errors.name.message : 'You can rename it here'}
+          successText='Correct format'
         />
 
         <div className="w-[310px]">
@@ -125,9 +145,9 @@ const MapCreator = () => {
                 value={value}
                 onChange={onChange}
                 error={!!errors.image}
-                isValid={isImageValid}
+                isValid={!!value && !errors.image}
                 helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
-                successText='Сorrect Format'
+                successText='Image uploaded'
               />
             )}
           />
@@ -135,38 +155,24 @@ const MapCreator = () => {
       </div>
 
       <div className='flex items-center gap-56'>
-        <StatusLabel status='Draft' helpText='Current progress state'/>
+        <StatusLabel status={parseUpperCase(mapData?.status)|| 'Draft'} helpText='Current progress state'/>
         <StatusLabel
           title='Map’s availability'
-          status='Private'
+          status={mapData?.is_public ? 'Public' : 'Private'}
           helpText="Public access is only available after activation. Note that for the map to function correctly, all associated card packs must be set to public."
           width='max-w-[287px]'
         />
       </div>
-
-      {isTemplatesLoading ? (
-        <div className="flex flex-col items-center justify-center py-10 gap-4">
-          <Spinner size="lg"/>
-          <span className="text-p font-noto text-text-label">Loading templates</span>
-        </div>
-      ) : (
-        <MapTemplateSelector
-          templates={templates}
-          selectedTemplate={selectedTemplate}
-          onSelectTemplate={setSelectedTemplate}
-        />
-      )}
 
       <Button
         className="self-end"
         disabled={!isFormValid || isPending}
         onClick={handleSubmit(onSubmit)}
       >
-        {isPending ? <Spinner size='sm'/> : 'Save to Draft'}
+        {isPending ? <Spinner size='sm'/> : 'Save Changes'}
       </Button>
-
     </div>
   );
 };
 
-export default MapCreator;
+export default MapEditor;

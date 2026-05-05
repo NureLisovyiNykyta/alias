@@ -117,7 +117,7 @@ const CardPackEditor = () => {
       <div className='flex flex-col w-[492px] gap-4'>
         <h1 className='text-h1'>Edit card-pack</h1>
         <span className='text-label text-text-label font-noto'>
-          Update your card pack details.
+          Give your card-pack a unique name, image, and description to make it stand out in the gallery.
         </span>
       </div>
 
@@ -130,7 +130,7 @@ const CardPackEditor = () => {
           error={!!errors.name}
           isValid={isNameValid}
           helpText={errors.name ? errors.name.message : 'You can rename it here'}
-          successText='correct format'
+          successText='Correct Format'
         />
 
         <StatusLabel status={parseUpperCase(packData?.status) || 'Draft'} helpText='Current progress state'/>

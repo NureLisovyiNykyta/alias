@@ -100,8 +100,7 @@ const CardPackCreator = () => {
       <div className='flex flex-col w-[492px] gap-4'>
         <h1 className='text-h1'>Create new card-pack</h1>
         <span className='text-label text-text-label font-noto'>
-          Click on any cell in the grid to customize its individual properties,
-          such as task type, time limits, and point values.
+          Fill in the details below to set up your new card pack
         </span>
       </div>
 
@@ -114,7 +113,7 @@ const CardPackCreator = () => {
           error={!!errors.name}
           isValid={isNameValid}
           helpText={errors.name ? errors.name.message : 'You will be able to rename it later'}
-          successText='correct format'
+          successText='Correct Format'
         />
 
         <StatusLabel status='Draft' helpText='Current progress state'/>
@@ -131,7 +130,7 @@ const CardPackCreator = () => {
               error={!!errors.image}
               isValid={isImageValid}
               helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
-              successText='correct format'
+              successText='Correct Format'
             />
           )}
         />
