@@ -5,6 +5,7 @@ import App from './App.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext.jsx';
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { NotificationProvider } from "@/contexts/NotificationContext.jsx";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -20,11 +21,13 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <App/>
-        </AuthProvider>
-      </QueryClientProvider>
+      <NotificationProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <App/>
+          </AuthProvider>
+        </QueryClientProvider>
+      </NotificationProvider>
     </GoogleOAuthProvider>
   </StrictMode>,
 )

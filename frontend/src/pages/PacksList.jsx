@@ -17,7 +17,7 @@ const PacksList = () => {
   ];
 
   return (
-    <main className="flex flex-col w-full p-5 gap-5">
+    <main className="flex flex-col w-full gap-5">
       <RowNavigation links={links}/>
 
       <div className='flex flex-col gap-8'>

@@ -12,7 +12,7 @@ const MainLayout = () => {
         <div className="flex-1 grid grid-cols-[auto_1fr]">
           <Navigation/>
 
-          <div className="min-w-0 relative">
+          <div className="min-w-0 relative p-5">
             <Outlet/>
           </div>
         </div>

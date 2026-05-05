@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-05-05
+
+### Added
+- **Card Pack Editing**: Implemented the `CardPackEditor.jsx` component to handle updates to existing card packs. It pre-fills data and restricts changing the pack type.
+- **Map Editing**: Implemented the `MapEditor.jsx` component to allow users to update existing map details (name and image). It fetches current map data and restricts template modification.
+- **Editor API Integration**: Added `getPackById` (GET) and `updatePack` (PATCH) endpoints for card packs to `api/card-packs.js`, and equivalent endpoints (`getMapById`, `updateMap`) for maps to `api/maps.js` along with their respective `react-query` hooks.
+- **Navigation Assets**: Added new SVG icons (`grayPlus.svg`, `greenGlove.svg`, `redGlove.svg`) for the sidebar navigation.
+
+### Changed
+- **Navigation Menu Update**: Refactored `Navigation.jsx` to include "My packs" and "My maps" sections. Implemented conditional rendering for pack/map avatars (displaying grey placeholders if no image exists) and integrated the new SVG icons.
+- **Creator Form Validation**: Upgraded `CardPackCreator.jsx` and `MapCreator.jsx` to use `react-hook-form` and `zod` for strict client-side validation on the `name` and `image` fields, aligning the UX with the authentication forms.
+- **Input Components Refactoring**:
+  - Wrapped `TransparentInput.jsx` and `ImageInput.jsx` in `React.forwardRef` to seamlessly integrate with `react-hook-form`.
+  - Added dynamic visual states (red/green borders and helper texts) for success and error validation outcomes.
+
+### Fixed
+- **File Input Bug**: Resolved an issue in `ImageInput.jsx` where `react-hook-form` passed a `null` value to the uncontrolled `<input type="file">`, causing React warnings. The `value` prop is now properly extracted and excluded from native DOM attributes.
+
+## [0.8.3] - 2026-05-04
+
+### Added
+- **API Integration for Pack Creation**: Integrated the `/api/card-packs/` endpoint (POST) within `CardPackCreator.jsx` to allow users to save drafts of new card packs.
+- **Dynamic Pack Types Fetching**: Replaced mock data in the `DropDown` component with a dynamic fetch from the `/api/card-packs/types` endpoint (GET), automatically mapping the response `name` to the component's expected `label`.
+- **Form Validation & UX**: Implemented client-side validation in `CardPackCreator.jsx`, disabling the "Save to Draft" button until all required fields (Name, Type, Description) are populated.
+- **Seamless Redirection Flow**: Added a delayed redirection mechanism using `react-router-dom`'s `useNavigate`. After successfully saving a draft, users are shown a success notification for 2.5 seconds before being automatically routed to the next step (`/edit/card-pack/:id/words`), utilizing the newly generated pack `id` from the API response.
+
+### Changed
+- **Input Component Updates**: Modified `TransparentInput.jsx` to function as a controlled component, accepting `value` and `onChange` props to manage local state within the creator form.
+- **Hook Refactoring**: Adjusted `useCreatePackMutation` to accept and execute an `onSuccess` callback provided by the component, ensuring the automatic redirection logic correctly utilizes the returned API data without interfering with global notifications.
+- 
+## [0.8.2] - 2026-05-04
+
+### Added
+- **Global Notifications**: Implemented a global `NotificationContext` and a `Notification` component utilizing `framer-motion` for smooth slide-in animations from the right side of the screen (`x: 100`).
+- **Date Formatting Utility**: Created `formatPackDate` helper (`utils/parseTime.js`) using `Intl.DateTimeFormat` to convert ISO 8601 strings into a localized "Month, Year" format (e.g., "May, 2026").
+- **Profile Enhancements**: Updated the `Profile.jsx` page to display the user's registration date (`created_at`) and total games played (`games_played`), utilizing the new date formatting utility.
+- **Save Pack Feedback**: Integrated the `useNotification` hook into the `useSavePackMutation` to provide immediate, auto-dismissing visual feedback upon successfully saving a community pack.
+
+### Changed
+- Refined the `Notification` component styling, applying a `bg-decorative-500/22` background with a 22% opacity modifier for success states.
+- Optimized API hook structure by consolidating `getPublicPacks`, `getSavedPacks`, and `getMyPacks` into a unified `useQuery` call driven by the active tab configuration in the Packs Gallery.
+
+## [0.8.1] - 2026-05-04
+
+### Added
+- **New Component**: `Spinner.jsx` - A reusable circular loading spinner component utilizing `framer-motion` and Tailwind CSS.
+- **API Integration**: Integrated backend endpoints (`/api/card-packs/public`, `/api/card-packs/saved`, `/api/card-packs/me`) via `@tanstack/react-query` to fetch and display card packs.
+- **Gallery Features**: Implemented pagination and dropdown sorting functionality for the Packs Gallery.
+- **Save Pack Action**: Added API integration (`/api/card-packs/{pack_id}/save`) to allow users to save community packs to their personal collection.
+
+### Changed
+- Refactored `PacksGallery.jsx` to use a tabbed UI interface (Community, Saved, My Creations) instead of separate routes.
+- Updated `CardPack.jsx` to conditionally render the "+ Save to My packs" button strictly for public packs, including an inline spinner during the save mutation.
+
+## [0.8.0] - 2026-05-03
+
+### Added
+- **Creation & Editing Pages UI**: Implemented the layout and interface for the core game entity creation and management flows.
+- **New Pages**:
+  - `CardPackCreator.jsx` (and `TaskCreator.jsx`): UI page for creating and configuring new card-packs, including naming, availability, and image upload.
+  - `MapCreatorPage.jsx`: UI page for creating new maps, integrating map template selection and draft saving capabilities.
+  - `EditMapValuesPage.jsx`: UI page for editing existing map metadata and configurations with integrated breadcrumb navigation.
+- **New Components**:
+  - `MapTemplateSelector.jsx`: A composite, reusable component that combines a `DropDown` with a dynamic visual map preview area to select map layouts.
+  - `StatusLabel.jsx`: A standardized label component to display the current state/status of an entity (e.g., "Draft").
+
+### Changed
+- Integrated existing UI elements (`RowNavigation`, `TransparentInput`, `ImageInput`, `Switch`, `TextArea`) into complex page layouts to form cohesive entity creation forms.
+
+## [0.7.1] - 2026-05-03
+
+### Added
+- **UI Expansion & Refactoring**: Implemented a suite of new specialized input components to avoid "God Object" complexity in the core `Input` component and prepare for the card-pack creation UI.
+- **New Components**:
+  - `TransparentInput.jsx`: A minimalist, underlined input field designed for secondary forms and entity naming (e.g., card-pack titles).
+  - `TextArea.jsx`: A fixed-size (636x144px) multi-line text input with custom scroll styling and disabled resizing to maintain layout integrity.
+  - `ImageInput.jsx`: A stylized file upload component that masks native browser inputs, featuring dynamic filename display and specific image format constraints (`.png`, `.jpg`, `.jpeg`).
+  - `Switch.jsx`: A high-fidelity toggle component with "pill" background animations using `framer-motion` and `layoutId` for smooth transitions between states.
+  - `DropDown.jsx`: A fully accessible, animated select component built with `@headlessui/react`, supporting custom icons, search-like styling, and `framer-motion` transitions.
+- **Animation System**: Integrated `framer-motion` for spring-based UI transitions, specifically for the new `Switch` and `DropDown` components.
+
+### Changed
+- Improved component architecture by separating form-style inputs (Auth) from content-creation inputs (Gallery/Editor), ensuring better maintainability and cleaner CSS via Tailwind.
+
 ## [0.7.0] - 2026-05-03
 
 ### Added

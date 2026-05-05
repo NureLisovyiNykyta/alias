@@ -4,7 +4,7 @@ import InfoCards from "@/components/InfoCards.jsx";
 
 const Landing = () => {
   return (
-    <main className='min-h-screen w-full flex flex-col gap-16 p-5'>
+    <main className='min-h-screen w-full flex flex-col gap-16'>
       <CodeInput/>
       <InfoCards/>
       <DiscordLink/>
