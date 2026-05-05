@@ -11,6 +11,7 @@ const ImageInput = forwardRef(({
                                  successText = "File attached",
                                  wide = false,
                                  onChange,
+                                 value, // <--- Добавили value сюда, чтобы исключить его из ...props
                                  ...props
                                }, ref) => {
   const [fileName, setFileName] = useState('');
@@ -22,13 +23,12 @@ const ImageInput = forwardRef(({
     borderColorClass = 'border-decorative-700';
   }
 
-  let messageToDisplay = error || helpText;
+  let messageToDisplay = error ? helpText : (isValid ? successText : helpText);
   let messageColorClass = 'text-text-label';
 
   if (error) {
     messageColorClass = 'text-red-500';
   } else if (isValid) {
-    messageToDisplay = successText;
     messageColorClass = 'text-decorative-700';
   }
 
@@ -50,7 +50,7 @@ const ImageInput = forwardRef(({
       <span className="font-noto text-p">{label}</span>
 
       <label
-        htmlFor={id}
+        htmlFor={id || "image-upload"}
         className={`flex bg-surface items-center border ${borderColorClass} rounded-[8px] py-[10px] px-4 justify-between h-[48px] transition-colors cursor-pointer hover:border-gray-400`}
       >
         <span className={`text-label font-noto truncate ${fileName ? 'text-text' : 'text-text-label'}`}>
@@ -60,7 +60,7 @@ const ImageInput = forwardRef(({
         <img src={upload} alt="Upload an image"/>
 
         <input
-          id={id}
+          id={id || "image-upload"}
           type="file"
           accept=".png, .jpg, .jpeg"
           ref={ref}

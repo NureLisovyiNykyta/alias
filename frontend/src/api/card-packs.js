@@ -33,6 +33,16 @@ export const getPackTypes = async () => {
   return response.data;
 };
 
+export const getPackById = async (packId) => {
+  const response = await api.get(`/card-packs/${packId}`);
+  return response.data;
+};
+
+export const updatePack = async ({ packId, packData }) => {
+  const response = await api.patch(`/card-packs/${packId}`, packData);
+  return response.data;
+};
+
 // Query Hooks ------------------
 
 export const usePublicPacksQuery = (params, options) => {
@@ -86,6 +96,22 @@ export const usePackTypesQuery = (options) => {
   return useQuery({
     queryKey: ['packTypes'],
     queryFn: getPackTypes,
+    ...options,
+  });
+};
+
+export const usePackQuery = (packId, options) => {
+  return useQuery({
+    queryKey: ['pack', packId],
+    queryFn: () => getPackById(packId),
+    enabled: !!packId,
+    ...options,
+  });
+};
+
+export const useUpdatePackMutation = (options) => {
+  return useMutation({
+    mutationFn: ({ packId, packData }) => updatePack({ packId, packData }),
     ...options,
   });
 };

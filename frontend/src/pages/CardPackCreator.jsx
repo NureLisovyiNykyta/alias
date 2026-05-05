@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useForm, useWatch, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import TransparentInput from "@/components/TransparentInput.jsx";
 import ImageInput from "@/components/ImageInput.jsx";
 import StatusLabel from "@/components/StatusLabel.jsx";
@@ -11,6 +14,11 @@ import RowNavigation from "@/components/RowNavigation.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useNavigate } from "react-router-dom";
 
+const createPackSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  image: z.any().refine((file) => file !== null && file !== undefined, "Image is required"),
+});
+
 const CardPackCreator = () => {
   const { showNotification, closeNotification } = useNotification();
   const navigate = useNavigate();
@@ -20,7 +28,25 @@ const CardPackCreator = () => {
     { id: 2, label: 'Card Pack Creator', path: null }
   ];
 
-  const [name, setName] = useState('');
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(createPackSchema),
+    mode: "onChange",
+    defaultValues: {
+      name: '',
+      image: null,
+    }
+  });
+
+  const [currentName, currentImage] = useWatch({
+    control,
+    name: ["name", "image"],
+  });
+
   const [description, setDescription] = useState('');
   const [selectedType, setSelectedType] = useState(null);
 
@@ -53,13 +79,15 @@ const CardPackCreator = () => {
     },
   });
 
-  const isFormValid = name.trim() !== '' && description.trim() !== '' && selectedType !== null;
+  const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.name;
+  const isImageValid = !!currentImage && !errors.image;
+  const isFormValid = isNameValid && isImageValid && description.trim() !== '' && selectedType !== null;
 
-  const handleSave = () => {
+  const onSubmit = (data) => {
     if (!isFormValid) return;
 
     createPack({
-      name: name,
+      name: data.name,
       description: description,
       type_id: selectedType.id
     });
@@ -82,16 +110,31 @@ const CardPackCreator = () => {
           width='w-[310px]'
           label='Name your card pack'
           placeholder='Castles in Ukraine'
-          helpText='You will be able to rename it later'
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          {...register('name')}
+          error={!!errors.name}
+          isValid={isNameValid}
+          helpText={errors.name ? errors.name.message : 'You will be able to rename it later'}
+          successText='correct format'
         />
 
         <StatusLabel status='Draft' helpText='Current progress state'/>
       </div>
 
       <div className='w-full flex items-center gap-23'>
-        <ImageInput/>
+        <Controller
+          control={control}
+          name="image"
+          render={({ field: { onChange, value } }) => (
+            <ImageInput
+              value={value}
+              onChange={onChange}
+              error={!!errors.image}
+              isValid={isImageValid}
+              helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
+              successText='correct format'
+            />
+          )}
+        />
         <StatusLabel
           title='Deck’s availability'
           status='Private'
@@ -143,7 +186,7 @@ const CardPackCreator = () => {
       <Button
         className='self-end'
         disabled={!isFormValid || isPending}
-        onClick={handleSave}
+        onClick={handleSubmit(onSubmit)}
       >
         {isPending ? <Spinner size='sm' /> : 'Save to Draft'}
       </Button>

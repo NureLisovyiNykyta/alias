@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-05-05
+
+### Added
+- **Card Pack Editing**: Implemented the `CardPackEditor.jsx` component to handle updates to existing card packs. It pre-fills data and restricts changing the pack type.
+- **Editor API Integration**: Added `getPackById` (GET) and `updatePack` (PATCH) endpoints to `api/card-packs.js` along with their respective `react-query` hooks (`usePackQuery`, `useUpdatePackMutation`).
+- **Navigation Assets**: Added new SVG icons (`grayPlus.svg`, `greenGlove.svg`, `redGlove.svg`) for the sidebar navigation.
+
+### Changed
+- **Navigation Menu Update**: Refactored `Navigation.jsx` to include "My packs" and "My maps" sections. Implemented conditional rendering for pack/map avatars (displaying grey placeholders if no image exists) and integrated the new SVG icons.
+- **Creator Form Validation**: Upgraded `CardPackCreator.jsx` to use `react-hook-form` and `zod` for strict client-side validation on the `name` and `image` fields, aligning the UX with the authentication forms.
+- **Input Components Refactoring**:
+  - Wrapped `TransparentInput.jsx` and `ImageInput.jsx` in `React.forwardRef` to seamlessly integrate with `react-hook-form`.
+  - Added dynamic visual states (red/green borders and helper texts) for success and error validation outcomes.
+
+### Fixed
+- **File Input Bug**: Resolved an issue in `ImageInput.jsx` where `react-hook-form` passed a `null` value to the uncontrolled `<input type="file">`, causing React warnings. The `value` prop is now properly extracted and excluded from native DOM attributes.
+
 ## [0.8.3] - 2026-05-04
 
 ### Added
