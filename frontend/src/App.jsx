@@ -15,6 +15,7 @@ import MapCreator from "@/pages/MapCreator.jsx";
 import CardPackEditor from "@/pages/CardPackEditor.jsx";
 import MapEditor from "@/pages/MapEditor.jsx";
 import WordsEditor from "@/pages/WordsEditor.jsx";
+import MapFieldsEditor from "@/pages/MapFieldsEditor.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -44,6 +45,7 @@ function App() {
             <Route path='card-pack/:id' element={<CardPackEditor/>}/>
             <Route path='card-pack/:id/words' element={<WordsEditor/>}/>
             <Route path="map/:id" element={<MapEditor/>}/>
+            <Route path="map/:id/fields" element={<MapFieldsEditor/>}/>
           </Route>
         </Route>
 
