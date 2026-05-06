@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2026-05-06
+
+### Added
+- **Vocabulary Data Fetching**: Integrated `usePackCardsQuery` to automatically load and populate the words list from the backend when editing a card pack.
+- **Save State Tracking**: Implemented an `originalWords` state to track backend data vs. local edits. The "Save" button is now dynamically disabled if no changes have been made (`!hasChanges`) or if the list contains fewer than 2 words.
+- **Publish & Activate Flows**: Added conditional rendering for final action buttons based on the pack's `status` and `is_public` flags.
+  - Displays an "Activate" button for packs in `DRAFT` status.
+  - Displays a "Publish" button for packs in `ACTIVE` status that are private.
+- **API Endpoints**: Expanded `api/card-packs.js` with new requests and mutations: `usePackCardsQuery` (GET), `useBulkSyncCardsMutation` (PUT), `useActivatePackMutation` (POST), and `usePublishPackMutation` (POST).
+
+### Changed
+- **WordsEditor Cleanup**: Removed all `framer-motion` animations from the `WordsEditor` list and buttons to simplify rendering and state management. The component now utilizes standard React state and DOM rendering.
+- **Word Import Logic**: Updated `WordImportForm` to support initialization with existing words (`initialWords` prop) and apply string cleaning (`.trim()`) to prevent empty or space-only entries from being imported.
+
 ## [0.10.0] - 2026-05-05
 
 ### Added

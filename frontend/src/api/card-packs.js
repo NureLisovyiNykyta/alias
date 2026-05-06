@@ -43,6 +43,26 @@ export const updatePack = async ({ packId, packData }) => {
   return response.data;
 };
 
+export const getPackCards = async (packId) => {
+  const response = await api.get(`/card-packs/${packId}/cards`);
+  return response.data;
+};
+
+export const bulkSyncCards = async ({ packId, cards }) => {
+  const response = await api.put(`/card-packs/${packId}/cards`, { cards });
+  return response.data;
+};
+
+export const activatePack = async (packId) => {
+  const response = await api.post(`/card-packs/${packId}/activate`);
+  return response.data;
+};
+
+export const publishPack = async (packId) => {
+  const response = await api.post(`/card-packs/${packId}/publish`);
+  return response.data;
+};
+
 // Query Hooks ------------------
 
 export const usePublicPacksQuery = (params, options) => {
@@ -112,6 +132,36 @@ export const usePackQuery = (packId, options) => {
 export const useUpdatePackMutation = (options) => {
   return useMutation({
     mutationFn: ({ packId, packData }) => updatePack({ packId, packData }),
+    ...options,
+  });
+};
+
+export const usePackCardsQuery = (packId, options) => {
+  return useQuery({
+    queryKey: ['packCards', packId],
+    queryFn: () => getPackCards(packId),
+    enabled: !!packId,
+    ...options,
+  });
+};
+
+export const useBulkSyncCardsMutation = (options) => {
+  return useMutation({
+    mutationFn: ({ packId, cards }) => bulkSyncCards({ packId, cards }),
+    ...options,
+  });
+};
+
+export const useActivatePackMutation = (options) => {
+  return useMutation({
+    mutationFn: (packId) => activatePack(packId),
+    ...options,
+  });
+};
+
+export const usePublishPackMutation = (options) => {
+  return useMutation({
+    mutationFn: (packId) => publishPack(packId),
     ...options,
   });
 };

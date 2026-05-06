@@ -1,7 +1,27 @@
+import React, { useState, useEffect } from 'react';
 import { Dialog } from '@headlessui/react';
 import { Button } from "@/components/Button.jsx";
 
-const WordImportForm = ({ isOpen, onClose }) => {
+const WordImportForm = ({ isOpen, onClose, initialWords = [], onApply }) => {
+  const [text, setText] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setText(initialWords.join(', '));
+    }
+  }, [isOpen, initialWords]);
+
+  const handleApply = () => {
+    const newWords = text
+      .split(',')
+      .map(word => word.trim())
+      .filter(word => word.length > 0);
+
+    const uniqueWords = [...new Set(newWords)];
+    onApply(uniqueWords);
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/70" aria-hidden="true" />
@@ -14,11 +34,9 @@ const WordImportForm = ({ isOpen, onClose }) => {
 
           <textarea
             placeholder='Add the words'
-            className='w-full bg-white rounded-[8px] h-full border border-text-label p-4 text-label font-noto outline-none placeholder:text-text-label'
-            name=""
-            id=""
-            cols="30"
-            rows="10"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className='w-full bg-white rounded-[8px] h-full border border-text-label p-4 text-label font-noto outline-none placeholder:text-text-label resize-none'
           />
 
           <div className='flex w-full items-center justify-between'>
@@ -26,7 +44,9 @@ const WordImportForm = ({ isOpen, onClose }) => {
               Cancel
             </Button>
 
-            <Button>
+            <Button
+              onClick={handleApply}
+            >
               Apply
             </Button>
           </div>
