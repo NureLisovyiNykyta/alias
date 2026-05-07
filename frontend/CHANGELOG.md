@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.3] - 2026-05-07
+
+### Added
+- **Delta Sync Support**: Integrated `id`-based syncing for both `WordsEditor` and `MapFieldsEditor`. Existing items fetched from the backend retain their IDs during updates, while newly added items are appended without IDs, strictly matching the API requirements for `PUT` routes to minimize database overhead.
+- **Form Defaults in Map Editor**: Initialized the settings inputs in `MapFieldsEditor` with default functional values (`50` time limit, `10` reward, `1` penalty). The inputs automatically revert to these optimal values upon clearing/applying the form, preventing the need for repetitive manual entry.
+
+### Changed
+- **Additive Import Strategy**: Redesigned `WordImportForm` to operate strictly on an additive basis. The modal no longer displays previously saved words upon opening, reducing clutter. Successfully submitted strings are deduplicated and safely appended to the local state as new objects.
+- **Grid Layout Simplification**: Removed the `notACellIndices` concept from the `MapFieldsEditor`. All 40 cells within the 10x4 grid are now strictly active and clickable.
+- **Map Activation Constraint**: The "Activate" button inside `MapFieldsEditor` is now strictly disabled unless all 40 grid cells are successfully populated with field data (`isAllCellsFilled`).
+
+## [0.10.2] - 2026-05-07
+
+### Added
+- **Interactive Map Grid**: Implemented a 10x4 CSS Grid in `MapFieldsEditor.jsx` for visual map configuration, allowing users to select cells by clicking or typing coordinates (supporting ranges like "1, 3, 5-7").
+- **Field Editor State & Validation**: Added local state management (`gridFields`, `originalFields`) to track changes. The "Apply" button is dynamically disabled until all required parameters (card pack, time limit, reward, penalty) are filled.
+- **Publish & Activate Flows for Maps**: Added conditional rendering for final action buttons based on the map's `status` and `is_public` flags (Activate for `DRAFT`, Publish for private `ACTIVE`), mirroring the logic in the Words Editor.
+- **Maps API Expansion**: Expanded `api/maps.js` with new endpoints and `react-query` hooks: `useMapFieldsQuery` (GET), `useBulkSyncFieldsMutation` (PUT), `useActivateMapMutation` (POST), and `usePublishMapMutation` (POST).
+
+### Changed
+- **Grid Layout Architecture**: Replaced the placeholder flex container in the map editor with a fully functional `grid-cols-10 grid-rows-4` structure to accurately map a 40-cell 2D array.
+- **Cell Visual States**: Updated cell UI to dynamically reflect their statuses: empty (with hover dot), filled (`bg-brand-500`), and invalid/inactive ("Not A Cell" restricted corners).
+
+## [0.10.1] - 2026-05-06
+
+### Added
+- **Vocabulary Data Fetching**: Integrated `usePackCardsQuery` to automatically load and populate the words list from the backend when editing a card pack.
+- **Save State Tracking**: Implemented an `originalWords` state to track backend data vs. local edits. The "Save" button is now dynamically disabled if no changes have been made (`!hasChanges`) or if the list contains fewer than 2 words.
+- **Publish & Activate Flows**: Added conditional rendering for final action buttons based on the pack's `status` and `is_public` flags.
+  - Displays an "Activate" button for packs in `DRAFT` status.
+  - Displays a "Publish" button for packs in `ACTIVE` status that are private.
+- **API Endpoints**: Expanded `api/card-packs.js` with new requests and mutations: `usePackCardsQuery` (GET), `useBulkSyncCardsMutation` (PUT), `useActivatePackMutation` (POST), and `usePublishPackMutation` (POST).
+
+### Changed
+- **WordsEditor Cleanup**: Removed all `framer-motion` animations from the `WordsEditor` list and buttons to simplify rendering and state management. The component now utilizes standard React state and DOM rendering.
+- **Word Import Logic**: Updated `WordImportForm` to support initialization with existing words (`initialWords` prop) and apply string cleaning (`.trim()`) to prevent empty or space-only entries from being imported.
+
+## [0.10.0] - 2026-05-05
+
+### Added
+- **Word Import Modal**: Transformed `WordImportForm` into a fully accessible modal using `@headlessui/react` `Dialog`, featuring a dark background overlay and clean open/close state management from the editor.
+- **Dynamic Vocabulary List**: Implemented a "Show all" / "Show less" toggle in the `WordsEditor` component. The list now intelligently truncates at 20 items to keep the UI clean, allowing users to expand the view when needed.
+- **List Animations**: Integrated `framer-motion` into the `WordsEditor` vocabulary list. Word cards now feature smooth entrance/exit animations (sliding in from the left), and the container dynamically and smoothly resizes using the `layout` prop when the list expands or collapses.
+
+### Changed
+- **Words Editor State**: Upgraded `WordsEditor.jsx` to manage local states for the import modal visibility and the expanded/collapsed view of the vocabulary array.
+
+### Fixed
+- **Git Tracking Chore**: Removed local `.env` files from the Git tracking index and updated `.gitignore` to securely handle local environment variables and prevent accidental leaks.
+
 ## [0.9.0] - 2026-05-05
 
 ### Added

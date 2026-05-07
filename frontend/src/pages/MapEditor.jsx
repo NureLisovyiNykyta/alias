@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -109,19 +109,19 @@ const MapEditor = () => {
       <div className="flex flex-col w-full gap-4">
         <div className="flex items-center justify-between w-full">
           <h1 className="text-h1">Edit the map values</h1>
-          <button
-            onClick={() => navigate(`/edit/map/${mapId}/fields`)}
+          <Link
+            to={`/edit/map/${mapId}/fields`}
             className="text-brand-500 hover:text-brand-700 transition-colors text-label font-noto"
           >
             Edit the map fields →
-          </button>
+          </Link>
         </div>
         <span className="text-label text-text-label font-noto w-[492px]">
           Set up your map by filling in the required details and selecting your preferences.
         </span>
       </div>
 
-      <div className="w-full flex items-start gap-12">
+      <div className='w-full flex items-center gap-16'>
         <TransparentInput
           width="w-[310px]"
           label="Name your map"
@@ -133,29 +133,27 @@ const MapEditor = () => {
           successText='Correct format'
         />
 
-        <div className="w-[310px]">
-          <Controller
-            control={control}
-            name="image"
-            render={({ field: { onChange, value } }) => (
-              <ImageInput
-                label="Choose the image"
-                placeholder="Upload an image"
-                wide={true}
-                value={value}
-                onChange={onChange}
-                error={!!errors.image}
-                isValid={!!value && !errors.image}
-                helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
-                successText='Image uploaded'
-              />
-            )}
-          />
-        </div>
+        <StatusLabel status={parseUpperCase(mapData?.status)|| 'Draft'} helpText='Current progress state'/>
       </div>
 
-      <div className='flex items-center gap-56'>
-        <StatusLabel status={parseUpperCase(mapData?.status)|| 'Draft'} helpText='Current progress state'/>
+      <div className='w-full flex gap-23'>
+        <Controller
+          control={control}
+          name="image"
+          render={({ field: { onChange, value } }) => (
+            <ImageInput
+              label="Choose the image"
+              placeholder="Upload an image"
+              value={value}
+              onChange={onChange}
+              error={!!errors.image}
+              isValid={!!value && !errors.image}
+              helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
+              successText='Image uploaded'
+            />
+          )}
+        />
+
         <StatusLabel
           title='Map’s availability'
           status={mapData?.is_public ? 'Public' : 'Private'}

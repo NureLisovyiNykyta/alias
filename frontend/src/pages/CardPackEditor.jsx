@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import TransparentInput from "@/components/TransparentInput.jsx";
 import ImageInput from "@/components/ImageInput.jsx";
 import StatusLabel from "@/components/StatusLabel.jsx";
@@ -27,8 +27,7 @@ const CardPackEditor = () => {
 
   const navLinks = [
     { id: 1, label: 'Main Page', path: '/' },
-    { id: 2, label: 'My Packs', path: '/my-packs' },
-    { id: 3, label: 'Edit Card Pack', path: null }
+    { id: 2, label: 'Edit Card Pack', path: null }
   ];
 
   const {
@@ -114,8 +113,16 @@ const CardPackEditor = () => {
     <div className='flex flex-col w-full gap-8'>
       <RowNavigation links={navLinks} />
 
-      <div className='flex flex-col w-[492px] gap-4'>
-        <h1 className='text-h1'>Edit card-pack</h1>
+      <div className='flex flex-col w-full gap-4'>
+        <div className="flex items-center justify-between w-full">
+          <h1 className="text-h1">Edit the card-pack</h1>
+          <Link
+            to={`/edit/card-pack/${packId}/words`}
+            className="text-brand-500 hover:text-brand-700 transition-colors text-label font-noto"
+          >
+            Edit the card-pack words →
+          </Link>
+        </div>
         <span className='text-label text-text-label font-noto'>
           Give your card-pack a unique name, image, and description to make it stand out in the gallery.
         </span>
