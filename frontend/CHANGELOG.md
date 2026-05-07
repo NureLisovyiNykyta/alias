@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.1] - 2026-05-07
+
+### Changed
+- **Dynamic Navigation Lists**: Updated the `Navigation.jsx` sidebar to support real data fetch and dynamic list expansion by adding "Show all" and "Show less" toggle buttons for the "My packs" and "My maps" sections.
+- **Conditional Data Fetching**: Modified the API query hooks (`useMyPacksQuery`, `useMyMapsQuery`) within the navigation component to dynamically switch between a strict `{ limit: 4 }` constraint and an unlimited fetch based on the user's toggle state.
+- **Smart UI Rendering**: Added logic to conditionally render the expansion toggle buttons only when the total number of items from the backend (`total > 4`) exceeds the default visible limit.
+
 ## [0.12.0] - 2026-05-07
 
 ### Added

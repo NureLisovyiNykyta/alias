@@ -44,6 +44,11 @@ export const updateMap = async ({ mapId, mapData }) => {
   return response.data;
 };
 
+export const getMyMaps = async (params) => {
+  const response = await api.get('/maps/me', { params });
+  return response.data;
+};
+
 // --- Query Hooks ---
 
 export const useMapTemplatesQuery = (options) => {
@@ -103,6 +108,14 @@ export const useMapFieldsQuery = (mapId, options) => {
     queryKey: ['mapFields', mapId],
     queryFn: () => getMapFields(mapId),
     enabled: !!mapId,
+    ...options,
+  });
+};
+
+export const useMyMapsQuery = (params, options) => {
+  return useQuery({
+    queryKey: ['myMaps', params],
+    queryFn: () => getMyMaps(params),
     ...options,
   });
 };
