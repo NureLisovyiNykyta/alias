@@ -22,6 +22,7 @@ import {
   useDeleteMeMutation
 } from "@/api/user.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
+import ConfirmWindow from "@/components/layouts/ConfirmWindow.jsx";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
@@ -41,9 +42,11 @@ const profileSchema = z.object({
 });
 
 const MyProfile = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { showNotification } = useNotification();
   const [avatarPreview, setAvatarPreview] = useState(null);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { mutate: updateMe, isPending: isUpdating } = useUpdateMeMutation();
   const { mutate: changePassword, isPending: isChangingPassword } = useChangePasswordMutation();
@@ -98,12 +101,6 @@ const MyProfile = () => {
     });
   };
 
-  const handleDeleteAccount = () => {
-    if (window.confirm("Are you sure you want to permanently delete your account? This action cannot be undone.")) {
-      deleteMe();
-    }
-  };
-
   const handleCopyLink = () => {
     if (user?.username) {
       const link = `${window.location.origin}/user/${user.username}`;
@@ -124,6 +121,12 @@ const MyProfile = () => {
     if (file) {
       setAvatarPreview(URL.createObjectURL(file));
     }
+  };
+
+  const confirmDeleteAccount = () => {
+    deleteMe();
+    setIsDeleteModalOpen(false);
+    logout();
   };
 
   const displayAvatar = avatarPreview || user?.avatar_url || profile;
@@ -277,7 +280,7 @@ const MyProfile = () => {
 
             <Button
               variant='tertiary'
-              onClick={handleDeleteAccount}
+              onClick={() => setIsDeleteModalOpen(true)}
             >
               <div className='flex items-center gap-2'>
                 <img src={cross} alt="Delete"/>
@@ -287,6 +290,14 @@ const MyProfile = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmWindow
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onSuccess={confirmDeleteAccount}
+        title="Are you sure you want to delete your account? "
+        label="This action cannot be undone and all your data will be permanently removed."
+      />
     </main>
   );
 };
