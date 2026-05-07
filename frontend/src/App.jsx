@@ -17,6 +17,7 @@ import MapEditor from "@/pages/MapEditor.jsx";
 import WordsEditor from "@/pages/WordsEditor.jsx";
 import MapFieldsEditor from "@/pages/MapFieldsEditor.jsx";
 import PublicProfile from "@/pages/PublicProfile.jsx";
+import MapPreview from "@/pages/MapPreview.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -38,6 +39,7 @@ function App() {
           </Route>
 
           <Route path='user/:username' element={<PublicProfile/>}/>
+          <Route path='map/:id' element={<MapPreview/>}/>
 
           <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
             <Route path="card-pack" element={<CardPackCreator/>}/>

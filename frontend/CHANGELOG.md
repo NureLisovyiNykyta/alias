@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-05-07
+
+### Added
+- **Map Preview Page**: Implemented a new read-only `MapPreview.jsx` page allowing users to publicly inspect map layers, configurations, and data fields.
+- **Map Preview Board**: Created the `MapPreviewBoard.jsx` component following Atomic Design principles. It features an interactive 10x4 visual grid where users can select specific cells to view their properties (time limit, reward, penalty) and trace data sources via direct links to the associated Card Packs.
+- **Map Card Component**: Added `MapCard.jsx` to display comprehensive map metadata (image, title, creation date, total games played, rating, template, and field limit) utilizing a responsive CSS grid layout consistent with the overall design system.
+
 ## [0.11.1] - 2026-05-07
 
 ### Changed

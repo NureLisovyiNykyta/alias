@@ -34,8 +34,6 @@ export const publishMap = async (mapId) => {
   return response.data;
 };
 
-// --- Query Hooks ---
-
 export const getMapById = async (mapId) => {
   const response = await api.get(`/maps/${mapId}`);
   return response.data;
@@ -45,6 +43,8 @@ export const updateMap = async ({ mapId, mapData }) => {
   const response = await api.patch(`/maps/${mapId}`, mapData);
   return response.data;
 };
+
+// --- Query Hooks ---
 
 export const useMapTemplatesQuery = (options) => {
   return useQuery({
