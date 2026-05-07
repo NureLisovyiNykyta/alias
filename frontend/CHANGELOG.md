@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.1] - 2026-05-07
+
+### Changed
+- **Custom Confirmation Modal**: Upgraded `ConfirmWindow.jsx` into a fully accessible modal using `@headlessui/react` (`Dialog`, `Transition`). It now features a dark backdrop overlay (`bg-black/20`) and supports closing by clicking outside the modal or pressing the Escape key.
+- **Account Deletion Flow**: Replaced the native browser `window.confirm` dialogue in `MyProfile.jsx` with the custom `ConfirmWindow` modal for the "Delete account permanently" action, managing its visibility via a new local state.
+- **UX and Notifications**: Removed blocking native `alert()` calls in `MyProfile.jsx`. Integrated the global `useNotification` context to display smooth, animated success messages when copying the profile link, successfully updating the display name, or changing the password.
+
 ## [0.11.0] - 2026-05-07
 
 ### Added

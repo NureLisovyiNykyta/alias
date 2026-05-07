@@ -297,6 +297,7 @@ const MyProfile = () => {
         onSuccess={confirmDeleteAccount}
         title="Are you sure you want to delete your account? "
         label="This action cannot be undone and all your data will be permanently removed."
+        paragraph='All your public card packs and maps will remain in the system with an anonymous author.'
       />
     </main>
   );
