@@ -121,7 +121,7 @@ const MapEditor = () => {
         </span>
       </div>
 
-      <div className="w-full flex items-start gap-12">
+      <div className='w-full flex items-center gap-16'>
         <TransparentInput
           width="w-[310px]"
           label="Name your map"
@@ -133,29 +133,27 @@ const MapEditor = () => {
           successText='Correct format'
         />
 
-        <div className="w-[310px]">
-          <Controller
-            control={control}
-            name="image"
-            render={({ field: { onChange, value } }) => (
-              <ImageInput
-                label="Choose the image"
-                placeholder="Upload an image"
-                wide={true}
-                value={value}
-                onChange={onChange}
-                error={!!errors.image}
-                isValid={!!value && !errors.image}
-                helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
-                successText='Image uploaded'
-              />
-            )}
-          />
-        </div>
+        <StatusLabel status={parseUpperCase(mapData?.status)|| 'Draft'} helpText='Current progress state'/>
       </div>
 
-      <div className='flex items-center gap-56'>
-        <StatusLabel status={parseUpperCase(mapData?.status)|| 'Draft'} helpText='Current progress state'/>
+      <div className='w-full flex gap-23'>
+        <Controller
+          control={control}
+          name="image"
+          render={({ field: { onChange, value } }) => (
+            <ImageInput
+              label="Choose the image"
+              placeholder="Upload an image"
+              value={value}
+              onChange={onChange}
+              error={!!errors.image}
+              isValid={!!value && !errors.image}
+              helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
+              successText='Image uploaded'
+            />
+          )}
+        />
+
         <StatusLabel
           title='Map’s availability'
           status={mapData?.is_public ? 'Public' : 'Private'}
