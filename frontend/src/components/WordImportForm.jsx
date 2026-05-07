@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { Button } from "@/components/Button.jsx";
 
-const WordImportForm = ({ isOpen, onClose, initialWords = [], onApply }) => {
+const WordImportForm = ({ isOpen, onClose, onApply }) => {
   const [text, setText] = useState('');
-
-  useEffect(() => {
-    if (isOpen) {
-      setText(initialWords.join(', '));
-    }
-  }, [isOpen, initialWords]);
 
   const handleApply = () => {
     const newWords = text
@@ -19,17 +13,23 @@ const WordImportForm = ({ isOpen, onClose, initialWords = [], onApply }) => {
 
     const uniqueWords = [...new Set(newWords)];
     onApply(uniqueWords);
+    setText('');
+    onClose();
+  };
+
+  const handleClose = () => {
+    setText('');
     onClose();
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+    <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/70" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className='w-[804px] h-[429px] rounded-[12px] border border-text-label bg-surface-light gap-8 p-4 flex flex-col'>
           <div className='w-full flex flex-col gap-2'>
-            <Dialog.Title as="h2" className='text-h2'>Import</Dialog.Title>
-            <span className='text-label text-text-label font-noto'>Enter keywords separated by commas, and they will automatically appear in your list.</span>
+            <Dialog.Title as="h2" className='text-h2'>Import New Words</Dialog.Title>
+            <span className='text-label text-text-label font-noto'>Enter new keywords separated by commas, and they will be appended to your list.</span>
           </div>
 
           <textarea
@@ -40,13 +40,11 @@ const WordImportForm = ({ isOpen, onClose, initialWords = [], onApply }) => {
           />
 
           <div className='flex w-full items-center justify-between'>
-            <Button variant='tertiary' onClick={onClose}>
+            <Button variant='tertiary' onClick={handleClose}>
               Cancel
             </Button>
 
-            <Button
-              onClick={handleApply}
-            >
+            <Button onClick={handleApply}>
               Apply
             </Button>
           </div>

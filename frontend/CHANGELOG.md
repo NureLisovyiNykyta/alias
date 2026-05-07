@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.3] - 2026-05-07
+
+### Added
+- **Delta Sync Support**: Integrated `id`-based syncing for both `WordsEditor` and `MapFieldsEditor`. Existing items fetched from the backend retain their IDs during updates, while newly added items are appended without IDs, strictly matching the API requirements for `PUT` routes to minimize database overhead.
+- **Form Defaults in Map Editor**: Initialized the settings inputs in `MapFieldsEditor` with default functional values (`50` time limit, `10` reward, `1` penalty). The inputs automatically revert to these optimal values upon clearing/applying the form, preventing the need for repetitive manual entry.
+
+### Changed
+- **Additive Import Strategy**: Redesigned `WordImportForm` to operate strictly on an additive basis. The modal no longer displays previously saved words upon opening, reducing clutter. Successfully submitted strings are deduplicated and safely appended to the local state as new objects.
+- **Grid Layout Simplification**: Removed the `notACellIndices` concept from the `MapFieldsEditor`. All 40 cells within the 10x4 grid are now strictly active and clickable.
+- **Map Activation Constraint**: The "Activate" button inside `MapFieldsEditor` is now strictly disabled unless all 40 grid cells are successfully populated with field data (`isAllCellsFilled`).
+
+## [0.10.2] - 2026-05-07
+
+### Added
+- **Interactive Map Grid**: Implemented a 10x4 CSS Grid in `MapFieldsEditor.jsx` for visual map configuration, allowing users to select cells by clicking or typing coordinates (supporting ranges like "1, 3, 5-7").
+- **Field Editor State & Validation**: Added local state management (`gridFields`, `originalFields`) to track changes. The "Apply" button is dynamically disabled until all required parameters (card pack, time limit, reward, penalty) are filled.
+- **Publish & Activate Flows for Maps**: Added conditional rendering for final action buttons based on the map's `status` and `is_public` flags (Activate for `DRAFT`, Publish for private `ACTIVE`), mirroring the logic in the Words Editor.
+- **Maps API Expansion**: Expanded `api/maps.js` with new endpoints and `react-query` hooks: `useMapFieldsQuery` (GET), `useBulkSyncFieldsMutation` (PUT), `useActivateMapMutation` (POST), and `usePublishMapMutation` (POST).
+
+### Changed
+- **Grid Layout Architecture**: Replaced the placeholder flex container in the map editor with a fully functional `grid-cols-10 grid-rows-4` structure to accurately map a 40-cell 2D array.
+- **Cell Visual States**: Updated cell UI to dynamically reflect their statuses: empty (with hover dot), filled (`bg-brand-500`), and invalid/inactive ("Not A Cell" restricted corners).
+
 ## [0.10.1] - 2026-05-06
 
 ### Added

@@ -31,10 +31,15 @@ const WordsEditor = () => {
 
   useEffect(() => {
     if (serverCards) {
-      const extractedWords = serverCards.map(card => card.content?.text || card.content || '');
-      const validWords = extractedWords.filter(w => w);
-      setWords(validWords);
-      setOriginalWords(validWords);
+      const extractedWords = serverCards
+        .map(card => ({
+          id: card.id,
+          text: card.content?.text || card.content || ''
+        }))
+        .filter(w => w.text);
+
+      setWords(extractedWords);
+      setOriginalWords(extractedWords);
     }
   }, [serverCards]);
 
@@ -93,22 +98,27 @@ const WordsEditor = () => {
     }
   });
 
-  const handleAddWord = (word) => {
-    if (!words.includes(word)) {
-      setWords([...words, word]);
+  const handleAddWord = (newText) => {
+    if (!words.some(w => w.text === newText)) {
+      setWords([...words, { text: newText }]);
     }
   };
 
-  const handleRemoveWord = (wordToRemove) => {
-    setWords(words.filter(word => word !== wordToRemove));
+  const handleRemoveWord = (wordObjToRemove) => {
+    setWords(words.filter(w => w.text !== wordObjToRemove.text));
   };
 
-  const handleImportWords = (importedWords) => {
-    setWords(importedWords);
+  const handleImportWords = (importedStrings) => {
+    const newWordObjects = importedStrings
+      .filter(str => !words.some(w => w.text === str))
+      .map(str => ({ text: str }));
+
+    setWords([...words, ...newWordObjects]);
   };
 
   const handleExport = () => {
-    navigator.clipboard.writeText(words.join(', '));
+    const textOnlyArray = words.map(w => w.text);
+    navigator.clipboard.writeText(textOnlyArray.join(', '));
     showNotification({
       title: "Copied!",
       message: "Word list copied to clipboard.",
@@ -117,9 +127,13 @@ const WordsEditor = () => {
   };
 
   const handleSave = () => {
-    const payloadCards = words.map(word => ({
-      content: { text: word }
-    }));
+    const payloadCards = words.map(w => {
+      const cardPayload = { content: { text: w.text } };
+      if (w.id) {
+        cardPayload.id = w.id;
+      }
+      return cardPayload;
+    });
 
     syncCards({ packId, cards: payloadCards });
   };
@@ -132,6 +146,7 @@ const WordsEditor = () => {
   const displayedWords = showAllWords ? words : words.slice(0, 20);
   const hasChanges = JSON.stringify(words) !== JSON.stringify(originalWords);
   const canSave = hasChanges && words.length >= 2 && !isSaving && !isCardsLoading;
+
   const isDraft = packData?.status?.toUpperCase() === 'DRAFT';
   const isActivePrivate = packData?.status?.toUpperCase() === 'ACTIVE' && !packData?.is_public;
 
@@ -173,14 +188,14 @@ const WordsEditor = () => {
             </div>
           ) : (
             <>
-              {displayedWords.map((word) => (
+              {displayedWords.map((wordObj, index) => (
                 <div
-                  key={word}
+                  key={wordObj.id || `new-${index}-${wordObj.text}`}
                   className='flex items-center h-12 border border-text-label gap-8 py-[10px] px-4 rounded-[8px] bg-white shrink-0'
                 >
-                  <span className='text-label font-noto'>{word}</span>
+                  <span className='text-label font-noto'>{wordObj.text}</span>
                   <button
-                    onClick={() => handleRemoveWord(word)}
+                    onClick={() => handleRemoveWord(wordObj)}
                     className='w-6 h-6 flex items-center justify-center hover:scale-115 transition-transform'
                   >
                     <img src={cross} alt="Remove Cross"/>
@@ -228,7 +243,7 @@ const WordsEditor = () => {
               >
                 Import
               </Button>
-              <span className='text-label text-text-label font-noto'>Open form to import word list</span>
+              <span className='text-label text-text-label font-noto'>Open form to import new words</span>
             </div>
           </div>
         </div>
@@ -262,7 +277,6 @@ const WordsEditor = () => {
       <WordImportForm
         isOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
-        initialWords={words}
         onApply={handleImportWords}
       />
     </div>
