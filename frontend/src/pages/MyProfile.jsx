@@ -15,7 +15,7 @@ const LINKS = [
   { label: "Accounts details", id: 2 },
 ];
 
-const Profile = () => {
+const MyProfile = () => {
   const { user } = useAuth();
 
   return (
@@ -106,4 +106,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default MyProfile;

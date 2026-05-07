@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-05-07
+
+### Added
+- **Public Profile View**: Implemented `PublicProfile.jsx` to allow users to view other players' profiles via a dynamic `:username` route.
+- **User Data Fetching**: Integrated `useUserByUsernameQuery` hook in `api/user.js` utilizing `@tanstack/react-query` to fetch public user metadata by username.
+- **Profile UI Elements**: Added a dedicated layout for public profiles featuring the user's nickname, join date (formatted via `formatPackDate`), total games played, and username with a gamepad icon.
+- **Loading States**: Integrated the `Spinner` component with a "Loading User Info" message to handle asynchronous data fetching states.
+
 ## [0.10.4] - 2026-05-07
 
 ### Changed
@@ -95,7 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Global Notifications**: Implemented a global `NotificationContext` and a `Notification` component utilizing `framer-motion` for smooth slide-in animations from the right side of the screen (`x: 100`).
 - **Date Formatting Utility**: Created `formatPackDate` helper (`utils/parseTime.js`) using `Intl.DateTimeFormat` to convert ISO 8601 strings into a localized "Month, Year" format (e.g., "May, 2026").
-- **Profile Enhancements**: Updated the `Profile.jsx` page to display the user's registration date (`created_at`) and total games played (`games_played`), utilizing the new date formatting utility.
+- **MyProfile Enhancements**: Updated the `MyProfile.jsx` page to display the user's registration date (`created_at`) and total games played (`games_played`), utilizing the new date formatting utility.
 - **Save Pack Feedback**: Integrated the `useNotification` hook into the `useSavePackMutation` to provide immediate, auto-dismissing visual feedback upon successfully saving a community pack.
 
 ### Changed
@@ -172,7 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented **Step 4 (Email Verification)** in the Sign Up flow (`VerificationStep.jsx`) to handle 6-digit OTP codes.
 - Added visual success indicators (green borders and specific success messages) for all input fields across the Sign Up wizard upon valid `react-hook-form` validation.
-- Displayed real user data (email, username) dynamically in the `Profile` and `ProfileSettings` components using the updated `AuthContext`.
+- Displayed real user data (email, username) dynamically in the `MyProfile` and `ProfileSettings` components using the updated `AuthContext`.
 
 ### Changed
 - Refactored `AuthContext` to use a cookie-based `isAuthenticated` state (`refreshToken`), eliminating UI blocking while waiting for `/users/me` requests.
@@ -199,8 +207,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Implemented the **Sign In** UI page (`SignIn.jsx`) featuring a stylized two-column layout with a branded visual panel, email/password input fields, and a Google SSO placeholder.
-- Added the **Profile Settings** modal (`ProfileSettings.jsx`) accessible directly from the global application Header.
-- Integrated `@headlessui/react` to handle the Profile Settings dropdown, utilizing the `Popover` and `Transition` components for accessible, animated opening/closing behaviors and proper routing interception.
+- Added the **MyProfile Settings** modal (`ProfileSettings.jsx`) accessible directly from the global application Header.
+- Integrated `@headlessui/react` to handle the MyProfile Settings dropdown, utilizing the `Popover` and `Transition` components for accessible, animated opening/closing behaviors and proper routing interception.
 
 ## [0.4.0] - 2026-04-22
 
@@ -212,22 +220,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Refactored the `RowNavigation` component using a more concise declarative syntax (ternary operators and object destructuring) for better code readability and maintainability.
-- Optimized overall Single Page Application (SPA) navigation flow to ensure smooth transitions between the Main, Profile, and the new Gallery pages.
+- Optimized overall Single Page Application (SPA) navigation flow to ensure smooth transitions between the Main, MyProfile, and the new Gallery pages.
 
 ## [0.3.0] - 2026-04-22
 
 ### Added
-- Implemented the **Profile** page (`Profile.jsx`) featuring account details, game statistics, and user settings.
+- Implemented the **MyProfile** page (`MyProfile.jsx`) featuring account details, game statistics, and user settings.
 - Created a reusable and "dumb" `Input` component to handle various text and password entries across the application.
 - Integrated profile-specific UI elements:
-  - Profile picture container with a custom upload action overlay.
+  - MyProfile picture container with a custom upload action overlay.
   - User statistics dashboard (join date, games finished, and account credentials).
   - Quick action buttons for profile link sharing and account deletion.
 - Added new graphical assets for the profile interface (`darkMail.svg`, `gamepad.svg`, `darkCopy.svg`, `redCross.svg`, etc.).
 
 ### Changed
 - Refactored input logic by abstracting it into a standalone functional component to improve reusability and maintain consistency with Figma designs.
-- Enhanced `Profile` layout with breadcrumb navigation for better user experience.
+- Enhanced `MyProfile` layout with breadcrumb navigation for better user experience.
 
 ## [0.2.1] - 2026-04-21
 

@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/layouts/ProtectedRoute.jsx';
 import MainLayout from '@/components/layouts/MainLayout.jsx';
 import Landing from "@/pages/Landing.jsx";
-import Profile from "@/pages/Profile.jsx";
+import MyProfile from "@/pages/MyProfile.jsx";
 import PacksGallery from "@/pages/PacksGallery.jsx";
 import TopScroller from "@/utils/topScroller.js";
 import SignIn from "@/pages/SignIn.jsx";
@@ -16,6 +16,7 @@ import CardPackEditor from "@/pages/CardPackEditor.jsx";
 import MapEditor from "@/pages/MapEditor.jsx";
 import WordsEditor from "@/pages/WordsEditor.jsx";
 import MapFieldsEditor from "@/pages/MapFieldsEditor.jsx";
+import PublicProfile from "@/pages/PublicProfile.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -31,10 +32,12 @@ function App() {
         <Route element={<MainLayout/>}>
           <Route path="/" element={<Landing/>}/>
 
-          <Route path="/profile" element={<Profile/>}/>
+          <Route path="/me" element={<MyProfile/>}/>
           <Route path='/gallery'>
             <Route path="packs" element={<PacksGallery/>}/>
           </Route>
+
+          <Route path='user/:username' element={<PublicProfile/>}/>
 
           <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
             <Route path="card-pack" element={<CardPackCreator/>}/>

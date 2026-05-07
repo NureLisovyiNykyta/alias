@@ -25,7 +25,7 @@ const Header = () => {
             disabled={isLoading}
             className="w-12 h-12 rounded-[12px] border-2 border-surface shadow-buttons flex items-center justify-center hover:bg-surface transition-colors focus:outline-none"
           >
-            <img src={profile} alt="Profile"/>
+            <img src={profile} alt="MyProfile"/>
           </Popover.Button>
 
           <Transition

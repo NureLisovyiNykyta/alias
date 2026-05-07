@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { Popover } from '@headlessui/react';
 import { useAuth } from "@/contexts/AuthContext.jsx";
 
+const PROFILE_LINK = '/me';
+
 const ProfileSettings = () => {
   const { user, logout } = useAuth();
 
@@ -20,9 +22,9 @@ const ProfileSettings = () => {
         <Popover.Button
           as={Link}
           className='flex items-center gap-2 focus:outline-none'
-          to={'/profile'}
+          to={PROFILE_LINK}
         >
-          <img src={profile} alt="Profile"/>
+          <img src={profile} alt="My Profile"/>
           <span className='text-label font-noto text-black'>My Profile</span>
         </Popover.Button>
 
