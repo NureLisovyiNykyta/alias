@@ -1,8 +1,12 @@
+import uuid
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 # ---------------------------------------------------------------------------
@@ -63,6 +67,35 @@ class Player(BaseModel):
     avatar_url: str | None = None
     is_online: bool
     team_id: UUID | None = None
+
+    @classmethod
+    def create_from_user(cls, user: "User") -> "Player":
+        return cls(
+            user_id=user.id,
+            nickname=user.nickname,
+            avatar_url=user.avatar_url,
+            is_online=False,
+            team_id=None,
+        )
+
+    @classmethod
+    def create_guest(
+        cls,
+        guest_id: uuid.UUID,
+        nickname: str | None,
+        avatar_url: str | None,
+    ) -> "Player":
+        return cls(
+            user_id=guest_id,
+            nickname=nickname or "Guest",
+            avatar_url=avatar_url,
+            is_online=False,
+            team_id=None,
+        )
+
+    def update_profile_from(self, other: "Player") -> None:
+        self.nickname = other.nickname
+        self.avatar_url = other.avatar_url
 
 
 class Team(BaseModel):

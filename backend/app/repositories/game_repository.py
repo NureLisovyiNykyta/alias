@@ -22,6 +22,13 @@ class GameRepository:
         ttl = _TTL_BY_STATUS[room.status]
         await self.redis.set(self._key(room.room_code), room.model_dump_json(), ex=ttl)
 
+    async def create_room_if_not_exists(self, room: RoomStateJSON) -> bool:
+        ttl = _TTL_BY_STATUS[room.status]
+        result: bool = await self.redis.set(
+            self._key(room.room_code), room.model_dump_json(), ex=ttl, nx=True
+        )
+        return bool(result)
+
     async def get_room(self, room_code: str) -> RoomStateJSON | None:
         data: str | None = await self.redis.get(self._key(room_code))
         if data is None:
