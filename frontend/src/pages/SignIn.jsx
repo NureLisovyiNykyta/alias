@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import bg from '@/assets/background-login.png';
-import { Button } from "@/components/Button.jsx";
-import Input from "@/components/Input.jsx";
-import RowNavigation from "@/components/RowNavigation.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
+import Input from "@/components/inputs/Input.jsx";
+import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import google from '@/assets/googleLogo.png';
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";

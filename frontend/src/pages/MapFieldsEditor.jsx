@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import RowNavigation from '@/components/RowNavigation.jsx';
-import { Button } from '@/components/Button.jsx';
-import Spinner from '@/components/Spinner.jsx';
-import DropDown from "@/components/DropDown.jsx";
-import Input from "@/components/Input.jsx";
-import NumberInput from "@/components/NumberInput.jsx";
+import RowNavigation from '@/components/nav/RowNavigation.jsx';
+import { Button } from '@/components/buttons/Button.jsx';
+import Spinner from '@/components/layouts/Spinner.jsx';
+import DropDown from "@/components/inputs/DropDown.jsx";
+import Input from "@/components/inputs/Input.jsx";
+import NumberInput from "@/components/inputs/NumberInput.jsx";
 
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useQueryClient } from '@tanstack/react-query';

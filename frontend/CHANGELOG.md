@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.4] - 2026-05-07
+
+### Changed
+- **Project Structure**: `components` folder was split with different subfolders for easy file search.
+
 ## [0.10.3] - 2026-05-07
 
 ### Added
@@ -16,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Grid Layout Simplification**: Removed the `notACellIndices` concept from the `MapFieldsEditor`. All 40 cells within the 10x4 grid are now strictly active and clickable.
 - **Map Activation Constraint**: The "Activate" button inside `MapFieldsEditor` is now strictly disabled unless all 40 grid cells are successfully populated with field data (`isAllCellsFilled`).
 
-## [0.10.2] - 2026-05-07
+## [0.10.2] - 2026-05-06
 
 ### Added
 - **Interactive Map Grid**: Implemented a 10x4 CSS Grid in `MapFieldsEditor.jsx` for visual map configuration, allowing users to select cells by clicking or typing coordinates (supporting ranges like "1, 3, 5-7").
@@ -202,7 +207,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **[Major Feature] Packs Gallery:** Implemented a new main "Packs Gallery" page displaying all available categories of packs in one place.
 - **[Major Feature] Category Lists:** Added dedicated pages for viewing comprehensive, filtered lists of packs based on their specific type.
-- Implemented global **automatic scroll-to-top** behavior on route changes using a dedicated `ScrollToTop` utility component to improve UX during page transitions.
+- Implemented global **automatic scroll-to-top** behavior on route changes using a dedicated `TopScroller` utility component to improve UX during page transitions.
 - Integrated `useLocation` hook from `react-router-dom` to dynamically detect navigation events and reset window scroll position.
 
 ### Changed

@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import RowNavigation from '@/components/RowNavigation.jsx';
-import TransparentInput from '@/components/TransparentInput.jsx';
-import ImageInput from '@/components/ImageInput.jsx';
-import MapTemplateSelector from '@/components/MapTemplateSelector.jsx';
-import { Button } from '@/components/Button.jsx';
-import Spinner from '@/components/Spinner.jsx';
+import RowNavigation from '@/components/nav/RowNavigation.jsx';
+import TransparentInput from '@/components/inputs/TransparentInput.jsx';
+import ImageInput from '@/components/inputs/ImageInput.jsx';
+import MapTemplateSelector from '@/components/inputs/MapTemplateSelector.jsx';
+import { Button } from '@/components/buttons/Button.jsx';
+import Spinner from '@/components/layouts/Spinner.jsx';
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useMapTemplatesQuery, useCreateMapMutation } from "@/api/maps";
-import StatusLabel from "@/components/StatusLabel.jsx";
+import StatusLabel from "@/components/cards/StatusLabel.jsx";
 
 const createMapSchema = z.object({
   name: z.string().min(1, "Name is required"),

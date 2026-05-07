@@ -1,8 +1,8 @@
 import star from '@/assets/star.svg';
 import plus from '@/assets/plus.svg';
-import { Button } from "@/components/Button.jsx";
-import { useSavePackMutation } from "@/api/card-packs";
-import Spinner from "@/components/Spinner.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
+import { useSavePackMutation } from "@/api/card-packs.js";
+import Spinner from "@/components/layouts/Spinner.jsx";
 
 const CardPack = ({ pack, type }) => {
   const { mutate: savePack, isPending } = useSavePackMutation();

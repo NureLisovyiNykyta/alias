@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
-import Header from './Header';
-import Navigation from './Navigation';
-import Footer from './Footer';
+import Header from '../nav/Header.jsx';
+import Navigation from '../nav/Navigation.jsx';
+import Footer from '../nav/Footer.jsx';
 
 const MainLayout = () => {
   return (

@@ -1,5 +1,5 @@
-import { Button } from "@/components/Button.jsx";
-import Input from "@/components/Input.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
+import Input from "@/components/inputs/Input.jsx";
 import { Link } from "react-router-dom";
 
 const CodeInput = () => {

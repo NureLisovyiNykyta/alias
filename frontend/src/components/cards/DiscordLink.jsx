@@ -1,7 +1,7 @@
 import lookingForParty from '@/assets/looking-for-party.png';
 import discord from '@/assets/discord.svg';
 import copy from '@/assets/copy.svg';
-import { Button } from "@/components/Button.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
 
 const DiscordLink = () => {
   return (

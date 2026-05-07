@@ -4,9 +4,9 @@ import email from '@/assets/darkMail.svg';
 import gamepad from "@/assets/gamepad.svg";
 import copy from "@/assets/darkCopy.svg";
 import cross from "@/assets/redCross.svg";
-import Input from "@/components/Input.jsx";
-import { Button } from "@/components/Button.jsx";
-import RowNavigation from "@/components/RowNavigation.jsx";
+import Input from "@/components/inputs/Input.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
+import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { formatPackDate } from "@/utils/parseTime.js";
 

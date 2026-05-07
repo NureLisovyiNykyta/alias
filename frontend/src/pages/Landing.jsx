@@ -1,6 +1,6 @@
-import CodeInput from "@/components/CodeInput";
-import DiscordLink from "@/components/DiscordLink.jsx";
-import InfoCards from "@/components/InfoCards.jsx";
+import CodeInput from "@/components/inputs/CodeInput.jsx";
+import DiscordLink from "@/components/cards/DiscordLink.jsx";
+import InfoCards from "@/components/cards/InfoCards.jsx";
 
 const Landing = () => {
   return (

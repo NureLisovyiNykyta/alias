@@ -1,4 +1,4 @@
-import RowNavigation from "@/components/RowNavigation.jsx";
+import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import mark from '@/assets/whiteDoneMark.svg';
 
 const AuthLayout = ({

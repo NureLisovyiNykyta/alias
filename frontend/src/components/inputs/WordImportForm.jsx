@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog } from '@headlessui/react';
-import { Button } from "@/components/Button.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
 
 const WordImportForm = ({ isOpen, onClose, onApply }) => {
   const [text, setText] = useState('');

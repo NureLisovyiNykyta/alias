@@ -1,11 +1,11 @@
-import RowNavigation from "@/components/RowNavigation.jsx";
+import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Button } from "@/components/Button.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
 import cross from '@/assets/smallCross.svg';
-import WordInput from "@/components/WordInput.jsx";
-import WordImportForm from "@/components/WordImportForm.jsx";
-import Spinner from "@/components/Spinner.jsx";
+import WordInput from "@/components/inputs/WordInput.jsx";
+import WordImportForm from "@/components/inputs/WordImportForm.jsx";
+import Spinner from "@/components/layouts/Spinner.jsx";
 import {
   usePackCardsQuery,
   useBulkSyncCardsMutation,

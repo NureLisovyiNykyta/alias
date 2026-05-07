@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthLayout from "@/components/AuthLayout.jsx";
+import AuthLayout from "@/components/layouts/AuthLayout.jsx";
 import EmailStep from "@/components/auth/EmailStep.jsx";
 import ResetPasswordStep from "@/components/auth/ResetPasswordStep.jsx";
 import VerificationStep from "@/components/auth/VerificationStep.jsx";

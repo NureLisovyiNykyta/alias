@@ -1,12 +1,12 @@
 import book from '@/assets/book.png';
 import dogs from '@/assets/dogs.png';
 import pokemonGo from '@/assets/pokemonGo.png';
-import { Button } from "@/components/Button.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
 import maps from '@/assets/maps.png';
 import map1 from '@/assets/map1.png';
 import map2 from '@/assets/map2.png';
 import { Link } from "react-router-dom";
-import CardPack from "@/components/CardPack.jsx";
+import CardPack from "@/components/cards/CardPack.jsx";
 
 export const CARD_PACKS = [
   {

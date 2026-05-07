@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import RowNavigation from "@/components/RowNavigation.jsx";
-import CardPack from "@/components/CardPack.jsx";
-import { Button } from "@/components/Button.jsx";
-import DropDown from "@/components/DropDown.jsx";
+import RowNavigation from "@/components/nav/RowNavigation.jsx";
+import CardPack from "@/components/cards/CardPack.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
+import DropDown from "@/components/inputs/DropDown.jsx";
 import {
   getPublicPacks,
   getSavedPacks,
   getMyPacks
 } from "@/api/card-packs";
-import Spinner from "@/components/Spinner.jsx";
+import Spinner from "@/components/layouts/Spinner.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 
 const LINKS = [

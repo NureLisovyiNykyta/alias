@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
-import MainLayout from '@/components/MainLayout.jsx';
+import { ProtectedRoute } from '@/components/layouts/ProtectedRoute.jsx';
+import MainLayout from '@/components/layouts/MainLayout.jsx';
 import Landing from "@/pages/Landing.jsx";
 import Profile from "@/pages/Profile.jsx";
 import PacksGallery from "@/pages/PacksGallery.jsx";
-import ScrollToTop from "@/components/ScrollToTop.jsx";
+import TopScroller from "@/utils/topScroller.js";
 import SignIn from "@/pages/SignIn.jsx";
 import SignUp from "@/pages/SignUp.jsx";
 import { useAuth } from '@/contexts/AuthContext.jsx';
@@ -26,7 +26,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <ScrollToTop/>
+      <TopScroller/>
       <Routes>
         <Route element={<MainLayout/>}>
           <Route path="/" element={<Landing/>}/>

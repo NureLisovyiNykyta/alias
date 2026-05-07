@@ -2,8 +2,8 @@ import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import Input from "@/components/Input.jsx";
-import { Button } from "@/components/Button.jsx";
+import Input from "@/components/inputs/Input.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
 import { checkEmail } from "@/api/auth.js";
 
 const emailSchema = z.object({
