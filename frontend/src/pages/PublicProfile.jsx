@@ -28,7 +28,7 @@ const PublicProfile = () => {
     <main className="flex flex-col w-full gap-5">
       <RowNavigation links={LINKS}/>
 
-      <h1 className='text-h1'><b>{user?.nickName}</b> details</h1>
+      <h1 className='text-h1'><b>{user?.nickname}</b> details</h1>
 
       <div className='flex gap-8 w-full'>
         <div

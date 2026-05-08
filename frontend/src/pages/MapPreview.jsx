@@ -1,13 +1,17 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useMapQuery } from "@/api/maps.js";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import MapCard from "@/components/cards/MapCard.jsx";
 import MapPreviewBoard from "@/components/layouts/MapPreviewBoard.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
+import React from "react";
+import { useAuth } from "@/contexts/AuthContext.jsx";
 
 const MapPreview = () => {
   const { id: mapId } = useParams();
   const { data: map, isLoading } = useMapQuery(mapId);
+  const { user: me } = useAuth();
 
   const links = [
     { path: "/", label: "Main Page", id: 1 },
@@ -17,7 +21,7 @@ const MapPreview = () => {
   if (isLoading) {
     return (
       <main className="flex items-center justify-center w-full h-full gap-5">
-        <Spinner size="lg" />
+        <Spinner size="lg"/>
         <h2 className='text-h2 text-text-label'>Loading Map Info</h2>
       </main>
     );
@@ -34,9 +38,20 @@ const MapPreview = () => {
         </span>
       </div>
 
-      <MapCard map={map} />
+      <MapCard map={map}/>
 
-      <MapPreviewBoard mapId={mapId} />
+      <MapPreviewBoard mapId={mapId}/>
+
+      {me?.id === map?.author_id &&
+        <Button
+          as={Link}
+          to={`/edit/map/${map.id}`}
+          variant='tertiary'
+          className='self-start'
+        >
+          Edit Map
+        </Button>
+      }
     </main>
   );
 };

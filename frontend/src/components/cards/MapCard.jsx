@@ -1,6 +1,8 @@
 import star from '@/assets/star.svg';
 import pokemonGo from '@/assets/pokemonGo.png';
 import { formatPackDate } from "@/utils/parseTime.js";
+import { Link } from "react-router-dom";
+import React from "react";
 
 const MapCard = ({ map }) => {
   return (
@@ -41,6 +43,23 @@ const MapCard = ({ map }) => {
           <div className='flex flex-col gap-2'>
             <span className='text-label text-text-label font-noto'>Field Limit</span>
             <p className='font-noto text-p'>{map?.template?.max_fields_count}</p>
+          </div>
+
+          <div className='flex flex-col gap-2'>
+            <span className='text-label text-text-label font-noto'>Author</span>
+            <Link
+              to={`/user/${map?.author?.username}`}
+              className="flex items-center gap-2 hover:text-brand-500 transition-colors"
+            >
+              <div className="w-6 h-6 rounded-full bg-brand-500 overflow-hidden flex items-center justify-center">
+                {map?.author?.avatar_url ? (
+                  <img src={map.author.avatar_url} alt="author" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[10px] text-white font-bold">{map?.author?.nickname?.[0]?.toUpperCase()}</span>
+                )}
+              </div>
+              <p className='font-noto text-p'>{map?.author?.nickname || 'System'}</p>
+            </Link>
           </div>
         </div>
       </div>

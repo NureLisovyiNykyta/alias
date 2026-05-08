@@ -86,7 +86,7 @@ const InfoCards = () => {
         </button>
       </div>
 
-      <ul className='flex items-center gap-5 justify-around w-full'>
+      <ul className='flex flex-col gap-5 w-full'>
         {MAPS.map(map => (
           <MapCard map={map}/>
         ))}

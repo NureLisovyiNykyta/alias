@@ -3,6 +3,7 @@ import plus from '@/assets/plus.svg';
 import { Button } from "@/components/buttons/Button.jsx";
 import { useSavePackMutation } from "@/api/card-packs.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
+import { Link } from 'react-router-dom'
 
 const CardPack = ({ pack, type }) => {
   const { mutate: savePack, isPending } = useSavePackMutation();
@@ -47,7 +48,7 @@ const CardPack = ({ pack, type }) => {
           </ul>
 
           <div className='flex items-center gap-7'>
-            <Button variant='tertiary'>
+            <Button variant='tertiary' as={Link} to={`/card-pack/${pack.id}`}>
               <span>Review {pack.title} pack</span>
             </Button>
 
