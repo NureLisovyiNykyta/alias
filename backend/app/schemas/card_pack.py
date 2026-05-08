@@ -28,6 +28,16 @@ class CardPackRatingInput(BaseModel):
     score: int = Field(ge=1, le=5)
 
 
+class CardPackBriefRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    description: str
+    is_public: bool
+    status: str
+
+
 class CardPackRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

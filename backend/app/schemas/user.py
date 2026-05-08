@@ -53,6 +53,8 @@ class UserPublicRead(BaseModel):
     username: str
     nickname: str
     avatar_url: str | None
+    games_played: int
+    created_at: datetime.datetime
 
 
 class UserChangePassword(BaseModel):
