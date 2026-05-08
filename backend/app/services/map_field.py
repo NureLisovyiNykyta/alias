@@ -129,7 +129,10 @@ async def sync_map_fields(
 
     updated = (
         await db.execute(
-            select(MapField).where(MapField.map_id == map_id).order_by(MapField.position_index)
+            select(MapField)
+            .options(joinedload(MapField.card_pack))
+            .where(MapField.map_id == map_id)
+            .order_by(MapField.position_index)
         )
     ).scalars().all()
     return list(updated)
@@ -151,7 +154,10 @@ async def get_fields_by_map(
 
     fields = (
         await db.execute(
-            select(MapField).where(MapField.map_id == map_id).order_by(MapField.position_index)
+            select(MapField)
+            .options(joinedload(MapField.card_pack))
+            .where(MapField.map_id == map_id)
+            .order_by(MapField.position_index)
         )
     ).scalars().all()
     return list(fields)

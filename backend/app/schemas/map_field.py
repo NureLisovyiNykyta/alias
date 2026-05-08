@@ -2,6 +2,8 @@ import uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.card_pack import CardPackBriefRead
+
 
 class MapFieldItem(BaseModel):
     id: uuid.UUID | None = None
@@ -26,3 +28,4 @@ class MapFieldRead(BaseModel):
     penalty: int
     map_id: uuid.UUID
     card_pack_id: uuid.UUID | None
+    card_pack: CardPackBriefRead | None
