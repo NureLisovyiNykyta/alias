@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMapFieldsQuery } from "@/api/maps.js";
+import { useMapFieldsQuery, useMapQuery } from "@/api/maps.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
-import { usePackCardsQuery, usePackQuery } from "@/api/card-packs.js";
+import { getCellGridStyle } from "@/utils/getCellGridStyle.js";
+
+const MAX_ROW_WIDTH = 12;
 
 const MapPreviewBoard = ({ mapId }) => {
-  const { data: serverFields, isLoading } = useMapFieldsQuery(mapId);
+  const { data: serverFields, isLoading: isFieldsLoading } = useMapFieldsQuery(mapId);
+  const { data: mapData, isLoading: isMapLoading } = useMapQuery(mapId);
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [packId, setPackId] = useState(null);
-  const { data: selectedPack } = usePackQuery(packId);
 
-  if (isLoading) {
+  if (isFieldsLoading || isMapLoading) {
     return (
       <div className="flex items-center justify-center w-full h-[300px] bg-surface rounded-[12px]">
         <Spinner size="md"/>
@@ -18,10 +19,12 @@ const MapPreviewBoard = ({ mapId }) => {
     );
   }
 
-  const gridFields = Array(40).fill(null);
-  if (serverFields) {
+  const totalFields = mapData?.template?.max_fields_count || 0;
+  const gridFields = Array(totalFields).fill(null);
+
+  if (serverFields && totalFields > 0) {
     serverFields.forEach(field => {
-      if (field.position_index >= 0 && field.position_index < 40) {
+      if (field.position_index >= 0 && field.position_index < totalFields) {
         gridFields[field.position_index] = field;
       }
     });
@@ -29,16 +32,17 @@ const MapPreviewBoard = ({ mapId }) => {
 
   const selectedField = selectedIndex !== null ? gridFields[selectedIndex] : null;
 
-  useEffect(() => {
-    if (selectedField) {
-      setPackId(selectedField.card_pack_id);
-    }
-  }, [selectedField]);
-
   return (
-    <div className="flex gap-8 p-8 items-center rounded-[12px] w-full bg-surface">
-      <div className="grid grid-cols-10 grid-rows-4 gap-[2px] p-[2px] h-max">
-        {Array.from({ length: 40 }).map((_, index) => {
+    <div className="flex gap-8 p-8 items-start rounded-[12px] w-full bg-surface relative">
+      <div
+        className="grid gap-[2px] p-[2px] h-max shrink-0"
+        style={{
+          gridTemplateColumns: `repeat(${MAX_ROW_WIDTH}, 48px)`,
+          gridAutoRows: '48px',
+          width: 'max-content'
+        }}
+      >
+        {Array.from({ length: totalFields }).map((_, index) => {
           const isFilled = !!gridFields[index];
           const isSelected = selectedIndex === index;
 
@@ -49,6 +53,7 @@ const MapPreviewBoard = ({ mapId }) => {
             <div
               key={index}
               onClick={() => setSelectedIndex(index)}
+              style={getCellGridStyle(index, MAX_ROW_WIDTH)}
               className={`
                 h-12 w-12 flex items-center justify-center cursor-pointer transition-all
                 ${bgClass}
@@ -66,8 +71,7 @@ const MapPreviewBoard = ({ mapId }) => {
         })}
       </div>
 
-      <div
-        className="bg-white rounded-[12px] py-9 px-8 flex flex-col justify-center gap-6 shadow-sm h-[344px] w-[498px]">
+      <div className="sticky top-12 bg-white rounded-[12px] py-9 px-8 flex flex-col justify-center gap-6 shadow-sm h-[344px] w-[498px] shrink-0">
         {selectedIndex === null ? (
           <div className="flex flex-col gap-4">
             <h3 className="text-h1">No field selected</h3>
@@ -103,7 +107,7 @@ const MapPreviewBoard = ({ mapId }) => {
               </Link>
             </p>
 
-            <p className="font-noto">{selectedPack?.description}</p>
+            <p className="font-noto">{selectedField?.card_pack?.description}</p>
 
             <div className="flex items-center gap-8">
               <div className="flex flex-col gap-3">
