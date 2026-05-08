@@ -58,6 +58,25 @@ class ErrorMessage(StrEnum):
 
     ACCOUNT_DELETED = "This account has been deleted"
 
+    REDIS_NOT_INITIALISED = "Redis connection is not initialised. Call connect_to_redis() first."
+
+    ROOM_NOT_FOUND = "Room not found"
+    ROOM_FINISHED = "This room has already finished"
+    ROOM_NOT_IN_LOBBY = "Room is not accepting new players"
+    ROOM_GUEST_ID_REQUIRED = "guest_id is required for non-registered users"
+    ROOM_PLAYER_NOT_FOUND = "Player not found in room"
+    ROOM_HOST_CANNOT_LEAVE = "Host cannot leave the room, use close instead"
+
+    WS_INVALID_MESSAGE = "Invalid message format"
+    ROOM_NOT_HOST = "Only the host can perform this action"
+    ROOM_NOT_ENOUGH_TEAMS = "Team count must be between {min} and {max}"
+    ROOM_TEAM_INVALID_SIZE = "Team '{name}' does not meet player count requirements"
+
+    ROOM_TEAM_NOT_FOUND = "Team not found"
+    ROOM_TEAM_COLOR_TAKEN = "This team color is already taken"
+    ROOM_TEAM_FULL = "Team is full"
+    ROOM_PLAYER_NOT_IN_TEAM = "Player is not in this team"
+
 
 @dataclass
 class EmailContent:

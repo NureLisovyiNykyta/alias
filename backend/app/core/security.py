@@ -17,6 +17,11 @@ def generate_verification_code() -> str:
     return "".join(secrets.choice(string.digits) for _ in range(6))
 
 
+def generate_room_code(length: int = 6) -> str:
+    alphabet = string.ascii_uppercase + string.digits
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
 
