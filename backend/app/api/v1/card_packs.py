@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user, get_current_user_optional, get_db
@@ -9,6 +9,7 @@ from app.models.enums import StatusEnum
 from app.models.user import User
 from app.schemas.base import PaginatedResponse
 from app.schemas.card_pack import CardPackCreate, CardPackRatingInput, CardPackRead, CardPackReadDetailed, CardPackUpdate, CardTypeRead, SortOrder
+from app.services import images as image_service
 from app.services.card_pack import (
     activate_card_pack,
     create_card_pack,
@@ -24,6 +25,7 @@ from app.services.card_pack import (
     set_card_pack_rating,
     toggle_save_card_pack,
     update_card_pack,
+    update_card_pack_cover,
 )
 
 router = APIRouter(prefix="/api/card-packs", tags=["card-packs"])
@@ -90,6 +92,28 @@ async def delete_pack_route(
     db: AsyncSession = Depends(get_db),
 ) -> CardPack:
     return await delete_pack(db, current_user.id, pack_id)
+
+
+@router.post("/{pack_id}/cover", response_model=CardPackRead)
+async def upload_pack_cover(
+    pack_id: uuid.UUID,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> CardPack:
+    url = await image_service.upload_cover(file, "card-packs", pack_id)
+    return await update_card_pack_cover(db, current_user.id, pack_id, url)
+
+
+@router.delete("/{pack_id}/cover", response_model=CardPackRead)
+async def delete_pack_cover(
+    pack_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> CardPack:
+    pack = await update_card_pack_cover(db, current_user.id, pack_id, None)
+    await image_service.delete_cover("card-packs", pack_id)
+    return pack
 
 
 @router.post("/{pack_id}/save")

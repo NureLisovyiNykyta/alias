@@ -15,6 +15,21 @@ from app.schemas.map import MapCreate, MapUpdate
 from app.services.map_field import validate_map_for_activation
 
 
+async def update_map_cover(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    map_id: uuid.UUID,
+    cover_url: str | None,
+) -> Map:
+    map_obj = await _get_map_or_404(db, map_id)
+    if map_obj.author_id != user_id:
+        raise ForbiddenError()
+    map_obj.cover_url = cover_url
+    await db.commit()
+    await db.refresh(map_obj)
+    return map_obj
+
+
 async def _get_map_or_404(db: AsyncSession, map_id: uuid.UUID) -> Map:
     result = await db.execute(select(Map).where(Map.id == map_id))
     map_obj: Map | None = result.scalar_one_or_none()

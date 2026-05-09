@@ -12,6 +12,7 @@ from app.core.security import generate_verification_code, get_password_hash, ver
 from app.models.card import CardPack
 from app.models.map import Map
 from app.models.user import User
+from app.services import images as image_service
 
 
 async def check_email_domain_mx(email: str) -> None:
@@ -115,6 +116,9 @@ async def get_public_user_by_username(db: AsyncSession, username: str) -> User:
 async def delete_account(db: AsyncSession, user: User) -> None:
     now = datetime.datetime.now(datetime.timezone.utc)
     suffix = uuid.uuid4().hex
+
+    if user.avatar_url:
+        await image_service.delete_avatar(user.id)
 
     user.email = f"deleted_{suffix}"
     user.username = f"deleted_{suffix}"

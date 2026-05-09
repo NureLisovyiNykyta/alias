@@ -58,6 +58,10 @@ class ErrorMessage(StrEnum):
 
     ACCOUNT_DELETED = "This account has been deleted"
 
+    IMAGE_INVALID_FORMAT = "Unsupported image format. Allowed: JPEG, PNG, WebP"
+    IMAGE_TOO_LARGE = "File is too large. Maximum size: {max_mb} MB"
+    IMAGE_CORRUPTED = "The uploaded file is not a valid image"
+
     REDIS_NOT_INITIALISED = "Redis connection is not initialised. Call connect_to_redis() first."
 
     ROOM_NOT_FOUND = "Room not found"

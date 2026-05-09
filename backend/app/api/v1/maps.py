@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user, get_current_user_optional, get_db
@@ -10,6 +10,7 @@ from app.models.user import User
 from app.schemas.base import PaginatedResponse
 from app.schemas.card_pack import SortOrder
 from app.schemas.map import MapCreate, MapRatingInput, MapRead, MapReadDetailed, MapTemplateRead, MapUpdate
+from app.services import images as image_service
 from app.services.map import (
     activate_map,
     create_map,
@@ -25,6 +26,7 @@ from app.services.map import (
     set_map_rating,
     toggle_save_map,
     update_map,
+    update_map_cover,
 )
 
 router = APIRouter(prefix="/api/maps", tags=["maps"])
@@ -55,6 +57,28 @@ async def update_map_route(
     db: AsyncSession = Depends(get_db),
 ) -> Map:
     return await update_map(db, current_user.id, map_id, body)
+
+
+@router.post("/{map_id}/cover", response_model=MapRead)
+async def upload_map_cover(
+    map_id: uuid.UUID,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Map:
+    url = await image_service.upload_cover(file, "maps", map_id)
+    return await update_map_cover(db, current_user.id, map_id, url)
+
+
+@router.delete("/{map_id}/cover", response_model=MapRead)
+async def delete_map_cover(
+    map_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Map:
+    map_obj = await update_map_cover(db, current_user.id, map_id, None)
+    await image_service.delete_cover("maps", map_id)
+    return map_obj
 
 
 @router.post("/{map_id}/publish", response_model=MapReadDetailed)
