@@ -19,6 +19,7 @@ import MapFieldsEditor from "@/pages/MapFieldsEditor.jsx";
 import PublicProfile from "@/pages/PublicProfile.jsx";
 import MapPreview from "@/pages/MapPreview.jsx";
 import CardPackPreview from "@/pages/CardPackPreview.jsx";
+import MapsGallery from "@/pages/MapsGallery.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -37,6 +38,7 @@ function App() {
           <Route path="/me" element={<MyProfile/>}/>
           <Route path='/gallery'>
             <Route path="packs" element={<PacksGallery/>}/>
+            <Route path="maps" element={<MapsGallery/>}/>
           </Route>
 
           <Route path='user/:username' element={<PublicProfile/>}/>

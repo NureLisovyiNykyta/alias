@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-05-09
+
+### Added
+- **Card Pack Preview Page**: Implemented `CardPackPreview.jsx` to provide a read-only, public view of a card pack's metadata, statistics, and full vocabulary list.
+- **Maps Gallery**: Created `MapsGallery.jsx` with a tabbed interface (Community, Saved, My creations), supporting pagination, sorting, and status filtering.
+- **Map List Card**: Implemented `MapListCard.jsx` component for the maps gallery to display detailed map statistics and a "Save to My maps" action for public maps.
+- **Map API Extensions**: Expanded `api/maps.js` with new endpoints and hooks: `getPublicMaps`, `getSavedMaps`, and `useSaveMapMutation`.
+
+### Changed
+- **Dynamic Map Grid Visualization**: Refactored `MapFieldsEditor` and `MapPreviewBoard` to dynamically render a 1D array of fields into a 2D "snake-like" grid, supporting variable `max_fields_count` without hardcoded row/column limits.
+- **Sticky Board Details**: Improved the layout of `MapPreviewBoard` by fixing the sticky positioning of the side details panel for smoother scrolling.
+- **Packs Gallery Filtering**: Enhanced `PacksGallery.jsx` by adding a "Status" dropdown filter (All, Active, Draft) to the "My creations" tab to match the maps gallery functionality.
+
 ## [0.12.1] - 2026-05-07
 
 ### Changed
@@ -17,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Map Preview Page**: Implemented a new read-only `MapPreview.jsx` page allowing users to publicly inspect map layers, configurations, and data fields.
 - **Map Preview Board**: Created the `MapPreviewBoard.jsx` component following Atomic Design principles. It features an interactive 10x4 visual grid where users can select specific cells to view their properties (time limit, reward, penalty) and trace data sources via direct links to the associated Card Packs.
-- **Map Card Component**: Added `MapCard.jsx` to display comprehensive map metadata (image, title, creation date, total games played, rating, template, and field limit) utilizing a responsive CSS grid layout consistent with the overall design system.
+- **Map Card Component**: Added `MapPreviewCard.jsx` to display comprehensive map metadata (image, title, creation date, total games played, rating, template, and field limit) utilizing a responsive CSS grid layout consistent with the overall design system.
 
 ## [0.11.1] - 2026-05-07
 

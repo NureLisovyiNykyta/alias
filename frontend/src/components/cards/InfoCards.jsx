@@ -6,7 +6,7 @@ import map1 from '@/assets/map1.png';
 import map2 from '@/assets/map2.png';
 import { Link } from "react-router-dom";
 import CardPack from "@/components/cards/CardPack.jsx";
-import MapCard from "@/components/cards/MapCard.jsx";
+import MapPreviewCard from "@/components/cards/MapPreviewCard.jsx";
 
 export const CARD_PACKS = [
   {
@@ -88,7 +88,7 @@ const InfoCards = () => {
 
       <ul className='flex flex-col gap-5 w-full'>
         {MAPS.map(map => (
-          <MapCard map={map}/>
+          <MapPreviewCard map={map}/>
         ))}
       </ul>
     </div>

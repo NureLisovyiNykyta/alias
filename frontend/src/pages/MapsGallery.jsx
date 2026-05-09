@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
-import CardPack from "@/components/cards/CardPack.jsx";
 import { Button } from "@/components/buttons/Button.jsx";
 import DropDown from "@/components/inputs/DropDown.jsx";
 import {
-  getPublicPacks,
-  getSavedPacks,
-  getMyPacks
-} from "@/api/card-packs";
+  getPublicMaps,
+  getSavedMaps,
+  getMyMaps
+} from "@/api/maps";
 import Spinner from "@/components/layouts/Spinner.jsx";
+import MapListCard from "@/components/cards/MapListCard.jsx";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
-  { label: "Packs Gallery", id: 2 },
+  { label: "Maps Gallery", id: 2 },
 ];
 
 const TABS = [
-  { id: 'community', label: 'Community', fetchFn: getPublicPacks },
-  { id: 'saved', label: 'Saved', fetchFn: getSavedPacks },
-  { id: 'my_creations', label: 'My creations', fetchFn: getMyPacks },
+  { id: 'community', label: 'Community', fetchFn: getPublicMaps },
+  { id: 'saved', label: 'Saved', fetchFn: getSavedMaps },
+  { id: 'my_creations', label: 'My creations', fetchFn: getMyMaps },
 ];
 
 const SORT_OPTIONS = [
@@ -36,10 +36,10 @@ const STATUS_OPTIONS = [
 
 const ITEMS_PER_PAGE = 20;
 
-const PacksGallery = () => {
+const MapsGallery = () => {
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [sortOption, setSortOption] = useState(SORT_OPTIONS[0]);
-  const [statusOption, setStatusOption] = useState(STATUS_OPTIONS[0]);
+  const [statusOption, setStatusOption] = useState(STATUS_OPTIONS[0]); // Стейт для статуса
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const PacksGallery = () => {
   };
 
   const { data: currentData = { items: [], total: 0 }, isLoading } = useQuery({
-    queryKey: ['packs', activeTab.id, queryParams],
+    queryKey: ['maps', activeTab.id, queryParams],
     queryFn: () => activeTab.fetchFn(queryParams),
   });
 
@@ -76,9 +76,10 @@ const PacksGallery = () => {
 
       <div className='flex flex-col gap-8 h-full'>
         <div className='flex flex-col gap-4'>
-          <h1 className='text-h1'>Packs Gallery</h1>
-          <span
-            className='text-label text-text-label font-noto'>Explore public packs or manage your own creations.</span>
+          <h1 className='text-h1'>Maps Gallery</h1>
+          <span className='text-label text-text-label font-noto'>
+            Explore public maps or manage your own creations.
+          </span>
         </div>
 
         <div className="flex items-center justify-between">
@@ -127,31 +128,18 @@ const PacksGallery = () => {
               <Spinner size='md'/>
             </div>
           ) : currentData.items?.length > 0 ? (
-            currentData.items.map((item) => {
-              const mappedPack = {
-                id: item.id,
-                title: item.name,
-                description: item.description,
-                image: item.cover_url,
-                savedBy: item.saves_count,
-                positions: item.positions_count || 0,
-                rating: item.rating_average,
-                ...item,
-              };
-
-              const packType = activeTab.id === 'community' ? 'public' : 'other';
-
-              return <CardPack key={item.id} pack={mappedPack} type={packType} />;
-            })
+            currentData.items.map((mapItem) => (
+              <MapListCard key={mapItem.id} map={mapItem}/>
+            ))
           ) : (
             <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
-              <p className="font-noto text-p text-text-label self-center">No packs found.</p>
+              <p className="font-noto text-p text-text-label self-center">No maps found.</p>
             </div>
           )}
         </ul>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-6 mt-4 self-center">
+          <div className="flex items-center justify-center gap-6 mt-4 self-center pb-10">
             {getPageNumbers().map((page) => (
               <button
                 key={page}
@@ -174,4 +162,4 @@ const PacksGallery = () => {
   );
 };
 
-export default PacksGallery;
+export default MapsGallery;

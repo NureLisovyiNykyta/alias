@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useMapQuery } from "@/api/maps.js";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
-import MapCard from "@/components/cards/MapCard.jsx";
+import MapPreviewCard from "@/components/cards/MapPreviewCard.jsx";
 import MapPreviewBoard from "@/components/layouts/MapPreviewBoard.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { Button } from "@/components/buttons/Button.jsx";
@@ -38,7 +38,7 @@ const MapPreview = () => {
         </span>
       </div>
 
-      <MapCard map={map}/>
+      <MapPreviewCard map={map}/>
 
       <MapPreviewBoard mapId={mapId}/>
 

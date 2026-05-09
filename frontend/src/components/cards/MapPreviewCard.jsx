@@ -4,7 +4,7 @@ import { formatPackDate } from "@/utils/parseTime.js";
 import { Link } from "react-router-dom";
 import React from "react";
 
-const MapCard = ({ map }) => {
+const MapPreviewCard = ({ map }) => {
   return (
     <li className='flex items-center gap-5 py-6 rounded-[12px] w-full h-[320px]'>
       <img
@@ -67,4 +67,4 @@ const MapCard = ({ map }) => {
   );
 };
 
-export default MapCard;
+export default MapPreviewCard;
