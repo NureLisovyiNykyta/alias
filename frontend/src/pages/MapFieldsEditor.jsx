@@ -19,8 +19,8 @@ import {
 import { usePublicPacksQuery } from "@/api/card-packs.js";
 import { getCellGridStyle } from "@/utils/getCellGridStyle.js";
 
-const DEFAULT_TIME = '50';
-const DEFAULT_REWARD = '10';
+const DEFAULT_TIME = '60';
+const DEFAULT_REWARD = '1';
 const DEFAULT_PENALTY = '1';
 const MAX_ROW_WIDTH = 12;
 
