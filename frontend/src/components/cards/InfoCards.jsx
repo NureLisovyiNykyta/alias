@@ -6,7 +6,7 @@ import map1 from '@/assets/map1.png';
 import map2 from '@/assets/map2.png';
 import { Link } from "react-router-dom";
 import CardPack from "@/components/cards/CardPack.jsx";
-import MapPreviewCard from "@/components/cards/MapPreviewCard.jsx";
+import MapListCard from "@/components/cards/MapListCard.jsx";
 
 export const CARD_PACKS = [
   {
@@ -49,6 +49,7 @@ const MAPS = [
 ];
 
 const PACKS_LINK = '/gallery/packs';
+const MAPS_LINK = '/gallery/maps';
 
 const InfoCards = () => {
   return (
@@ -62,7 +63,7 @@ const InfoCards = () => {
 
         <Link
           to={PACKS_LINK}
-          className='text-label font-noto text-brand-500'
+          className='text-label font-noto text-brand-500 hover:text-brand-700'
         >
           Browse the gallery →
         </Link>
@@ -81,14 +82,17 @@ const InfoCards = () => {
           <span className='text-label font-noto text-text-label'>updated daily</span>
         </div>
 
-        <button className='text-label font-noto text-brand-500'>
+        <Link
+          to={MAPS_LINK}
+          className='text-label font-noto text-brand-500 hover:text-brand-700'
+        >
           Browse the gallery →
-        </button>
+        </Link>
       </div>
 
       <ul className='flex flex-col gap-5 w-full'>
         {MAPS.map(map => (
-          <MapPreviewCard map={map}/>
+          <MapListCard map={map}/>
         ))}
       </ul>
     </div>
