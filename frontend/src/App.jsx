@@ -21,6 +21,8 @@ import MapPreview from "@/pages/MapPreview.jsx";
 import CardPackPreview from "@/pages/CardPackPreview.jsx";
 import MapsGallery from "@/pages/MapsGallery.jsx";
 import LobbyCreator from "@/pages/LobbyCreator.jsx";
+import LobbyLayout from "@/components/layouts/LobbyLayout.jsx";
+import WaitingRoom from "@/pages/WaitingRoom.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -58,6 +60,10 @@ function App() {
             <Route path="map/:id" element={<MapEditor/>}/>
             <Route path="map/:id/fields" element={<MapFieldsEditor/>}/>
           </Route>
+        </Route>
+
+        <Route path='/lobby/:id' element={<LobbyLayout/>}>
+          <Route path='waiting' element={<WaitingRoom/>}/>
         </Route>
 
         <Route path='/auth' element={<ProtectedRoute isAllowed={canAccessAuth} redirectTo="/"/>}>

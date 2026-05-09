@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.1] - 2026-05-09
+
+### Added
+- **Waiting Room Page**: Developed `WaitingRoom.jsx` for the pre-game lobby interface, featuring team selection and player management.
+- **Lobby Layout**: Implemented `LobbyLayout.jsx` to provide a consistent header and footer structure for game-specific pages.
+- **Routing**: Integrated the new Waiting Room into `App.jsx` under the `/lobby/:id/waiting` path.
+- **Team Selection UI**: Created a 4-team grid layout with player slots, status indicators, and join/remove functionality.
+- **Invitation Sidebar**: Added a dedicated sidebar for game codes and invite links with "click-to-copy" buttons.
+- **Host Controls**: Integrated conditional rendering for "Start Game" and "Stop Game" actions based on host status.
+
 ## [0.14.0] - 2026-05-09
 
 ### Added
