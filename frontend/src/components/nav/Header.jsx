@@ -1,9 +1,9 @@
 import profile from '@/assets/userProfile.svg';
 import { Link } from "react-router-dom";
-import { Button } from "@/components/Button.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import ProfileSettings from "@/components/ProfileSettings.jsx";
+import ProfileSettings from "@/components/nav/ProfileSettings.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 
 const LINKS = [
@@ -25,7 +25,7 @@ const Header = () => {
             disabled={isLoading}
             className="w-12 h-12 rounded-[12px] border-2 border-surface shadow-buttons flex items-center justify-center hover:bg-surface transition-colors focus:outline-none"
           >
-            <img src={profile} alt="Profile"/>
+            <img src={profile} alt="MyProfile"/>
           </Popover.Button>
 
           <Transition

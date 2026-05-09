@@ -1,12 +1,12 @@
 import book from '@/assets/book.png';
 import dogs from '@/assets/dogs.png';
 import pokemonGo from '@/assets/pokemonGo.png';
-import { Button } from "@/components/Button.jsx";
 import maps from '@/assets/maps.png';
 import map1 from '@/assets/map1.png';
 import map2 from '@/assets/map2.png';
 import { Link } from "react-router-dom";
-import CardPack from "@/components/CardPack.jsx";
+import CardPack from "@/components/cards/CardPack.jsx";
+import MapListCard from "@/components/cards/MapListCard.jsx";
 
 export const CARD_PACKS = [
   {
@@ -49,6 +49,7 @@ const MAPS = [
 ];
 
 const PACKS_LINK = '/gallery/packs';
+const MAPS_LINK = '/gallery/maps';
 
 const InfoCards = () => {
   return (
@@ -62,7 +63,7 @@ const InfoCards = () => {
 
         <Link
           to={PACKS_LINK}
-          className='text-label font-noto text-brand-500'
+          className='text-label font-noto text-brand-500 hover:text-brand-700'
         >
           Browse the gallery →
         </Link>
@@ -81,40 +82,17 @@ const InfoCards = () => {
           <span className='text-label font-noto text-text-label'>updated daily</span>
         </div>
 
-        <button className='text-label font-noto text-brand-500'>
+        <Link
+          to={MAPS_LINK}
+          className='text-label font-noto text-brand-500 hover:text-brand-700'
+        >
           Browse the gallery →
-        </button>
+        </Link>
       </div>
 
-      <ul className='flex items-center gap-5 justify-around w-full'>
+      <ul className='flex flex-col gap-5 w-full'>
         {MAPS.map(map => (
-          <li key={map.id} className='flex flex-col gap-4 p-[25px] w-[530px] bg-surface rounded-[12px]'>
-            <img src={map.image} alt={`Map ${map.title} Logo`} className='w-[480px] h-[150px] object-cover'/>
-
-            <div className='flex flex-col w-full'>
-              <div className='w-full flex items-center justify-between'>
-                <h2 className='text-h2'>{map.title}</h2>
-                <div className='flex items-center justify-center rounded-full py-1 px-4 bg-brand-300'>
-                  <span className='text-btn font-noto'>{map.dimensions}</span>
-                </div>
-              </div>
-
-              <div className='flex items-center gap-2 w-full'>
-                <span className='text-label text-text-label font-noto'>Based on card-pack:</span>
-                <span className="text-label font-noto underline decoration-solid decoration-skip-ink text-brand-500">{map.basedOn} pack</span>
-              </div>
-            </div>
-
-            <span className='text-label font-noto'>{map.description}</span>
-
-            <ul className='flex items-center w-full justify-center gap-2'>
-              <li>
-                <Button>
-                  <span>Preview Abstract map</span>
-                </Button>
-              </li>
-            </ul>
-          </li>
+          <MapListCard map={map}/>
         ))}
       </ul>
     </div>

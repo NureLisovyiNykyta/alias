@@ -1,5 +1,5 @@
 import React from 'react';
-import DropDown from '@/components/DropDown';
+import DropDown from '@/components/inputs/DropDown.jsx';
 import mapPreviewIcon from '@/assets/mapPreview.svg';
 
 const MapTemplateSelector = ({

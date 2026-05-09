@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
-import MainLayout from '@/components/MainLayout.jsx';
+import { ProtectedRoute } from '@/components/layouts/ProtectedRoute.jsx';
+import MainLayout from '@/components/layouts/MainLayout.jsx';
 import Landing from "@/pages/Landing.jsx";
-import Profile from "@/pages/Profile.jsx";
+import MyProfile from "@/pages/MyProfile.jsx";
 import PacksGallery from "@/pages/PacksGallery.jsx";
-import ScrollToTop from "@/components/ScrollToTop.jsx";
+import TopScroller from "@/utils/topScroller.js";
 import SignIn from "@/pages/SignIn.jsx";
 import SignUp from "@/pages/SignUp.jsx";
 import { useAuth } from '@/contexts/AuthContext.jsx';
@@ -16,6 +16,10 @@ import CardPackEditor from "@/pages/CardPackEditor.jsx";
 import MapEditor from "@/pages/MapEditor.jsx";
 import WordsEditor from "@/pages/WordsEditor.jsx";
 import MapFieldsEditor from "@/pages/MapFieldsEditor.jsx";
+import PublicProfile from "@/pages/PublicProfile.jsx";
+import MapPreview from "@/pages/MapPreview.jsx";
+import CardPackPreview from "@/pages/CardPackPreview.jsx";
+import MapsGallery from "@/pages/MapsGallery.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -26,15 +30,20 @@ function App() {
 
   return (
     <BrowserRouter>
-      <ScrollToTop/>
+      <TopScroller/>
       <Routes>
         <Route element={<MainLayout/>}>
           <Route path="/" element={<Landing/>}/>
 
-          <Route path="/profile" element={<Profile/>}/>
+          <Route path="/me" element={<MyProfile/>}/>
           <Route path='/gallery'>
             <Route path="packs" element={<PacksGallery/>}/>
+            <Route path="maps" element={<MapsGallery/>}/>
           </Route>
+
+          <Route path='user/:username' element={<PublicProfile/>}/>
+          <Route path='map/:id' element={<MapPreview/>}/>
+          <Route path='card-pack/:id' element={<CardPackPreview/>}/>
 
           <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
             <Route path="card-pack" element={<CardPackCreator/>}/>

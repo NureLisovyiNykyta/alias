@@ -17,6 +17,7 @@ const Input = forwardRef(({
                             isValid = false,
                             successText = "Correct format",
                             wide = false,
+                            width= '',
                             showForgot = false,
                             ...props
                           }, ref) => {
@@ -41,7 +42,7 @@ const Input = forwardRef(({
   }
 
   return (
-    <div className={`flex flex-col gap-2 ${wide ? 'w-full' : 'w-[280px]'}`}>
+    <div className={`flex flex-col gap-2 ${wide ? 'w-full' : 'w-[280px]'} ${width}`}>
       <label htmlFor={id} className="font-noto text-p">{label}</label>
 
       <div

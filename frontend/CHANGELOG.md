@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-05-09
+
+### Added
+- **Card Pack Preview Page**: Implemented `CardPackPreview.jsx` to provide a read-only, public view of a card pack's metadata, statistics, and full vocabulary list.
+- **Maps Gallery**: Created `MapsGallery.jsx` with a tabbed interface (Community, Saved, My creations), supporting pagination, sorting, and status filtering.
+- **Map List Card**: Implemented `MapListCard.jsx` component for the maps gallery to display detailed map statistics and a "Save to My maps" action for public maps.
+- **Map API Extensions**: Expanded `api/maps.js` with new endpoints and hooks: `getPublicMaps`, `getSavedMaps`, and `useSaveMapMutation`.
+
+### Changed
+- **Dynamic Map Grid Visualization**: Refactored `MapFieldsEditor` and `MapPreviewBoard` to dynamically render a 1D array of fields into a 2D "snake-like" grid, supporting variable `max_fields_count` without hardcoded row/column limits.
+- **Sticky Board Details**: Improved the layout of `MapPreviewBoard` by fixing the sticky positioning of the side details panel for smoother scrolling.
+- **Packs Gallery Filtering**: Enhanced `PacksGallery.jsx` by adding a "Status" dropdown filter (All, Active, Draft) to the "My creations" tab to match the maps gallery functionality.
+
+## [0.12.1] - 2026-05-07
+
+### Changed
+- **Dynamic Navigation Lists**: Updated the `Navigation.jsx` sidebar to support real data fetch and dynamic list expansion by adding "Show all" and "Show less" toggle buttons for the "My packs" and "My maps" sections.
+- **Conditional Data Fetching**: Modified the API query hooks (`useMyPacksQuery`, `useMyMapsQuery`) within the navigation component to dynamically switch between a strict `{ limit: 4 }` constraint and an unlimited fetch based on the user's toggle state.
+- **Smart UI Rendering**: Added logic to conditionally render the expansion toggle buttons only when the total number of items from the backend (`total > 4`) exceeds the default visible limit.
+
+## [0.12.0] - 2026-05-07
+
+### Added
+- **Map Preview Page**: Implemented a new read-only `MapPreview.jsx` page allowing users to publicly inspect map layers, configurations, and data fields.
+- **Map Preview Board**: Created the `MapPreviewBoard.jsx` component following Atomic Design principles. It features an interactive 10x4 visual grid where users can select specific cells to view their properties (time limit, reward, penalty) and trace data sources via direct links to the associated Card Packs.
+- **Map Card Component**: Added `MapPreviewCard.jsx` to display comprehensive map metadata (image, title, creation date, total games played, rating, template, and field limit) utilizing a responsive CSS grid layout consistent with the overall design system.
+
+## [0.11.1] - 2026-05-07
+
+### Changed
+- **Custom Confirmation Modal**: Upgraded `ConfirmWindow.jsx` into a fully accessible modal using `@headlessui/react` (`Dialog`, `Transition`). It now features a dark backdrop overlay (`bg-black/20`) and supports closing by clicking outside the modal or pressing the Escape key.
+- **Account Deletion Flow**: Replaced the native browser `window.confirm` dialogue in `MyProfile.jsx` with the custom `ConfirmWindow` modal for the "Delete account permanently" action, managing its visibility via a new local state.
+- **UX and Notifications**: Removed blocking native `alert()` calls in `MyProfile.jsx`. Integrated the global `useNotification` context to display smooth, animated success messages when copying the profile link, successfully updating the display name, or changing the password.
+
+## [0.11.0] - 2026-05-07
+
+### Added
+- **Public Profile View**: Implemented `PublicProfile.jsx` to allow users to view other players' profiles via a dynamic `:username` route.
+- **User Data Fetching**: Integrated `useUserByUsernameQuery` hook in `api/user.js` utilizing `@tanstack/react-query` to fetch public user metadata by username.
+- **Profile UI Elements**: Added a dedicated layout for public profiles featuring the user's nickname, join date (formatted via `formatPackDate`), total games played, and username with a gamepad icon.
+- **Loading States**: Integrated the `Spinner` component with a "Loading User Info" message to handle asynchronous data fetching states.
+
+## [0.10.4] - 2026-05-07
+
+### Changed
+- **Project Structure**: `components` folder was split with different subfolders for easy file search.
+
 ## [0.10.3] - 2026-05-07
 
 ### Added
@@ -16,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Grid Layout Simplification**: Removed the `notACellIndices` concept from the `MapFieldsEditor`. All 40 cells within the 10x4 grid are now strictly active and clickable.
 - **Map Activation Constraint**: The "Activate" button inside `MapFieldsEditor` is now strictly disabled unless all 40 grid cells are successfully populated with field data (`isAllCellsFilled`).
 
-## [0.10.2] - 2026-05-07
+## [0.10.2] - 2026-05-06
 
 ### Added
 - **Interactive Map Grid**: Implemented a 10x4 CSS Grid in `MapFieldsEditor.jsx` for visual map configuration, allowing users to select cells by clicking or typing coordinates (supporting ranges like "1, 3, 5-7").
@@ -90,7 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Global Notifications**: Implemented a global `NotificationContext` and a `Notification` component utilizing `framer-motion` for smooth slide-in animations from the right side of the screen (`x: 100`).
 - **Date Formatting Utility**: Created `formatPackDate` helper (`utils/parseTime.js`) using `Intl.DateTimeFormat` to convert ISO 8601 strings into a localized "Month, Year" format (e.g., "May, 2026").
-- **Profile Enhancements**: Updated the `Profile.jsx` page to display the user's registration date (`created_at`) and total games played (`games_played`), utilizing the new date formatting utility.
+- **MyProfile Enhancements**: Updated the `MyProfile.jsx` page to display the user's registration date (`created_at`) and total games played (`games_played`), utilizing the new date formatting utility.
 - **Save Pack Feedback**: Integrated the `useNotification` hook into the `useSavePackMutation` to provide immediate, auto-dismissing visual feedback upon successfully saving a community pack.
 
 ### Changed
@@ -167,7 +214,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented **Step 4 (Email Verification)** in the Sign Up flow (`VerificationStep.jsx`) to handle 6-digit OTP codes.
 - Added visual success indicators (green borders and specific success messages) for all input fields across the Sign Up wizard upon valid `react-hook-form` validation.
-- Displayed real user data (email, username) dynamically in the `Profile` and `ProfileSettings` components using the updated `AuthContext`.
+- Displayed real user data (email, username) dynamically in the `MyProfile` and `ProfileSettings` components using the updated `AuthContext`.
 
 ### Changed
 - Refactored `AuthContext` to use a cookie-based `isAuthenticated` state (`refreshToken`), eliminating UI blocking while waiting for `/users/me` requests.
@@ -194,35 +241,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Implemented the **Sign In** UI page (`SignIn.jsx`) featuring a stylized two-column layout with a branded visual panel, email/password input fields, and a Google SSO placeholder.
-- Added the **Profile Settings** modal (`ProfileSettings.jsx`) accessible directly from the global application Header.
-- Integrated `@headlessui/react` to handle the Profile Settings dropdown, utilizing the `Popover` and `Transition` components for accessible, animated opening/closing behaviors and proper routing interception.
+- Added the **MyProfile Settings** modal (`ProfileSettings.jsx`) accessible directly from the global application Header.
+- Integrated `@headlessui/react` to handle the MyProfile Settings dropdown, utilizing the `Popover` and `Transition` components for accessible, animated opening/closing behaviors and proper routing interception.
 
 ## [0.4.0] - 2026-04-22
 
 ### Added
 - **[Major Feature] Packs Gallery:** Implemented a new main "Packs Gallery" page displaying all available categories of packs in one place.
 - **[Major Feature] Category Lists:** Added dedicated pages for viewing comprehensive, filtered lists of packs based on their specific type.
-- Implemented global **automatic scroll-to-top** behavior on route changes using a dedicated `ScrollToTop` utility component to improve UX during page transitions.
+- Implemented global **automatic scroll-to-top** behavior on route changes using a dedicated `TopScroller` utility component to improve UX during page transitions.
 - Integrated `useLocation` hook from `react-router-dom` to dynamically detect navigation events and reset window scroll position.
 
 ### Changed
 - Refactored the `RowNavigation` component using a more concise declarative syntax (ternary operators and object destructuring) for better code readability and maintainability.
-- Optimized overall Single Page Application (SPA) navigation flow to ensure smooth transitions between the Main, Profile, and the new Gallery pages.
+- Optimized overall Single Page Application (SPA) navigation flow to ensure smooth transitions between the Main, MyProfile, and the new Gallery pages.
 
 ## [0.3.0] - 2026-04-22
 
 ### Added
-- Implemented the **Profile** page (`Profile.jsx`) featuring account details, game statistics, and user settings.
+- Implemented the **MyProfile** page (`MyProfile.jsx`) featuring account details, game statistics, and user settings.
 - Created a reusable and "dumb" `Input` component to handle various text and password entries across the application.
 - Integrated profile-specific UI elements:
-  - Profile picture container with a custom upload action overlay.
+  - MyProfile picture container with a custom upload action overlay.
   - User statistics dashboard (join date, games finished, and account credentials).
   - Quick action buttons for profile link sharing and account deletion.
 - Added new graphical assets for the profile interface (`darkMail.svg`, `gamepad.svg`, `darkCopy.svg`, `redCross.svg`, etc.).
 
 ### Changed
 - Refactored input logic by abstracting it into a standalone functional component to improve reusability and maintain consistency with Figma designs.
-- Enhanced `Profile` layout with breadcrumb navigation for better user experience.
+- Enhanced `MyProfile` layout with breadcrumb navigation for better user experience.
 
 ## [0.2.1] - 2026-04-21
 

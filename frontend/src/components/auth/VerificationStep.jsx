@@ -1,8 +1,8 @@
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import VerificationCodeInput from "@/components/VerificationCodeInput.jsx";
-import { Button } from "@/components/Button.jsx";
+import VerificationCodeInput from "@/components/inputs/VerificationCodeInput.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
 import { useVerifyEmailMutation } from "@/api/auth.js";
 
 const verificationSchema = z.object({

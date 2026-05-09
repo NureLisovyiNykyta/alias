@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AuthLayout from "@/components/AuthLayout.jsx";
+import AuthLayout from "@/components/layouts/AuthLayout.jsx";
 import EmailStep from "@/components/auth/EmailStep.jsx";
 import UsernameStep from "@/components/auth/UsernameStep.jsx";
 import PasswordStep from "@/components/auth/PasswordStep.jsx";

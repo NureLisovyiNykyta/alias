@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import RowNavigation from '@/components/RowNavigation.jsx';
-import { Button } from '@/components/Button.jsx';
-import Spinner from '@/components/Spinner.jsx';
-import DropDown from "@/components/DropDown.jsx";
-import Input from "@/components/Input.jsx";
-import NumberInput from "@/components/NumberInput.jsx";
+import RowNavigation from '@/components/nav/RowNavigation.jsx';
+import { Button } from '@/components/buttons/Button.jsx';
+import Spinner from '@/components/layouts/Spinner.jsx';
+import DropDown from "@/components/inputs/DropDown.jsx";
+import Input from "@/components/inputs/Input.jsx";
+import NumberInput from "@/components/inputs/NumberInput.jsx";
 
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useQueryClient } from '@tanstack/react-query';
@@ -17,10 +17,12 @@ import {
   usePublishMapMutation
 } from "@/api/maps.js";
 import { usePublicPacksQuery } from "@/api/card-packs.js";
+import { getCellGridStyle } from "@/utils/getCellGridStyle.js";
 
-const DEFAULT_TIME = '50';
-const DEFAULT_REWARD = '10';
+const DEFAULT_TIME = '60';
+const DEFAULT_REWARD = '1';
 const DEFAULT_PENALTY = '1';
+const MAX_ROW_WIDTH = 12;
 
 const MapFieldEditor = () => {
   const { id: mapId } = useParams();
@@ -34,20 +36,22 @@ const MapFieldEditor = () => {
   const [reward, setReward] = useState(DEFAULT_REWARD);
   const [penalty, setPenalty] = useState(DEFAULT_PENALTY);
 
-  const [gridFields, setGridFields] = useState(Array(40).fill(null));
-  const [originalFields, setOriginalFields] = useState(Array(40).fill(null));
-
   const { data: mapData } = useMapQuery(mapId);
   const { data: serverFields, isLoading: isFieldsLoading } = useMapFieldsQuery(mapId);
   const { data: myPacks } = usePublicPacksQuery({});
 
+  const totalFields = mapData?.template?.max_fields_count || 0;
+
+  const [gridFields, setGridFields] = useState([]);
+  const [originalFields, setOriginalFields] = useState([]);
+
   const packOptions = myPacks?.items?.map(pack => ({ id: pack.id, label: pack.name })) || [];
 
   useEffect(() => {
-    if (serverFields) {
-      const newGrid = Array(40).fill(null);
+    if (serverFields && totalFields > 0) {
+      const newGrid = Array(totalFields).fill(null);
       serverFields.forEach(field => {
-        if (field.position_index >= 0 && field.position_index < 40) {
+        if (field.position_index >= 0 && field.position_index < totalFields) {
           newGrid[field.position_index] = {
             id: field.id,
             card_pack_id: field.card_pack_id,
@@ -60,7 +64,7 @@ const MapFieldEditor = () => {
       setGridFields(newGrid);
       setOriginalFields(newGrid);
     }
-  }, [serverFields]);
+  }, [serverFields, totalFields]);
 
   const { mutate: syncFields, isPending: isSaving } = useBulkSyncFieldsMutation({
     onSuccess: () => {
@@ -122,7 +126,7 @@ const MapFieldEditor = () => {
       }
     });
 
-    const validIndices = Array.from(posArray).filter(p => p >= 0 && p < 40);
+    const validIndices = Array.from(posArray).filter(p => p >= 0 && p < totalFields);
     const newGrid = [...gridFields];
 
     validIndices.forEach(idx => {
@@ -174,7 +178,7 @@ const MapFieldEditor = () => {
   const hasChanges = JSON.stringify(gridFields) !== JSON.stringify(originalFields);
   const canSave = hasChanges && !isSaving && !isFieldsLoading;
 
-  const isAllCellsFilled = gridFields.every(field => field !== null);
+  const isAllCellsFilled = totalFields > 0 && gridFields.length === totalFields && gridFields.every(field => field !== null);
   const isDraft = mapData?.status?.toUpperCase() === 'DRAFT';
   const isActivePrivate = mapData?.status?.toUpperCase() === 'ACTIVE' && !mapData?.is_public;
 
@@ -266,12 +270,19 @@ const MapFieldEditor = () => {
         </Button>
       </div>
 
-      <div className='flex items-center justify-center w-full bg-surface p-4 rounded-[12px]'>
+      <div className='flex items-center justify-center w-full bg-surface p-4 rounded-[12px] overflow-auto'>
         {isFieldsLoading ? (
           <Spinner size="md" />
         ) : (
-          <div className='grid grid-cols-10 grid-rows-4 gap-[2px] p-[2px] bg-surface rounded-[8px]'>
-            {Array.from({ length: 40 }).map((_, index) => {
+          <div
+            className='grid gap-[2px] p-[2px] bg-surface rounded-[8px]'
+            style={{
+              gridTemplateColumns: `repeat(${MAX_ROW_WIDTH}, 48px)`,
+              gridAutoRows: '48px',
+              width: 'max-content'
+            }}
+          >
+            {Array.from({ length: totalFields }).map((_, index) => {
               const isFilled = !!gridFields[index];
               const isSelected = currentSelectedIndices.includes(index);
 
@@ -282,6 +293,7 @@ const MapFieldEditor = () => {
                 <div
                   key={index}
                   onClick={() => handleCellClick(index)}
+                  style={getCellGridStyle(index, MAX_ROW_WIDTH)}
                   className={`
                     h-12 w-12 flex items-center justify-center transition-colors group relative cursor-pointer
                     ${bgClass}

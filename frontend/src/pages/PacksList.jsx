@@ -1,6 +1,6 @@
-import RowNavigation from "@/components/RowNavigation.jsx";
-import CardPack from "@/components/CardPack.jsx";
-import { CARD_PACKS } from "@/components/InfoCards.jsx";
+import RowNavigation from "@/components/nav/RowNavigation.jsx";
+import CardPack from "@/components/cards/CardPack.jsx";
+import { CARD_PACKS } from "@/components/cards/InfoCards.jsx";
 import { useParams } from "react-router-dom";
 
 const PacksList = () => {

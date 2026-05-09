@@ -1,8 +1,8 @@
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Input from "@/components/Input.jsx";
-import { Button } from "@/components/Button.jsx";
+import Input from "@/components/inputs/Input.jsx";
+import { Button } from "@/components/buttons/Button.jsx";
 import { useGoogleRegisterMutation } from "@/api/auth.js";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 
