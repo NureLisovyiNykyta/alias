@@ -162,6 +162,9 @@ async def toggle_save_card_pack(
 ) -> bool:
     pack = await _get_pack_or_404(db, pack_id)
 
+    if pack.author_id == user_id:
+        raise BadRequestError(ErrorMessage.CARD_PACK_SAVE_OWN)
+
     result = await db.execute(
         select(SavedCardPack).where(
             SavedCardPack.user_id == user_id,
@@ -296,6 +299,7 @@ async def get_public_packs(
     q: str | None = None,
     type_id: uuid.UUID | None = None,
     sort_by: SortOrder = SortOrder.newest,
+    exclude_user_id: uuid.UUID | None = None,
 ) -> tuple[list[CardPack], int]:
     base_where = [
         CardPack.is_public.is_(True),
@@ -306,6 +310,8 @@ async def get_public_packs(
         base_where.append(CardPack.name.ilike(f"%{q}%"))
     if type_id:
         base_where.append(CardPack.type_id == type_id)
+    if exclude_user_id:
+        base_where.append(CardPack.author_id != exclude_user_id)
 
     total: int = (await db.execute(select(func.count(CardPack.id)).select_from(CardPack).where(*base_where))).scalar_one()
 

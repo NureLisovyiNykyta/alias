@@ -143,9 +143,11 @@ async def list_public_packs(
     q: str | None = Query(default=None),
     type_id: uuid.UUID | None = Query(default=None),
     sort_by: SortOrder = Query(default=SortOrder.newest),
+    current_user: User | None = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedResponse[CardPackRead]:
-    items, total = await get_public_packs(db, limit, offset, q, type_id, sort_by)
+    exclude_user_id = current_user.id if current_user else None
+    items, total = await get_public_packs(db, limit, offset, q, type_id, sort_by, exclude_user_id)
     return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
 
 

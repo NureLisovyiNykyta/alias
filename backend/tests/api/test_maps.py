@@ -110,6 +110,17 @@ class TestMaps:
         assert response.status_code == 200
         assert response.json() == {"saved": False}
 
+    async def test_save_own_map_forbidden(
+        self,
+        client: AsyncClient,
+        created_map: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        map_id = created_map["id"]
+        response = await client.post(f"/api/maps/{map_id}/save", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.MAP_SAVE_OWN
+
     async def test_rate_own_map_forbidden(
         self,
         client: AsyncClient,
@@ -175,6 +186,75 @@ class TestMaps:
         response = await client.get("/api/maps/public")
         assert response.status_code == 200
         assert str(map_obj.id) in [item["id"] for item in response.json()["items"]]
+
+    async def test_public_maps_exclude_own_when_authenticated(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_map_template: MapTemplate,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        own_map = Map(
+            id=uuid.uuid4(),
+            name="Own Public Map",
+            is_public=True,
+            template_id=test_map_template.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        other_map = Map(
+            id=uuid.uuid4(),
+            name="Other Public Map",
+            is_public=True,
+            template_id=test_map_template.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(own_map)
+        test_db.add(other_map)
+        await test_db.flush()
+
+        response = await client.get("/api/maps/public", headers=auth_headers)
+        assert response.status_code == 200
+        ids = [item["id"] for item in response.json()["items"]]
+        assert str(own_map.id) not in ids
+        assert str(other_map.id) in ids
+
+    async def test_public_maps_show_all_when_guest(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_map_template: MapTemplate,
+        test_user: User,
+        second_user: User,
+    ) -> None:
+        own_map = Map(
+            id=uuid.uuid4(),
+            name="Guest View Own Map",
+            is_public=True,
+            template_id=test_map_template.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        other_map = Map(
+            id=uuid.uuid4(),
+            name="Guest View Other Map",
+            is_public=True,
+            template_id=test_map_template.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(own_map)
+        test_db.add(other_map)
+        await test_db.flush()
+
+        response = await client.get("/api/maps/public")
+        assert response.status_code == 200
+        ids = [item["id"] for item in response.json()["items"]]
+        assert str(own_map.id) in ids
+        assert str(other_map.id) in ids
 
 
 class TestPublishMap:
