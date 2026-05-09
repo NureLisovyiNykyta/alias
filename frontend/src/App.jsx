@@ -20,6 +20,7 @@ import PublicProfile from "@/pages/PublicProfile.jsx";
 import MapPreview from "@/pages/MapPreview.jsx";
 import CardPackPreview from "@/pages/CardPackPreview.jsx";
 import MapsGallery from "@/pages/MapsGallery.jsx";
+import LobbyCreator from "@/pages/LobbyCreator.jsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -48,6 +49,7 @@ function App() {
           <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
             <Route path="card-pack" element={<CardPackCreator/>}/>
             <Route path="map" element={<MapCreator/>}/>
+            <Route path="lobby" element={<LobbyCreator/>}/>
           </Route>
 
           <Route path="/edit" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
