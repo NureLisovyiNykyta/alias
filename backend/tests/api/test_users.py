@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from unittest.mock import AsyncMock, patch
 
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -133,6 +134,7 @@ class TestDeleteAccount:
             username="ghostuser",
             nickname="Ghost User",
             password_hash="some_hash",
+            avatar_url="https://pub-xxx.r2.dev/avatars/ghost.webp",
         )
         test_db.add(user)
 
@@ -169,7 +171,10 @@ class TestDeleteAccount:
         token = generate_token_pair(str(user.id)).access_token
         headers = {"Authorization": f"Bearer {token}"}
 
-        response = await client.delete("/api/users/me", headers=headers)
+        with patch("app.services.user.image_service.delete_avatar", new_callable=AsyncMock) as mock_delete:
+            response = await client.delete("/api/users/me", headers=headers)
+            mock_delete.assert_called_once_with(user.id)
+
         assert response.status_code == 200
         assert response.json() == {"status": "ok"}
 

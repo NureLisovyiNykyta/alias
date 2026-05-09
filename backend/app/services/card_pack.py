@@ -13,6 +13,21 @@ from app.models.enums import StatusEnum
 from app.schemas.card_pack import CardPackCreate, CardPackUpdate, SortOrder
 
 
+async def update_card_pack_cover(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    pack_id: uuid.UUID,
+    cover_url: str | None,
+) -> CardPack:
+    pack = await _get_pack_or_404(db, pack_id)
+    if pack.author_id != user_id:
+        raise ForbiddenError()
+    pack.cover_url = cover_url
+    await db.commit()
+    await db.refresh(pack)
+    return pack
+
+
 async def _get_pack_or_404(db: AsyncSession, pack_id: uuid.UUID) -> CardPack:
     result = await db.execute(select(CardPack).where(CardPack.id == pack_id))
     pack: CardPack | None = result.scalar_one_or_none()

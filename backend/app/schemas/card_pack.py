@@ -49,6 +49,7 @@ class CardPackRead(BaseModel):
     rating_average: float
     rating_count: int
     saves_count: int
+    cover_url: str | None
     author_id: uuid.UUID
     type_id: uuid.UUID
     deleted_at: datetime.datetime | None

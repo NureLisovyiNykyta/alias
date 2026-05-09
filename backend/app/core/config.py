@@ -25,6 +25,12 @@ class Settings(BaseSettings):
 
     REDIS_URL: str
 
+    R2_ENDPOINT_URL: str
+    R2_ACCESS_KEY_ID: str
+    R2_SECRET_ACCESS_KEY: str
+    R2_BUCKET_NAME: str
+    R2_PUBLIC_URL: str
+
     @property
     def backend_cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.FRONTEND_LINKS.split(",") if origin.strip()]
