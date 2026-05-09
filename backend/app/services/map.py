@@ -178,6 +178,9 @@ async def toggle_save_map(
 ) -> bool:
     map_obj = await _get_map_or_404(db, map_id)
 
+    if map_obj.author_id == user_id:
+        raise BadRequestError(ErrorMessage.MAP_SAVE_OWN)
+
     result = await db.execute(
         select(SavedMap).where(
             SavedMap.user_id == user_id,
@@ -311,6 +314,7 @@ async def get_public_maps(
     q: str | None = None,
     template_id: uuid.UUID | None = None,
     sort_by: SortOrder = SortOrder.newest,
+    exclude_user_id: uuid.UUID | None = None,
 ) -> tuple[list[Map], int]:
     base_where = [
         Map.is_public.is_(True),
@@ -321,6 +325,8 @@ async def get_public_maps(
         base_where.append(Map.name.ilike(f"%{q}%"))
     if template_id:
         base_where.append(Map.template_id == template_id)
+    if exclude_user_id:
+        base_where.append(Map.author_id != exclude_user_id)
 
     total: int = (
         await db.execute(select(func.count(Map.id)).select_from(Map).where(*base_where))

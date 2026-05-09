@@ -144,9 +144,11 @@ async def list_public_maps(
     q: str | None = Query(default=None),
     template_id: uuid.UUID | None = Query(default=None),
     sort_by: SortOrder = Query(default=SortOrder.newest),
+    current_user: User | None = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedResponse[MapRead]:
-    items, total = await get_public_maps(db, limit, offset, q, template_id, sort_by)
+    exclude_user_id = current_user.id if current_user else None
+    items, total = await get_public_maps(db, limit, offset, q, template_id, sort_by, exclude_user_id)
     return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
 
 
