@@ -35,7 +35,7 @@ const LINKS = [
 ];
 
 const MyProfile = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
 
@@ -186,6 +186,15 @@ const MyProfile = () => {
 
   const hasAvatar = !!user?.avatar_url;
 
+  if (isLoading) {
+    return (
+      <main className="flex items-center justify-center w-full h-full gap-5">
+        <Spinner size="lg" />
+        <h2 className='text-h2 text-text-label'>Loading User Info</h2>
+      </main>
+    );
+  }
+
   return (
     <main className="flex flex-col w-full gap-5 relative">
       <RowNavigation links={LINKS}/>
@@ -195,7 +204,7 @@ const MyProfile = () => {
       <div className='flex gap-8 w-full'>
         <div className='flex flex-col w-[250px] shrink-0 rounded-[16px] bg-surface overflow-hidden h-fit'>
           <div className='w-[250px] h-[250px] flex justify-center items-center shrink-0 bg-surface'>
-            {isUploadingAvatar || isDeletingAvatar || !hasAvatar ? (
+            {isUploadingAvatar || isDeletingAvatar ? (
               <Spinner size='lg' />
             ) : (
               <img
