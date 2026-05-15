@@ -44,3 +44,29 @@ export const useDeleteMeMutation = (options) => {
     ...options,
   });
 };
+
+export const useUploadAvatarMutation = (options) => {
+  return useMutation({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post('/users/me/avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    },
+    ...options,
+  });
+};
+
+export const useDeleteAvatarMutation = (options) => {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await api.delete('/users/me/avatar');
+      return response.data;
+    },
+    ...options,
+  });
+};

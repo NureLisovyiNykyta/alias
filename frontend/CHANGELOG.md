@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2026-05-15
+
+### Added
+- **Profile Avatar Management**: Integrated `POST` (upload) and `DELETE` (remove) endpoints for user profile pictures in `MyProfile.jsx`.
+- **Image Cropping Interface**: Implemented a dedicated cropping modal using `react-easy-crop` to ensure all uploaded avatars strictly adhere to a 1:1 aspect ratio before submission.
+- **Avatar Processing Utility**: Created `cropUtils.js` utilizing the HTML5 Canvas API to transform UI crop coordinates into high-quality image blobs.
+- **Avatar API Hooks**: Expanded `api/user.js` with `useUploadAvatarMutation` and `useDeleteAvatarMutation` to handle multipart/form-data uploads and avatar removal.
+
+### Changed
+- **Profile Layout Refactoring**: Redesigned the avatar section to move action buttons below the image, ensuring the 250x250px profile picture remains fully visible without UI overlays.
+- **Enhanced Loading UX**: Integrated `Spinner` components directly into the avatar container to provide clear visual feedback during asynchronous upload and deletion states.
+- **Automatic Data Synchronization**: Added `queryClient` invalidation logic to automatically refresh user metadata across the application immediately after an avatar update.
+
 ## [0.14.1] - 2026-05-09
 
 ### Added

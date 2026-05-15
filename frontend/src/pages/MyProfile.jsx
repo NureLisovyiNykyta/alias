@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import profile from '@/assets/profile.png';
+import { profileSchema, passwordSchema } from "@/schemas/profileSchema.js";
+import profile from '@/assets/userProfile.svg';
 import upload from '@/assets/upload.svg';
 import emailIcon from '@/assets/darkMail.svg';
 import gamepad from "@/assets/gamepad.svg";
@@ -14,45 +14,50 @@ import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { formatPackDate } from "@/utils/parseTime.js";
 import { Disclosure, Transition } from '@headlessui/react';
 import { useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useUpdateMeMutation,
   useChangePasswordMutation,
-  useDeleteMeMutation
+  useDeleteMeMutation,
+  useUploadAvatarMutation,
+  useDeleteAvatarMutation
 } from "@/api/user.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import ConfirmWindow from "@/components/layouts/ConfirmWindow.jsx";
+import { useState } from "react";
+import Cropper from 'react-easy-crop';
+import { getCroppedImg } from '@/utils/cropImage.js';
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
   { label: "Accounts details", id: 2 },
 ];
 
-const passwordSchema = z.object({
-  oldPassword: z.string().min(1, "Old password is required"),
-  newPassword: z.string()
-    .min(8, "Password must be at least 8 characters long")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
-});
-
-const profileSchema = z.object({
-  nickname: z.string().min(2, "Display name must be at least 2 characters").optional().or(z.literal('')),
-});
-
 const MyProfile = () => {
   const { user, logout } = useAuth();
   const { showNotification } = useNotification();
-  const [avatarPreview, setAvatarPreview] = useState(null);
+  const queryClient = useQueryClient();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const [imageSrc, setImageSrc] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const { mutate: updateMe, isPending: isUpdating } = useUpdateMeMutation();
   const { mutate: changePassword, isPending: isChangingPassword } = useChangePasswordMutation();
   const { mutate: deleteMe } = useDeleteMeMutation();
 
-  const { register: registerProfile, handleSubmit: handleProfileSubmit, formState: { errors: profileErrors } } = useForm({
+  const { mutate: uploadAvatar, isPending: isUploadingAvatar } = useUploadAvatarMutation();
+  const { mutate: deleteAvatar, isPending: isDeletingAvatar } = useDeleteAvatarMutation();
+
+  const {
+    register: registerProfile,
+    handleSubmit: handleProfileSubmit,
+    formState: { errors: profileErrors }
+  } = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: { nickname: user?.nickname || '' },
   });
@@ -76,6 +81,7 @@ const MyProfile = () => {
       nickname: data.nickname,
     }, {
       onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['user'] });
         showNotification({
           title: "Profile Updated",
           message: "Your display name has been successfully updated.",
@@ -116,11 +122,60 @@ const MyProfile = () => {
     }
   };
 
-  const handleAvatarChange = (e) => {
+  const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setAvatarPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.addEventListener('load', () => {
+        setImageSrc(reader.result);
+      });
+      e.target.value = null;
     }
+  };
+
+  const onCropComplete = (croppedArea, currentCroppedAreaPixels) => {
+    setCroppedAreaPixels(currentCroppedAreaPixels);
+  };
+
+  const handleCropAndUpload = async () => {
+    try {
+      const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      const file = new File([croppedImageBlob], 'avatar.jpg', { type: 'image/jpeg' });
+
+      uploadAvatar(file, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['user'] });
+          showNotification({
+            title: "Avatar Updated",
+            message: "Your profile picture has been successfully uploaded.",
+            isSuccess: true
+          });
+          setImageSrc(null);
+        }
+      });
+    } catch (e) {
+      console.error(e);
+      showNotification({
+        title: "Error",
+        message: "Failed to crop image. Please try again.",
+        isSuccess: false
+      });
+    }
+  };
+
+  const handleDeleteAvatar = (e) => {
+    e.preventDefault();
+    deleteAvatar(undefined, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+        showNotification({
+          title: "Avatar Removed",
+          message: "Your profile picture has been permanently deleted.",
+          isSuccess: true
+        });
+      }
+    });
   };
 
   const confirmDeleteAccount = () => {
@@ -129,35 +184,56 @@ const MyProfile = () => {
     logout();
   };
 
-  const displayAvatar = avatarPreview || user?.avatar_url || profile;
+  const hasAvatar = !!user?.avatar_url;
 
   return (
-    <main className="flex flex-col w-full gap-5">
+    <main className="flex flex-col w-full gap-5 relative">
       <RowNavigation links={LINKS}/>
 
       <h1 className='text-h1'>Account details</h1>
 
       <div className='flex gap-8 w-full'>
-        <div
-          style={{ backgroundImage: `url(${displayAvatar})` }}
-          className='w-[310px] h-[310px] flex flex-col justify-end rounded-[16px] bg-cover bg-center shrink-0'
-        >
-          <label className='flex items-center justify-center w-full rounded-b-[12px] gap-2 py-2 bg-surface cursor-pointer hover:bg-surface/90 transition-colors'>
-            <img src={upload} alt="Upload avatar"/>
-            <span className='text-label font-noto'>Change profile picture</span>
-            <input
-              type="file"
-              className="hidden"
-              accept="image/png, image/jpeg, image/jpg"
-              onChange={handleAvatarChange}
-            />
-          </label>
+        <div className='flex flex-col w-[250px] shrink-0 rounded-[16px] bg-surface overflow-hidden h-fit'>
+          <div className='w-[250px] h-[250px] flex justify-center items-center shrink-0 bg-surface'>
+            {isUploadingAvatar || isDeletingAvatar || !hasAvatar ? (
+              <Spinner size='lg' />
+            ) : (
+              <img
+                src={user?.avatar_url || profile}
+                alt="Profile Avatar"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+
+          <div className='flex flex-col w-full bg-surface border-t border-text-label/20'>
+            <label
+              className='flex items-center justify-center w-full gap-2 py-3 cursor-pointer hover:bg-surface/90 transition-colors'>
+              <img src={upload} alt="Upload avatar"/>
+              <span className='text-label font-noto'>Change profile picture</span>
+              <input
+                type="file"
+                className="hidden"
+                accept="image/png, image/jpeg, image/jpg"
+                onChange={handleFileSelect}
+              />
+            </label>
+            {hasAvatar && (
+              <button
+                onClick={handleDeleteAvatar}
+                className='flex items-center justify-center w-full gap-2 py-3 hover:bg-surface/90 transition-colors text-text-warning border-t border-text-label/20'
+              >
+                <img src={cross} alt="Delete avatar" className="w-4 h-4"/>
+                <span className='text-label font-noto'>Delete avatar</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div className='flex flex-col gap-6 w-full'>
           <ul className='flex items-center gap-8 flex-wrap'>
             <li className='flex flex-col gap-2'>
-              <span className='text-label text-text-label font-noto'>Playing on Alias.com since</span>
+              <span className='text-label text-text-label font-noto'>Playing Alias since</span>
               <p className='font-noto text-p'>{formatPackDate(user?.created_at)}</p>
             </li>
 
@@ -210,7 +286,8 @@ const MyProfile = () => {
             <Disclosure>
               {({ open }) => (
                 <>
-                  <Disclosure.Button className="flex bg-surface items-center border border-text-label rounded-[8px] py-[10px] px-4 justify-between w-full h-[48px] transition-colors hover:border-text-label/80">
+                  <Disclosure.Button
+                    className="flex bg-surface items-center border border-text-label rounded-[8px] py-[10px] px-4 justify-between w-full h-[48px] transition-colors hover:border-text-label/80">
                     <span className="text-label font-noto text-text-label outline-none">Change password</span>
                     <img
                       src={dropDownArrow}
@@ -228,7 +305,8 @@ const MyProfile = () => {
                     leaveTo="transform scale-95 opacity-0 -translate-y-2"
                   >
                     <Disclosure.Panel className="pt-2">
-                      <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="flex flex-col gap-4 border border-text-label/50 p-4 rounded-lg bg-surface/50">
+                      <form onSubmit={handlePasswordSubmit(onPasswordSubmit)}
+                            className="flex flex-col gap-4 border border-text-label/50 p-4 rounded-lg bg-surface/50">
                         <Input
                           label='Old Password'
                           type='password'
@@ -283,13 +361,49 @@ const MyProfile = () => {
               onClick={() => setIsDeleteModalOpen(true)}
             >
               <div className='flex items-center gap-2'>
-                <img src={cross} alt="Delete"/>
+                <img src={cross} alt="Delete" className='scale-80'/>
                 <span className='text-text-warning'>Delete my account permanently</span>
               </div>
             </Button>
           </div>
         </div>
       </div>
+
+      {imageSrc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-surface p-6 rounded-[16px] w-[90vw] max-w-[500px] flex flex-col gap-4">
+            <h2 className="text-h2 font-noto">Crop profile picture</h2>
+
+            <div className="relative w-full h-[400px] rounded-lg overflow-hidden bg-black/10">
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+
+            <div className="flex justify-end gap-4 mt-2">
+              <Button
+                variant="tertiary"
+                onClick={() => setImageSrc(null)}
+                disabled={isUploadingAvatar}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCropAndUpload}
+                disabled={isUploadingAvatar}
+              >
+                {isUploadingAvatar ? <Spinner size="sm" /> : "Save Avatar"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ConfirmWindow
         isOpen={isDeleteModalOpen}
