@@ -12,11 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Image Cropping Interface**: Implemented a dedicated cropping modal using `react-easy-crop` to ensure all uploaded avatars strictly adhere to a 1:1 aspect ratio before submission.
 - **Avatar Processing Utility**: Created `cropUtils.js` utilizing the HTML5 Canvas API to transform UI crop coordinates into high-quality image blobs.
 - **Avatar API Hooks**: Expanded `api/user.js` with `useUploadAvatarMutation` and `useDeleteAvatarMutation` to handle multipart/form-data uploads and avatar removal.
+- **Reusable Cropping Modal**: Developed `ImageCropperModal.jsx` driven by `@headlessui/react` transitions with a custom background architecture that safely circumvents native scrollbar locking and layout shifts.
+- **Card Pack Cover API Hooks**: Extended `api/card-packs.js` with `useUploadPackCoverMutation` and `useDeletePackCoverMutation` to handle multipart file multi-step uploads and explicit cover deletion.
 
 ### Changed
 - **Profile Layout Refactoring**: Redesigned the avatar section to move action buttons below the image, ensuring the 250x250px profile picture remains fully visible without UI overlays.
 - **Enhanced Loading UX**: Integrated `Spinner` components directly into the avatar container to provide clear visual feedback during asynchronous upload and deletion states.
 - **Automatic Data Synchronization**: Added `queryClient` invalidation logic to automatically refresh user metadata across the application immediately after an avatar update.
+- **Card Pack Creation Flow**: Upgraded `CardPackCreator.jsx` to intercept image selection, passing it to the `ImageCropperModal` with a 3:2 aspect ratio constraint. Implemented a sequential two-stage request pipeline that registers the pack draft first and then binds the media object using the newly provisioned entity ID.
+- **Card Pack Editor Enhancements**: Updated `CardPackEditor.jsx` to trigger instant 3:2 aspect ratio cover updates, automatic query cache invalidation, and introduced a contextual "Delete cover" control accompanied by active mutation loading toggles.
 
 ## [0.14.1] - 2026-05-09
 

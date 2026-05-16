@@ -69,7 +69,7 @@ const CardPackPreview = () => {
       <div className='flex items-center gap-5 py-6 rounded-[12px] w-full h-[320px]'>
         <img
           className='w-[420px] h-[270px] rounded-[12px] border border-text-label object-cover shrink-0'
-          src={pack?.image_url || 'placeholder_path'}
+          src={pack?.cover_url || 'placeholder_path'}
           alt='Pack Image'
         />
 

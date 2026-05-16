@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/buttons/Button.jsx";
 import cross from '@/assets/smallCross.svg';
 import WordInput from "@/components/inputs/WordInput.jsx";
-import WordImportForm from "@/components/inputs/WordImportForm.jsx";
+import WordImportForm from "@/components/modals/WordImportForm.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import {
   usePackCardsQuery,

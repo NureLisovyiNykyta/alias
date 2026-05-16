@@ -24,7 +24,7 @@ import {
   useDeleteAvatarMutation
 } from "@/api/user.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
-import ConfirmWindow from "@/components/layouts/ConfirmWindow.jsx";
+import ConfirmWindow from "@/components/modals/ConfirmWindow.jsx";
 import { useState } from "react";
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from '@/utils/cropImage.js';

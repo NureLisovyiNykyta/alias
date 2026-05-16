@@ -9,10 +9,11 @@ import TextArea from "@/components/inputs/TextArea.jsx";
 import { Button } from "@/components/buttons/Button.jsx";
 import DropDown from "@/components/inputs/DropDown.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
-import { useCreatePackMutation, usePackTypesQuery } from "@/api/card-packs";
+import { useCreatePackMutation, usePackTypesQuery, useUploadPackCoverMutation } from "@/api/card-packs";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useNavigate } from "react-router-dom";
+import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
 
 const createPackSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -23,6 +24,9 @@ const CardPackCreator = () => {
   const { showNotification, closeNotification } = useNotification();
   const navigate = useNavigate();
 
+  const [imageSrc, setImageSrc] = useState(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+
   const navLinks = [
     { id: 1, label: 'Main Page', path: '/' },
     { id: 2, label: 'Card Pack Creator', path: null }
@@ -32,6 +36,7 @@ const CardPackCreator = () => {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(createPackSchema),
@@ -57,31 +62,31 @@ const CardPackCreator = () => {
     label: type.name
   })) || [];
 
-  const { mutate: createPack, isPending } = useCreatePackMutation({
-    onSuccess: (data) => {
-      showNotification({
-        title: "Draft Saved!",
-        message: "Your new card-pack has been successfully created. Redirecting.",
-        isSuccess: true,
-      });
+  const { mutate: createPack, isPending: isCreating } = useCreatePackMutation();
+  const { mutate: uploadCover, isPending: isUploading } = useUploadPackCoverMutation();
 
-      setTimeout(() => {
-        navigate(`/edit/card-pack/${data.id}/words`);
-        closeNotification();
-      }, 2500);
-    },
-    onError: () => {
-      showNotification({
-        title: "Error",
-        message: "Failed to create the card-pack.",
-        isSuccess: false,
-      });
-    },
-  });
+  const handleFileSelect = (e) => {
+    const file = e.target?.files ? e.target.files[0] : e;
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        setImageSrc(reader.result);
+        setIsCropperOpen(true);
+      };
+    }
+  };
+
+  const handleCropSave = (file) => {
+    setValue('image', file, { shouldValidate: true, shouldDirty: true });
+    setIsCropperOpen(false);
+    setImageSrc(null);
+  };
 
   const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.name;
   const isImageValid = !!currentImage && !errors.image;
   const isFormValid = isNameValid && isImageValid && description.trim() !== '' && selectedType !== null;
+  const isBusy = isCreating || isUploading;
 
   const onSubmit = (data) => {
     if (!isFormValid) return;
@@ -90,11 +95,44 @@ const CardPackCreator = () => {
       name: data.name,
       description: description,
       type_id: selectedType.id
+    }, {
+      onSuccess: (response) => {
+        const newPackId = response.id;
+
+        uploadCover({ packId: newPackId, file: data.image }, {
+          onSuccess: () => {
+            showNotification({
+              title: "Draft Saved!",
+              message: "Your new card-pack and cover have been successfully created.",
+              isSuccess: true,
+            });
+
+            setTimeout(() => {
+              navigate(`/edit/card-pack/${newPackId}/words`);
+              closeNotification();
+            }, 2500);
+          },
+          onError: () => {
+            showNotification({
+              title: "Error",
+              message: "Pack created, but failed to upload the cover.",
+              isSuccess: false,
+            });
+          }
+        });
+      },
+      onError: () => {
+        showNotification({
+          title: "Error",
+          message: "Failed to create the card-pack.",
+          isSuccess: false,
+        });
+      }
     });
   };
 
   return (
-    <div className='flex flex-col w-full gap-8'>
+    <div className='flex flex-col w-full gap-8 relative'>
       <RowNavigation links={navLinks} />
 
       <div className='flex flex-col w-[492px] gap-4'>
@@ -123,10 +161,10 @@ const CardPackCreator = () => {
         <Controller
           control={control}
           name="image"
-          render={({ field: { onChange, value } }) => (
+          render={() => (
             <ImageInput
-              value={value}
-              onChange={onChange}
+              value={currentImage}
+              onChange={handleFileSelect}
               error={!!errors.image}
               isValid={isImageValid}
               helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
@@ -184,11 +222,19 @@ const CardPackCreator = () => {
 
       <Button
         className='self-end'
-        disabled={!isFormValid || isPending}
+        disabled={!isFormValid || isBusy}
         onClick={handleSubmit(onSubmit)}
       >
-        {isPending ? <Spinner size='sm' /> : 'Save to Draft'}
+        {isBusy ? <Spinner size='sm' /> : 'Save to Draft'}
       </Button>
+
+      <ImageCropperModal
+        isOpen={isCropperOpen}
+        onClose={() => setIsCropperOpen(false)}
+        imageSrc={imageSrc}
+        onSave={handleCropSave}
+        aspect={3 / 2}
+      />
     </div>
   );
 };

@@ -3,6 +3,8 @@ import { useForm, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useQueryClient } from '@tanstack/react-query';
+import cross from "@/assets/redCross.svg";
 import TransparentInput from "@/components/inputs/TransparentInput.jsx";
 import ImageInput from "@/components/inputs/ImageInput.jsx";
 import StatusLabel from "@/components/cards/StatusLabel.jsx";
@@ -11,8 +13,14 @@ import { Button } from "@/components/buttons/Button.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
+import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
 
-import { usePackQuery, useUpdatePackMutation } from "@/api/card-packs";
+import {
+  usePackQuery,
+  useUpdatePackMutation,
+  useUploadPackCoverMutation,
+  useDeletePackCoverMutation
+} from "@/api/card-packs";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
 
 const updatePackSchema = z.object({
@@ -23,7 +31,11 @@ const updatePackSchema = z.object({
 const CardPackEditor = () => {
   const { id: packId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { showNotification, closeNotification } = useNotification();
+
+  const [imageSrc, setImageSrc] = useState(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
 
   const navLinks = [
     { id: 1, label: 'Main Page', path: '/' },
@@ -58,33 +70,69 @@ const CardPackEditor = () => {
     if (packData) {
       reset({
         name: packData.name || '',
-        image: packData.image_url || null,
+        image: packData.cover_url || packData.image_url || null,
       });
       setDescription(packData.description || '');
     }
   }, [packData, reset]);
 
-  const { mutate: updatePack, isPending } = useUpdatePackMutation({
-    onSuccess: () => {
-      showNotification({
-        title: "Changes Saved!",
-        message: "Your card-pack has been successfully updated. Redirecting",
-        isSuccess: true,
-      });
+  const { mutate: updatePack, isPending: isUpdating } = useUpdatePackMutation();
+  const { mutate: uploadCover, isPending: isUploading } = useUploadPackCoverMutation();
+  const { mutate: deleteCover, isPending: isDeleting } = useDeletePackCoverMutation();
 
-      setTimeout(() => {
-        navigate(`/edit/card-pack/${packId}/words`);
-        closeNotification();
-      }, 2500);
-    },
-    onError: () => {
-      showNotification({
-        title: "Error",
-        message: "Failed to update the card-pack.",
-        isSuccess: false,
-      });
-    },
-  });
+  const handleFileSelect = (e) => {
+    const file = e.target?.files ? e.target.files[0] : e;
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        setImageSrc(reader.result);
+        setIsCropperOpen(true);
+      };
+    }
+  };
+
+  const handleCropSave = (file) => {
+    uploadCover({ packId, file }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['pack', packId] });
+        setIsCropperOpen(false);
+        setImageSrc(null);
+        showNotification({
+          title: "Cover Updated",
+          message: "Pack cover successfully updated.",
+          isSuccess: true
+        });
+      },
+      onError: () => {
+        showNotification({
+          title: "Error",
+          message: "Failed to upload cover.",
+          isSuccess: false
+        });
+      }
+    });
+  };
+
+  const handleDeleteCover = () => {
+    deleteCover(packId, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['pack', packId] });
+        showNotification({
+          title: "Cover Removed",
+          message: "Pack cover successfully deleted.",
+          isSuccess: true
+        });
+      },
+      onError: () => {
+        showNotification({
+          title: "Error",
+          message: "Failed to delete cover.",
+          isSuccess: false
+        });
+      }
+    });
+  };
 
   const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.name;
   const isFormValid = isNameValid && description.trim() !== '';
@@ -98,6 +146,26 @@ const CardPackEditor = () => {
         name: data.name,
         description: description,
       }
+    }, {
+      onSuccess: () => {
+        showNotification({
+          title: "Changes Saved!",
+          message: "Your card-pack has been successfully updated. Redirecting",
+          isSuccess: true,
+        });
+
+        setTimeout(() => {
+          navigate(`/edit/card-pack/${packId}/words`);
+          closeNotification();
+        }, 2500);
+      },
+      onError: () => {
+        showNotification({
+          title: "Error",
+          message: "Failed to update the card-pack.",
+          isSuccess: false,
+        });
+      }
     });
   };
 
@@ -109,8 +177,10 @@ const CardPackEditor = () => {
     );
   }
 
+  const hasCover = !!(packData?.cover_url || packData?.image_url);
+
   return (
-    <div className='flex flex-col w-full gap-8'>
+    <div className='flex flex-col w-full gap-8 relative'>
       <RowNavigation links={navLinks} />
 
       <div className='flex flex-col w-full gap-4'>
@@ -144,20 +214,37 @@ const CardPackEditor = () => {
       </div>
 
       <div className='w-full flex items-center gap-23'>
-        <Controller
-          control={control}
-          name="image"
-          render={({ field: { onChange, value } }) => (
-            <ImageInput
-              value={value}
-              onChange={onChange}
-              error={!!errors.image}
-              isValid={!!value && !errors.image}
-              helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
-              successText='Image uploaded'
-            />
+        <div className="flex flex-col gap-2">
+          <Controller
+            control={control}
+            name="image"
+            render={() => (
+              <ImageInput
+                value={currentImage}
+                onChange={handleFileSelect}
+                error={!!errors.image}
+                isValid={!!currentImage && !errors.image}
+                helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
+                successText='Image uploaded'
+              />
+            )}
+          />
+          {hasCover && (
+            <button
+              onClick={handleDeleteCover}
+              disabled={isDeleting}
+              className="text-text-warning hover:text-red-600 transition-colors text-label font-noto self-end flex items-center gap-2"
+            >
+              {isDeleting ? <Spinner size="sm" /> : (
+                <>
+                  <img src={cross} alt="Delete" className="w-3 h-3" />
+                  Delete cover
+                </>
+              )}
+            </button>
           )}
-        />
+        </div>
+
         <StatusLabel
           title='Deck’s availability'
           status={packData?.is_public ? 'Public' : 'Private'}
@@ -172,11 +259,20 @@ const CardPackEditor = () => {
 
       <Button
         className='self-end mt-4'
-        disabled={!isFormValid || isPending}
+        disabled={!isFormValid || isUpdating || isUploading}
         onClick={handleSubmit(onSubmit)}
       >
-        {isPending ? <Spinner size='sm' /> : 'Save Changes'}
+        {isUpdating ? <Spinner size='sm' /> : 'Save Changes'}
       </Button>
+
+      <ImageCropperModal
+        isOpen={isCropperOpen}
+        onClose={() => setIsCropperOpen(false)}
+        imageSrc={imageSrc}
+        onSave={handleCropSave}
+        aspect={3 / 2}
+        isUploading={isUploading}
+      />
     </div>
   );
 };
