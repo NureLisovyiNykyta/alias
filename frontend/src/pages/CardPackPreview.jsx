@@ -106,7 +106,7 @@ const CardPackPreview = () => {
                 to={`/user/${pack?.author?.username}`}
                 className="flex items-center gap-2 hover:text-brand-500 transition-colors"
               >
-                <div className="w-6 h-6 rounded-full bg-brand-500 overflow-hidden flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full bg-brand-500 overflow-hidden flex items-center justify-center shrink-0">
                   {pack?.author?.avatar_url ? (
                     <img src={pack.author.avatar_url} alt="author" className="w-full h-full object-cover" />
                   ) : (

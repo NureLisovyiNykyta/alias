@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.1] - 2026-05-16
+
+### Added
+- **Registration Personalization Step**: Created the `AvatarStep.jsx` onboarding component, allowing users to select a display nickname and configure a 1:1 profile picture directly during the registration process.
+- **Onboarding Flow Integration**: Embedded the profile personalization phase as the final step in both the standard `SignUp.jsx` wizard and the `GoogleSignUp.jsx` external provider flow, featuring dynamic finish/skip action mapping.
+
+### Changed
+- **Authentication Route Guard Enhancement**: Optimized the `canAccessAuth` condition within `App.jsx` to respect the lifecycle of `temp_google_token` in session storage. This prevents pre-verified external accounts from being prematurely redirected to the root (`/`) path by the global router before completing their profile customization.
+
 ## [0.15.0] - 2026-05-15
 
 ### Added

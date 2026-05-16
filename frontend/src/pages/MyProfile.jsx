@@ -26,8 +26,7 @@ import {
 import Spinner from "@/components/layouts/Spinner.jsx";
 import ConfirmWindow from "@/components/modals/ConfirmWindow.jsx";
 import { useState } from "react";
-import Cropper from 'react-easy-crop';
-import { getCroppedImg } from '@/utils/cropImage.js';
+import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
@@ -42,9 +41,7 @@ const MyProfile = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [imageSrc, setImageSrc] = useState(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
 
   const { mutate: updateMe, isPending: isUpdating } = useUpdateMeMutation();
   const { mutate: changePassword, isPending: isChangingPassword } = useChangePasswordMutation();
@@ -127,41 +124,34 @@ const MyProfile = () => {
     if (file) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.addEventListener('load', () => {
+      reader.onload = () => {
         setImageSrc(reader.result);
-      });
+        setIsCropperOpen(true);
+      };
       e.target.value = null;
     }
   };
 
-  const onCropComplete = (croppedArea, currentCroppedAreaPixels) => {
-    setCroppedAreaPixels(currentCroppedAreaPixels);
-  };
-
-  const handleCropAndUpload = async () => {
-    try {
-      const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
-      const file = new File([croppedImageBlob], 'avatar.jpg', { type: 'image/jpeg' });
-
-      uploadAvatar(file, {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ['user'] });
-          showNotification({
-            title: "Avatar Updated",
-            message: "Your profile picture has been successfully uploaded.",
-            isSuccess: true
-          });
-          setImageSrc(null);
-        }
-      });
-    } catch (e) {
-      console.error(e);
-      showNotification({
-        title: "Error",
-        message: "Failed to crop image. Please try again.",
-        isSuccess: false
-      });
-    }
+  const handleCropSave = (file) => {
+    uploadAvatar(file, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+        showNotification({
+          title: "Avatar Updated",
+          message: "Your profile picture has been successfully uploaded.",
+          isSuccess: true
+        });
+        setIsCropperOpen(false);
+        setImageSrc(null);
+      },
+      onError: () => {
+        showNotification({
+          title: "Error",
+          message: "Failed to upload avatar. Please try again.",
+          isSuccess: false
+        });
+      }
+    });
   };
 
   const handleDeleteAvatar = (e) => {
@@ -179,9 +169,12 @@ const MyProfile = () => {
   };
 
   const confirmDeleteAccount = () => {
-    deleteMe();
-    setIsDeleteModalOpen(false);
-    logout();
+    deleteMe(undefined, {
+      onSuccess: () => {
+        setIsDeleteModalOpen(false);
+        logout();
+      }
+    });
   };
 
   const hasAvatar = !!user?.avatar_url;
@@ -378,41 +371,17 @@ const MyProfile = () => {
         </div>
       </div>
 
-      {imageSrc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="bg-surface p-6 rounded-[16px] w-[90vw] max-w-[500px] flex flex-col gap-4">
-            <h2 className="text-h2 font-noto">Crop profile picture</h2>
-
-            <div className="relative w-full h-[400px] rounded-lg overflow-hidden bg-black/10">
-              <Cropper
-                image={imageSrc}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-            </div>
-
-            <div className="flex justify-end gap-4 mt-2">
-              <Button
-                variant="tertiary"
-                onClick={() => setImageSrc(null)}
-                disabled={isUploadingAvatar}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCropAndUpload}
-                disabled={isUploadingAvatar}
-              >
-                {isUploadingAvatar ? <Spinner size="sm" /> : "Save Avatar"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ImageCropperModal
+        isOpen={isCropperOpen}
+        onClose={() => {
+          setIsCropperOpen(false);
+          setImageSrc(null);
+        }}
+        imageSrc={imageSrc}
+        onSave={handleCropSave}
+        aspect={1}
+        isUploading={isUploadingAvatar}
+      />
 
       <ConfirmWindow
         isOpen={isDeleteModalOpen}

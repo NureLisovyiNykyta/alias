@@ -29,7 +29,8 @@ function App() {
 
   const isFullyVerified = isAuthenticated && user?.is_email_verified;
 
-  const canAccessAuth = !isAuthenticated || (isAuthenticated && !user?.is_email_verified);
+  const isGoogleSignUpFlow = !!sessionStorage.getItem('temp_google_token');
+  const canAccessAuth = !isAuthenticated || (isAuthenticated && !user?.is_email_verified) || isGoogleSignUpFlow;
 
   return (
     <BrowserRouter>
@@ -48,13 +49,13 @@ function App() {
           <Route path='map/:id' element={<MapPreview/>}/>
           <Route path='card-pack/:id' element={<CardPackPreview/>}/>
 
-          <Route path="/new" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
+          <Route path="/new" element={<ProtectedRoute isAllowed={isFullyVerified} redirectTo="/auth/sign-in"/>}>
             <Route path="card-pack" element={<CardPackCreator/>}/>
             <Route path="map" element={<MapCreator/>}/>
             <Route path="lobby" element={<LobbyCreator/>}/>
           </Route>
 
-          <Route path="/edit" element={<ProtectedRoute isAllowed={true} redirectTo="/auth/sign-in"/>}>
+          <Route path="/edit" element={<ProtectedRoute isAllowed={isFullyVerified} redirectTo="/auth/sign-in"/>}>
             <Route path='card-pack/:id' element={<CardPackEditor/>}/>
             <Route path='card-pack/:id/words' element={<WordsEditor/>}/>
             <Route path="map/:id" element={<MapEditor/>}/>

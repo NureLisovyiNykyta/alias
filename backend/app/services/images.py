@@ -16,7 +16,7 @@ MAX_AVATAR_BYTES = 5 * 1024 * 1024   # 5 MB
 MAX_COVER_BYTES = 10 * 1024 * 1024   # 10 MB
 
 AVATAR_SIZE = (256, 256)
-COVER_SIZE = (1280, 720)
+COVER_SIZE = (1200, 800)
 
 
 def _validate_mime(file: UploadFile) -> None:

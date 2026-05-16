@@ -75,6 +75,7 @@ const ImageCropperModal = ({
 
             <div className="flex justify-end gap-4 mt-2">
               <Button
+                type='button'
                 variant="tertiary"
                 onClick={onClose}
                 disabled={isUploading}
@@ -82,6 +83,7 @@ const ImageCropperModal = ({
                 Cancel
               </Button>
               <Button
+                type='button'
                 onClick={handleSave}
                 disabled={isUploading}
               >

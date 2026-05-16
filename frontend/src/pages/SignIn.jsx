@@ -3,13 +3,11 @@ import bg from '@/assets/background-login.png';
 import { Button } from "@/components/buttons/Button.jsx";
 import Input from "@/components/inputs/Input.jsx";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
-import google from '@/assets/googleLogo.png';
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGoogleLoginMutation, useLoginMutation } from "@/api/auth.js";
-import { useGoogleLogin } from "@react-oauth/google";
 import { GoogleLogin } from "@react-oauth/google";
 
 const LINKS = [
