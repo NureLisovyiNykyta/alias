@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from '@tanstack/react-query';
+import cross from "@/assets/redCross.svg";
 import RowNavigation from '@/components/nav/RowNavigation.jsx';
 import TransparentInput from '@/components/inputs/TransparentInput.jsx';
 import ImageInput from '@/components/inputs/ImageInput.jsx';
@@ -10,7 +12,13 @@ import { Button } from '@/components/buttons/Button.jsx';
 import Spinner from '@/components/layouts/Spinner.jsx';
 import StatusLabel from "@/components/cards/StatusLabel.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
-import { useMapQuery, useUpdateMapMutation } from "@/api/maps";
+import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
+import {
+  useMapQuery,
+  useUpdateMapMutation,
+  useUploadMapCoverMutation,
+  useDeleteMapCoverMutation
+} from "@/api/maps";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
 
 const updateMapSchema = z.object({
@@ -21,7 +29,11 @@ const updateMapSchema = z.object({
 const MapEditor = () => {
   const { id: mapId } = useParams();
   const navigate = useNavigate();
-  const { showNotification } = useNotification();
+  const queryClient = useQueryClient();
+  const { showNotification, closeNotification } = useNotification();
+
+  const [imageSrc, setImageSrc] = useState(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
 
   const navLinks = [
     { id: 1, label: 'Main Page', path: '/' },
@@ -59,26 +71,63 @@ const MapEditor = () => {
     }
   }, [mapData, reset]);
 
-  const { mutate: updateMap, isPending } = useUpdateMapMutation({
-    onSuccess: () => {
-      showNotification({
-        title: "Changes Saved!",
-        message: "Your map has been successfully updated.",
-        isSuccess: true,
-      });
+  const { mutate: updateMap, isPending: isUpdating } = useUpdateMapMutation();
+  const { mutate: uploadCover, isPending: isUploading } = useUploadMapCoverMutation();
+  const { mutate: deleteCover, isPending: isDeleting } = useDeleteMapCoverMutation();
 
-      setTimeout(() => {
-        navigate(`/edit/map/${mapId}/fields`);
-      }, 2500);
-    },
-    onError: () => {
-      showNotification({
-        title: "Error",
-        message: "Failed to update the map.",
-        isSuccess: false,
-      });
-    },
-  });
+  const handleFileSelect = (e) => {
+    const file = e.target?.files ? e.target.files[0] : e;
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        setImageSrc(reader.result);
+        setIsCropperOpen(true);
+      };
+    }
+  };
+
+  const handleCropSave = (file) => {
+    uploadCover({ mapId, file }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['map', mapId] });
+        setIsCropperOpen(false);
+        setImageSrc(null);
+        showNotification({
+          title: "Cover Updated",
+          message: "Map cover successfully updated.",
+          isSuccess: true
+        });
+      },
+      onError: () => {
+        showNotification({
+          title: "Error",
+          message: "Failed to upload cover.",
+          isSuccess: false
+        });
+      }
+    });
+  };
+
+  const handleDeleteCover = () => {
+    deleteCover(mapId, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['map', mapId] });
+        showNotification({
+          title: "Cover Removed",
+          message: "Map cover successfully deleted.",
+          isSuccess: true
+        });
+      },
+      onError: () => {
+        showNotification({
+          title: "Error",
+          message: "Failed to delete cover.",
+          isSuccess: false
+        });
+      }
+    });
+  };
 
   const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.name;
   const isFormValid = isNameValid;
@@ -91,6 +140,26 @@ const MapEditor = () => {
       mapData: {
         name: data.name,
       }
+    }, {
+      onSuccess: () => {
+        showNotification({
+          title: "Changes Saved!",
+          message: "Your map has been successfully updated.",
+          isSuccess: true,
+        });
+
+        setTimeout(() => {
+          navigate(`/edit/map/${mapId}/fields`);
+          closeNotification();
+        }, 2500);
+      },
+      onError: () => {
+        showNotification({
+          title: "Error",
+          message: "Failed to update the map.",
+          isSuccess: false,
+        });
+      }
     });
   };
 
@@ -102,8 +171,10 @@ const MapEditor = () => {
     );
   }
 
+  const hasCover = !!mapData?.cover_url;
+
   return (
-    <div className="flex flex-col w-full gap-8">
+    <div className="flex flex-col w-full gap-8 relative">
       <RowNavigation links={navLinks}/>
 
       <div className="flex flex-col w-full gap-4">
@@ -133,26 +204,42 @@ const MapEditor = () => {
           successText='Correct format'
         />
 
-        <StatusLabel status={parseUpperCase(mapData?.status)|| 'Draft'} helpText='Current progress state'/>
+        <StatusLabel status={parseUpperCase(mapData?.status) || 'Draft'} helpText='Current progress state'/>
       </div>
 
       <div className='w-full flex gap-23'>
-        <Controller
-          control={control}
-          name="image"
-          render={({ field: { onChange, value } }) => (
-            <ImageInput
-              label="Choose the image"
-              placeholder="Upload an image"
-              value={value}
-              onChange={onChange}
-              error={!!errors.image}
-              isValid={!!value && !errors.image}
-              helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
-              successText='Image uploaded'
-            />
+        <div className="flex flex-col gap-2">
+          <Controller
+            control={control}
+            name="image"
+            render={() => (
+              <ImageInput
+                label="Choose the image"
+                placeholder="Upload an image"
+                value={currentImage}
+                onChange={handleFileSelect}
+                error={!!errors.image}
+                isValid={!!currentImage && !errors.image}
+                helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
+                successText='Image uploaded'
+              />
+            )}
+          />
+          {hasCover && (
+            <button
+              onClick={handleDeleteCover}
+              disabled={isDeleting}
+              className="text-text-warning hover:text-red-600 transition-colors text-label font-noto self-end flex items-center gap-2 mt-1"
+            >
+              {isDeleting ? <Spinner size="sm" /> : (
+                <>
+                  <img src={cross} alt="Delete" className="w-3 h-3" />
+                  Delete cover
+                </>
+              )}
+            </button>
           )}
-        />
+        </div>
 
         <StatusLabel
           title='Map’s availability'
@@ -164,11 +251,20 @@ const MapEditor = () => {
 
       <Button
         className="self-end"
-        disabled={!isFormValid || isPending}
+        disabled={!isFormValid || isUpdating || isUploading}
         onClick={handleSubmit(onSubmit)}
       >
-        {isPending ? <Spinner size='sm'/> : 'Save Changes'}
+        {isUpdating ? <Spinner size='sm'/> : 'Save Changes'}
       </Button>
+
+      <ImageCropperModal
+        isOpen={isCropperOpen}
+        onClose={() => setIsCropperOpen(false)}
+        imageSrc={imageSrc}
+        onSave={handleCropSave}
+        aspect={3 / 2}
+        isUploading={isUploading}
+      />
     </div>
   );
 };

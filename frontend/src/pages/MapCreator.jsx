@@ -10,8 +10,9 @@ import MapTemplateSelector from '@/components/inputs/MapTemplateSelector.jsx';
 import { Button } from '@/components/buttons/Button.jsx';
 import Spinner from '@/components/layouts/Spinner.jsx';
 import { useNotification } from "@/contexts/NotificationContext.jsx";
-import { useMapTemplatesQuery, useCreateMapMutation } from "@/api/maps";
+import { useMapTemplatesQuery, useCreateMapMutation, useUploadMapCoverMutation } from "@/api/maps";
 import StatusLabel from "@/components/cards/StatusLabel.jsx";
+import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
 
 const createMapSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -20,7 +21,10 @@ const createMapSchema = z.object({
 
 const MapCreator = () => {
   const navigate = useNavigate();
-  const { showNotification } = useNotification();
+  const { showNotification, closeNotification } = useNotification();
+
+  const [imageSrc, setImageSrc] = useState(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
 
   const navLinks = [
     { id: 1, label: 'Main Page', path: '/' },
@@ -31,6 +35,7 @@ const MapCreator = () => {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(createMapSchema),
@@ -56,30 +61,31 @@ const MapCreator = () => {
     previewImage: template.model_3d_url
   })) || [];
 
-  const { mutate: createMapDraft, isPending } = useCreateMapMutation({
-    onSuccess: (data) => {
-      showNotification({
-        title: "Draft Saved!",
-        message: "Your new map has been successfully created. Redirecting.",
-        isSuccess: true,
-      });
+  const { mutate: createMapDraft, isPending: isCreating } = useCreateMapMutation();
+  const { mutate: uploadCover, isPending: isUploading } = useUploadMapCoverMutation();
 
-      setTimeout(() => {
-        navigate(`/edit/map/${data.id}/fields`);
-      }, 2500);
-    },
-    onError: () => {
-      showNotification({
-        title: "Error",
-        message: "Failed to create the map.",
-        isSuccess: false,
-      });
-    },
-  });
+  const handleFileSelect = (e) => {
+    const file = e.target?.files ? e.target.files[0] : e;
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        setImageSrc(reader.result);
+        setIsCropperOpen(true);
+      };
+    }
+  };
+
+  const handleCropSave = (file) => {
+    setValue('image', file, { shouldValidate: true, shouldDirty: true });
+    setIsCropperOpen(false);
+    setImageSrc(null);
+  };
 
   const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.name;
   const isImageValid = !!currentImage && !errors.image;
   const isFormValid = isNameValid && isImageValid && selectedTemplate !== null;
+  const isBusy = isCreating || isUploading;
 
   const onSubmit = (data) => {
     if (!isFormValid) return;
@@ -87,11 +93,44 @@ const MapCreator = () => {
     createMapDraft({
       name: data.name,
       template_id: selectedTemplate.id
+    }, {
+      onSuccess: (response) => {
+        const newMapId = response.id;
+
+        uploadCover({ mapId: newMapId, file: data.image }, {
+          onSuccess: () => {
+            showNotification({
+              title: "Draft Saved!",
+              message: "Your new map and cover have been successfully created.",
+              isSuccess: true,
+            });
+
+            setTimeout(() => {
+              navigate(`/edit/map/${newMapId}/fields`);
+              closeNotification();
+            }, 2500);
+          },
+          onError: () => {
+            showNotification({
+              title: "Error",
+              message: "Map created, but failed to upload the cover.",
+              isSuccess: false,
+            });
+          }
+        });
+      },
+      onError: () => {
+        showNotification({
+          title: "Error",
+          message: "Failed to create the map.",
+          isSuccess: false,
+        });
+      }
     });
   };
 
   return (
-    <div className="flex flex-col w-full gap-8">
+    <div className="flex flex-col w-full gap-8 relative">
       <RowNavigation links={navLinks}/>
 
       <div className="flex flex-col w-full gap-4">
@@ -110,7 +149,7 @@ const MapCreator = () => {
           error={!!errors.name}
           isValid={isNameValid}
           helpText={errors.name ? errors.name.message : 'You will be able to rename it later'}
-          successText='Сorrect Аormat'
+          successText='Correct Format'
         />
 
         <StatusLabel status='Draft' helpText='Current progress state'/>
@@ -120,16 +159,16 @@ const MapCreator = () => {
         <Controller
           control={control}
           name="image"
-          render={({ field: { onChange, value } }) => (
+          render={() => (
             <ImageInput
               label="Choose the image"
               placeholder="Upload an image"
-              value={value}
-              onChange={onChange}
+              value={currentImage}
+              onChange={handleFileSelect}
               error={!!errors.image}
               isValid={isImageValid}
               helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
-              successText='Сorrect Format'
+              successText='Correct Format'
             />
           )}
         />
@@ -157,12 +196,19 @@ const MapCreator = () => {
 
       <Button
         className="self-end"
-        disabled={!isFormValid || isPending}
+        disabled={!isFormValid || isBusy}
         onClick={handleSubmit(onSubmit)}
       >
-        {isPending ? <Spinner size='sm'/> : 'Save to Draft'}
+        {isBusy ? <Spinner size='sm'/> : 'Save to Draft'}
       </Button>
 
+      <ImageCropperModal
+        isOpen={isCropperOpen}
+        onClose={() => setIsCropperOpen(false)}
+        imageSrc={imageSrc}
+        onSave={handleCropSave}
+        aspect={3 / 2}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 
 // API Calls ------------------
@@ -122,8 +122,17 @@ export const useSavePackMutation = (options) => {
 };
 
 export const useCreatePackMutation = (options) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (packData) => createPack(packData),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ['myPacks'] });
+
+      if (options?.onSuccess) {
+        options.onSuccess(data, variables, context);
+      }
+    },
     ...options,
   });
 };

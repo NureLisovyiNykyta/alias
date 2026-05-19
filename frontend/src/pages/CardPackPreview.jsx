@@ -8,6 +8,7 @@ import { useNotification } from "@/contexts/NotificationContext.jsx";
 import star from '@/assets/star.svg';
 import { formatPackDate } from "@/utils/parseTime.js";
 import { useAuth } from "@/contexts/AuthContext.jsx";
+import mapPreview from "@/assets/mapPreview.svg";
 
 const CardPackPreview = () => {
   const { id: packId } = useParams();
@@ -67,11 +68,17 @@ const CardPackPreview = () => {
       </div>
 
       <div className='flex items-center gap-5 py-6 rounded-[12px] w-full h-[320px]'>
-        <img
-          className='w-[420px] h-[270px] rounded-[12px] border border-text-label object-cover shrink-0'
-          src={pack?.cover_url || 'placeholder_path'}
-          alt='Pack Image'
-        />
+        {pack?.cover_url ?
+          <img
+            className='w-[420px] h-[270px] rounded-[12px] border border-text-label object-cover shrink-0'
+            src={pack?.cover_url}
+            alt='Map Image'
+          /> :
+          <div className='w-[420px] h-[270px] rounded-[12px] border border-text-label shrink-0 flex flex-col items-center justify-center gap-2'>
+            <img src={mapPreview} alt="Map Template"/>
+            <span className='text-label text-text-label'>No Image Selected</span>
+          </div>
+        }
 
         <div className='flex flex-col gap-4'>
           <h2 className='text-h1'>{pack?.name}</h2>

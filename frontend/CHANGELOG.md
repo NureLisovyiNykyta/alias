@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.2] - 2026-05-19
+
+### Added
+- **Map Cover Management**: Integrated `POST` (upload) and `DELETE` (remove) API endpoints and corresponding `react-query` mutations (`useUploadMapCoverMutation`, `useDeleteMapCoverMutation`) in `api/maps.js` to handle map cover images.
+
+### Changed
+- **Map Creator & Editor Enhancements**: Updated `MapCreator.jsx` and `MapEditor.jsx` to support uploading, editing, and deleting map cover images with a strict 3:2 aspect ratio using the reusable `ImageCropperModal`.
+- **Map Data Synchronization**: Implemented automatic `queryClient` cache invalidation for map queries (`myMaps`, `publicMaps`) upon successful map creation and cover modifications to instantly reflect changes across the application.
+
 ## [0.15.1] - 2026-05-16
 
 ### Added
