@@ -27,7 +27,8 @@ class TeamColor(StrEnum):
     PINK = "PINK"
     RED = "RED"
     YELLOW = "YELLOW"
-    ORANGE = "ORANGE"
+    ORANGE = "BROWN"
+    CYAN = "CYAN"
 
 
 class RoomStatus(StrEnum):

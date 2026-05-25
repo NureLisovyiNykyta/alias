@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     R2_SECRET_ACCESS_KEY: str
     R2_BUCKET_NAME: str
     R2_PUBLIC_URL: str
+    DEFAULT_AVATARS_COUNT: int = 10
+
+    @property
+    def default_avatar_urls(self) -> list[str]:
+        return [
+            f"{self.R2_PUBLIC_URL}/avatars/defaults/{i}.webp"
+            for i in range(1, self.DEFAULT_AVATARS_COUNT + 1)
+        ]
 
     @property
     def backend_cors_origins(self) -> list[str]:
