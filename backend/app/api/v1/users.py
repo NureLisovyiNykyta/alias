@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user, get_db
+from app.core.config import settings
 from app.models.user import User
 from app.schemas.base import StatusResponse
 from app.schemas.user import UserChangePassword, UserPublicRead, UserRead, UserUpdateProfile
@@ -9,6 +10,11 @@ from app.services.user import change_user_password, delete_account, get_public_u
 from app.services import images as image_service
 
 router = APIRouter(prefix="/api/users", tags=["users"])
+
+
+@router.get("/avatars/defaults", response_model=list[str])
+async def get_default_avatars() -> list[str]:
+    return settings.default_avatar_urls
 
 
 @router.get("/me", response_model=UserRead)
