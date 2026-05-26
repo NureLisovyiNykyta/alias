@@ -143,7 +143,7 @@ const LobbyCreator = () => {
           {currentMap?.id ? (
             <div className='flex items-center gap-4'>
               <img
-                src={currentMap?.image_url || ""}
+                src={currentMap?.cover_url}
                 alt={currentMap?.name || 'Map Preview'}
                 className='w-[300px] h-[200px] rounded-[12px] border border-text-label object-cover bg-gray-100'
               />

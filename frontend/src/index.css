@@ -61,6 +61,24 @@
     --color-text: #161616;
     --color-text-label: #7E7E7E;
 
+    --color-team-cyan: #BDF3FF;
+    --color-team-purple: #BDC4FF;
+    --color-team-pink: #F6BDFF;
+    --color-team-green: #CBFFBD;
+    --color-team-brown: #FFD7BD;
+    --color-team-blue: #ABBCFF;
+    --color-team-red: #FFC5BD;
+    --color-team-yellow: #FFF898;
+
+    --color-team-cyan-dark: #93D3E2;
+    --color-team-purple-dark: #949CDD;
+    --color-team-pink-dark: #D486E0;
+    --color-team-green-dark: #94D084;
+    --color-team-brown-dark: #E29865;
+    --color-team-blue-dark: #708CFF;
+    --color-team-red-dark: #E27065;
+    --color-team-yellow-dark: #CCBB3D;
+
     --shadow-buttons: 0 4px 6px 0 rgba(121, 117, 117, 0.25);
     --shadow-card-combined: 0 0 6px 0 rgba(0, 0, 0, 0.25), 6px 6px 0 0 rgba(0, 0, 0, 0.25);
 }
