@@ -119,8 +119,16 @@ class MapInfo(BaseModel):
     map_id: UUID
     name: str
     max_fields_count: int
-    url_3d_model: str
     fields: dict[int, MapField]
+
+
+class ThemeInfo(BaseModel):
+    theme_id: UUID
+    code: str
+    name: str
+    scene_url: str
+    piece_model_url: str
+    color_textures: dict[str, str]
 
 
 class RoundCard(BaseModel):
@@ -150,6 +158,7 @@ class RoomStateJSON(BaseModel):
 
     settings: Settings
     map_info: MapInfo
+    theme_info: ThemeInfo
     current_turn: CurrentTurn | None = None
 
     teams: dict[UUID, Team]

@@ -11,7 +11,7 @@ from app.core.exceptions import BadRequestError
 from app.core.messages import ErrorMessage
 from app.models.card import CardPack, CardType
 from app.models.enums import StatusEnum
-from app.models.map import Map, MapTemplate
+from app.models.map import Map
 from app.models.user import User
 
 FAKE_IMAGE = b"fake-image-bytes"
@@ -149,7 +149,6 @@ async def cover_entity(
     cover_config: dict,
     test_db: AsyncSession,
     test_user: User,
-    test_map_template: MapTemplate,
     test_card_type: CardType,
 ) -> dict:
     if cover_config["entity_type"] == "map":
@@ -157,7 +156,8 @@ async def cover_entity(
             id=uuid.uuid4(),
             name="Cover Test Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.DRAFT.value,
         )

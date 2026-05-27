@@ -14,7 +14,7 @@ from app.api.dependencies import get_db, get_redis
 from app.main import app
 from app.models.card import CardPack, CardType
 from app.models.enums import CardMechanicEnum, StatusEnum
-from app.models.map import Map, MapField as MapFieldORM, MapTemplate
+from app.models.map import Map, MapField as MapFieldORM, MapTheme
 from app.models.user import User
 from app.repositories.game_repository import GameRepository
 from app.schemas.game_room import (
@@ -27,6 +27,7 @@ from app.schemas.game_room import (
     Settings,
     Team,
     TeamColor,
+    ThemeInfo,
 )
 
 ROOM_CODE = "TEST01"
@@ -34,6 +35,7 @@ ROOM_CODE = "TEST01"
 
 def build_room(host_id: uuid.UUID, room_code: str = ROOM_CODE) -> RoomStateJSON:
     pack_id = uuid.uuid4()
+    theme_id = uuid.uuid4()
     return RoomStateJSON(
         room_code=room_code,
         name="Test Room",
@@ -44,7 +46,6 @@ def build_room(host_id: uuid.UUID, room_code: str = ROOM_CODE) -> RoomStateJSON:
             map_id=uuid.uuid4(),
             name="Test Map",
             max_fields_count=10,
-            url_3d_model="",
             fields={
                 0: MapField(
                     position_index=0,
@@ -54,6 +55,14 @@ def build_room(host_id: uuid.UUID, room_code: str = ROOM_CODE) -> RoomStateJSON:
                     card_pack_id=pack_id,
                 )
             },
+        ),
+        theme_info=ThemeInfo(
+            theme_id=theme_id,
+            code="test_theme",
+            name="Test Theme",
+            scene_url="",
+            piece_model_url="",
+            color_textures={},
         ),
         teams={},
         players={
@@ -195,16 +204,29 @@ async def ws_client(
 
 
 @pytest_asyncio.fixture
-async def game_map(test_db: AsyncSession, test_user: User) -> Map:
-    """Active map with one field and a card pack — required for create_room."""
-    template = MapTemplate(
+async def game_theme(test_db: AsyncSession) -> MapTheme:
+    """A MapTheme for game tests."""
+    theme = MapTheme(
         id=uuid.uuid4(),
-        code="game_test_template",
-        name="Game Template",
-        max_fields_count=50,
+        code="test_beach",
+        name="Beach",
+        scene_url_small="https://cdn.test/themes/beach/scene_small.glb",
+        scene_url_medium="https://cdn.test/themes/beach/scene_medium.glb",
+        scene_url_large="https://cdn.test/themes/beach/scene_large.glb",
+        piece_model_url="https://cdn.test/themes/beach/piece.glb",
+        color_textures={
+            "GREEN": "https://cdn.test/themes/beach/colors/green.webp",
+            "BLUE": "https://cdn.test/themes/beach/colors/blue.webp",
+        },
     )
-    test_db.add(template)
+    test_db.add(theme)
+    await test_db.flush()
+    return theme
 
+
+@pytest_asyncio.fixture
+async def game_map(test_db: AsyncSession, test_user: User, game_theme: MapTheme) -> Map:
+    """Active map with one field and a card pack — required for create_room."""
     card_type = CardType(
         id=uuid.uuid4(),
         code="game_test_alias",
@@ -231,7 +253,8 @@ async def game_map(test_db: AsyncSession, test_user: User) -> Map:
         id=uuid.uuid4(),
         name="Game Map",
         is_public=True,
-        template_id=template.id,
+        size="MEDIUM",
+        max_fields_count=48,
         author_id=test_user.id,
         status=StatusEnum.ACTIVE.value,
     )

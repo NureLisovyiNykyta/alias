@@ -9,7 +9,7 @@ from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
 from app.models.enums import StatusEnum
 from app.models.card import CardPack
-from app.models.map import Map, MapField, MapRating, MapTemplate, SavedMap
+from app.models.map import MAP_SIZE_FIELDS, Map, MapField, MapRating, MapTheme, SavedMap
 from app.schemas.card_pack import SortOrder
 from app.schemas.map import MapCreate, MapUpdate
 from app.services.map_field import validate_map_for_activation
@@ -45,7 +45,7 @@ async def get_map_by_id(
 ) -> Map:
     result = await db.execute(
         select(Map)
-        .options(joinedload(Map.author), joinedload(Map.template))
+        .options(joinedload(Map.author))
         .where(Map.id == map_id)
     )
     map_obj: Map | None = result.scalar_one_or_none()
@@ -67,15 +67,18 @@ async def create_map(
     author_id: uuid.UUID,
     data: MapCreate,
 ) -> Map:
-    result = await db.execute(select(MapTemplate).where(MapTemplate.id == data.template_id))
-    if result.scalar_one_or_none() is None:
-        raise NotFoundError(ErrorMessage.MAP_TEMPLATE_NOT_FOUND)
+    size = data.size.upper()
+    if size not in MAP_SIZE_FIELDS:
+        raise BadRequestError(ErrorMessage.MAP_INVALID_SIZE)
+
+    max_fields_count = MAP_SIZE_FIELDS[size]
 
     map_obj = Map(
         id=uuid.uuid4(),
         name=data.name,
         is_public=False,
-        template_id=data.template_id,
+        size=size,
+        max_fields_count=max_fields_count,
         author_id=author_id,
         status=StatusEnum.DRAFT.value,
     )
@@ -144,7 +147,7 @@ async def publish_map(
 
     result = await db.execute(
         select(Map)
-        .options(joinedload(Map.author), joinedload(Map.template))
+        .options(joinedload(Map.author))
         .where(Map.id == map_id)
     )
     return result.scalar_one()
@@ -163,7 +166,7 @@ async def activate_map(
     if map_obj.status == StatusEnum.ACTIVE.value:
         return map_obj
 
-    await validate_map_for_activation(db, map_id, map_obj.template_id)
+    await validate_map_for_activation(db, map_id, map_obj.max_fields_count)
 
     map_obj.status = StatusEnum.ACTIVE.value
     await db.commit()
@@ -312,7 +315,7 @@ async def get_public_maps(
     limit: int,
     offset: int,
     q: str | None = None,
-    template_id: uuid.UUID | None = None,
+    size: str | None = None,
     sort_by: SortOrder = SortOrder.newest,
     exclude_user_id: uuid.UUID | None = None,
 ) -> tuple[list[Map], int]:
@@ -323,8 +326,8 @@ async def get_public_maps(
     ]
     if q:
         base_where.append(Map.name.ilike(f"%{q}%"))
-    if template_id:
-        base_where.append(Map.template_id == template_id)
+    if size:
+        base_where.append(Map.size == size.upper())
     if exclude_user_id:
         base_where.append(Map.author_id != exclude_user_id)
 
@@ -408,6 +411,6 @@ async def get_saved_maps(
     return list(items), total
 
 
-async def get_all_map_templates(db: AsyncSession) -> list[MapTemplate]:
-    result = await db.execute(select(MapTemplate).order_by(MapTemplate.name))
+async def get_all_map_themes(db: AsyncSession) -> list[MapTheme]:
+    result = await db.execute(select(MapTheme).order_by(MapTheme.name))
     return list(result.scalars().all())

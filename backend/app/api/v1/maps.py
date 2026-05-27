@@ -5,17 +5,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user, get_current_user_optional, get_db
 from app.models.enums import StatusEnum
-from app.models.map import Map
+from app.models.map import Map, MAP_SIZE_FIELDS
 from app.models.user import User
 from app.schemas.base import PaginatedResponse
 from app.schemas.card_pack import SortOrder
-from app.schemas.map import MapCreate, MapRatingInput, MapRead, MapReadDetailed, MapTemplateRead, MapUpdate
+from app.schemas.map import MapCreate, MapRatingInput, MapRead, MapReadDetailed, MapSizeRead, MapThemeRead, MapUpdate
 from app.services import images as image_service
 from app.services.map import (
     activate_map,
     create_map,
     delete_map,
-    get_all_map_templates,
+    get_all_map_themes,
     get_deleted_maps,
     get_map_by_id,
     get_my_maps,
@@ -32,12 +32,17 @@ from app.services.map import (
 router = APIRouter(prefix="/api/maps", tags=["maps"])
 
 
-@router.get("/templates", response_model=list[MapTemplateRead])
-async def list_map_templates(
+@router.get("/sizes", response_model=list[MapSizeRead])
+async def list_map_sizes() -> list[MapSizeRead]:
+    return [MapSizeRead(code=code, max_fields=fields) for code, fields in MAP_SIZE_FIELDS.items()]
+
+
+@router.get("/themes", response_model=list[MapThemeRead])
+async def list_map_themes(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list:
-    return await get_all_map_templates(db)
+    return await get_all_map_themes(db)
 
 
 @router.post("/", response_model=MapRead)
@@ -142,13 +147,13 @@ async def list_public_maps(
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     q: str | None = Query(default=None),
-    template_id: uuid.UUID | None = Query(default=None),
+    size: str | None = Query(default=None),
     sort_by: SortOrder = Query(default=SortOrder.newest),
     current_user: User | None = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedResponse[MapRead]:
     exclude_user_id = current_user.id if current_user else None
-    items, total = await get_public_maps(db, limit, offset, q, template_id, sort_by, exclude_user_id)
+    items, total = await get_public_maps(db, limit, offset, q, size, sort_by, exclude_user_id)
     return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
 
 

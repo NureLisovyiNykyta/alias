@@ -15,7 +15,7 @@ from app.db.session import Base
 from app.main import app
 from app.models.card import CardPack, CardType
 from app.models.enums import CardMechanicEnum, StatusEnum
-from app.models.map import Map, MapTemplate
+from app.models.map import Map, MapTheme
 from app.models.user import User
 
 _TEST_SCHEMA = "test_schema"
@@ -220,29 +220,15 @@ async def test_pack_second_user(test_db: AsyncSession, test_card_type: CardType,
 
 
 @pytest_asyncio.fixture
-async def test_map_template(test_db: AsyncSession) -> MapTemplate:
-    template = MapTemplate(
+async def test_map_theme(test_db: AsyncSession) -> MapTheme:
+    theme = MapTheme(
         id=uuid.uuid4(),
-        code="standard",
-        name="Standard",
-        max_fields_count=50,
+        code="standard_theme",
+        name="Standard Theme",
     )
-    test_db.add(template)
+    test_db.add(theme)
     await test_db.flush()
-    return template
-
-
-@pytest_asyncio.fixture
-async def small_map_template(test_db: AsyncSession) -> MapTemplate:
-    template = MapTemplate(
-        id=uuid.uuid4(),
-        code="small",
-        name="Small",
-        max_fields_count=2,
-    )
-    test_db.add(template)
-    await test_db.flush()
-    return template
+    return theme
 
 
 @pytest_asyncio.fixture
@@ -263,13 +249,14 @@ async def created_pack(test_db: AsyncSession, test_card_type: CardType, test_use
 
 
 @pytest_asyncio.fixture
-async def created_map(test_db: AsyncSession, test_map_template: MapTemplate, test_user: User) -> dict:
+async def created_map(test_db: AsyncSession, test_map_theme: MapTheme, test_user: User) -> dict:
     """Public DRAFT map owned by test_user. Use for map endpoint tests."""
     map_obj = Map(
         id=uuid.uuid4(),
         name="Test Map",
         is_public=True,
-        template_id=test_map_template.id,
+        size="LARGE",
+        max_fields_count=50,
         author_id=test_user.id,
         status=StatusEnum.DRAFT.value,
     )
@@ -279,12 +266,13 @@ async def created_map(test_db: AsyncSession, test_map_template: MapTemplate, tes
 
 
 @pytest_asyncio.fixture
-async def small_map(test_db: AsyncSession, small_map_template: MapTemplate, test_user: User) -> dict:
+async def small_map(test_db: AsyncSession, test_map_theme: MapTheme, test_user: User) -> dict:
     map_obj = Map(
         id=uuid.uuid4(),
         name="Small Map",
         is_public=False,
-        template_id=small_map_template.id,
+        size="SMALL",
+        max_fields_count=2,
         author_id=test_user.id,
         status=StatusEnum.DRAFT.value,
     )

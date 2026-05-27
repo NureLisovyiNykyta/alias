@@ -4,7 +4,7 @@ import pytest
 from httpx import AsyncClient
 
 from app.core.messages import ErrorMessage
-from app.models.map import Map
+from app.models.map import Map, MapTheme
 from app.models.user import User
 from app.repositories.game_repository import GameRepository
 from app.schemas.game_room import Player, RoomStateJSON, RoomStatus
@@ -17,12 +17,13 @@ class TestCreateRoom:
         room_client: AsyncClient,
         game_repo: GameRepository,
         game_map: Map,
+        game_theme: MapTheme,
         test_user: User,
         auth_headers: dict[str, str],
     ) -> None:
         res = await room_client.post(
             "/api/rooms/create",
-            json={"room_name": "My Room", "map_id": str(game_map.id)},
+            json={"room_name": "My Room", "map_id": str(game_map.id), "theme_id": str(game_theme.id)},
             headers=auth_headers,
         )
         assert res.status_code == 200
@@ -44,7 +45,7 @@ class TestCreateRoom:
     ) -> None:
         res = await room_client.post(
             "/api/rooms/create",
-            json={"room_name": "My Room", "map_id": str(uuid.uuid4())},
+            json={"room_name": "My Room", "map_id": str(uuid.uuid4()), "theme_id": str(uuid.uuid4())},
             headers=auth_headers,
         )
         assert res.status_code == 404
@@ -54,10 +55,11 @@ class TestCreateRoom:
         self,
         room_client: AsyncClient,
         game_map: Map,
+        game_theme: MapTheme,
     ) -> None:
         res = await room_client.post(
             "/api/rooms/create",
-            json={"room_name": "My Room", "map_id": str(game_map.id)},
+            json={"room_name": "My Room", "map_id": str(game_map.id), "theme_id": str(game_theme.id)},
         )
         assert res.status_code == 401
 

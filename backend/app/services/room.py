@@ -5,8 +5,8 @@ from typing import cast
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
 from app.core.security import generate_room_code
-from app.models.card import CardPack, CardType
-from app.models.map import Map
+from app.models.card import CardPack
+from app.models.map import Map, MapTheme
 from app.models.user import User
 from app.repositories.card_repository import CardRepository
 from app.repositories.game_repository import GameRepository
@@ -20,6 +20,7 @@ from app.schemas.game_room import (
     RoomStateJSON,
     RoomStatus,
     Settings,
+    ThemeInfo,
     TurnPhase,
 )
 from app.schemas.room import CreateRoomRequest, JoinRoomRequest
@@ -42,7 +43,8 @@ class RoomService:
 
 
     async def create_room(self, request: CreateRoomRequest, host: User) -> RoomStateJSON:
-        map_info, card_packs_info = await self._load_map_data(request.map_id)
+        map_info, card_packs_info, size = await self._load_map_data(request.map_id)
+        theme_info = await self._load_theme_info(request.theme_id, size)
 
         host_player = Player.create_from_user(host)
 
@@ -54,6 +56,7 @@ class RoomService:
                 status=RoomStatus.LOBBY,
                 settings=Settings(),
                 map_info=map_info,
+                theme_info=theme_info,
                 teams={},
                 players={host.id: host_player},
                 card_packs_info=card_packs_info,
@@ -185,7 +188,7 @@ class RoomService:
 
     async def _load_map_data(
         self, map_id: uuid.UUID
-    ) -> tuple[MapInfo, dict[uuid.UUID, CardPackInfo]]:
+    ) -> tuple[MapInfo, dict[uuid.UUID, CardPackInfo], str]:
         map_obj: Map = await self.map_repo.get_map_with_relations(map_id)
 
         fields_dict: dict[int, MapField] = {}
@@ -211,13 +214,38 @@ class RoomService:
                     description=cp.description,
                 )
 
-        template = map_obj.template
         map_info = MapInfo(
             map_id=map_obj.id,
             name=map_obj.name,
-            max_fields_count=template.max_fields_count,
-            url_3d_model=template.model_3d_url or "",
+            max_fields_count=map_obj.max_fields_count,
             fields=fields_dict,
         )
 
-        return map_info, card_packs_info
+        return map_info, card_packs_info, map_obj.size
+
+    async def _load_theme_info(
+        self, theme_id: uuid.UUID, size: str
+    ) -> ThemeInfo:
+        theme: MapTheme | None = await self.map_repo.get_theme(theme_id)
+        if theme is None:
+            raise NotFoundError(ErrorMessage.MAP_THEME_NOT_FOUND)
+
+        size_to_url = {
+            "SMALL": theme.scene_url_small,
+            "MEDIUM": theme.scene_url_medium,
+            "LARGE": theme.scene_url_large,
+        }
+
+        scene_url = size_to_url.get(size)
+        if not scene_url or not theme.piece_model_url or not theme.color_textures:
+            raise BadRequestError(ErrorMessage.MAP_THEME_INCOMPLETE)
+
+        return ThemeInfo(
+            theme_id=theme.id,
+            code=theme.code,
+            name=theme.name,
+            scene_url=scene_url,
+            piece_model_url=theme.piece_model_url or "",
+            color_textures=theme.color_textures or {},
+        )
+
