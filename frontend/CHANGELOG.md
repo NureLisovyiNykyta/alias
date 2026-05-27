@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-05-27
+
+### Added
+- **Team Management**: Added the ability to dynamically create and remove teams within the pre-game lobby interface, complete with smooth `framer-motion` UI transitions.
+- **Real-time WebSocket Integration**: Established active WebSocket connections via the new `useGameSocket` hook to enable live, bi-directional communication with the game server.
+- **Live Data Synchronization**: The waiting room now instantly receives and reflects real-time room information and player actions (e.g., team creation, deletion, state updates) directly from the server socket events.
+
 ## [0.15.4] - 2025-05-27
 
 ### Added

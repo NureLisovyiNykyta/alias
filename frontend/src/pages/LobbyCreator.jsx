@@ -54,8 +54,8 @@ const LobbyCreator = () => {
   const { data: rawThemes, isLoading: isThemesLoading } = useMapThemesQuery();
 
   const mapOptions = Array.isArray(rawMaps)
-    ? rawMaps.map(map => ({ ...map, label: map.name }))
-    : rawMaps?.items?.map(map => ({ ...map, label: map.name })) || [];
+    ? rawMaps.map(map => ({ ...map, label: map.name })).filter(m => m.status === 'ACTIVE')
+    : rawMaps?.items?.map(map => ({ ...map, label: map.name })).filter(m => m.status === 'ACTIVE') || [];
 
   const themeOptions = Array.isArray(rawThemes)
     ? rawThemes.map(theme => ({ ...theme, label: theme.name }))
@@ -70,7 +70,9 @@ const LobbyCreator = () => {
       });
 
       setTimeout(() => {
-        navigate(`/lobby/${data.room_code}/waiting`);
+        navigate(`/lobby/${data.room_code}/waiting`, {
+          state: { initialRoomData: data }
+        });
       }, 2000);
     },
     onError: () => {

@@ -65,7 +65,7 @@ function App() {
           </Route>
         </Route>
 
-        <Route path='/lobby/:id' element={<LobbyLayout/>}>
+        <Route path='/lobby/:code' element={<LobbyLayout/>}>
           <Route path='waiting' element={<WaitingRoom/>}/>
         </Route>
 
