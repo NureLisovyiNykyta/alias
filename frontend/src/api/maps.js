@@ -190,3 +190,13 @@ export const useDeleteMapCoverMutation = (options) => {
     ...options,
   });
 };
+
+export const useMapSizesQuery = () => {
+  return useQuery({
+    queryKey: ['map-sizes'],
+    queryFn: async () => {
+      const response = await api.get('/maps/sizes');
+      return response.data;
+    }
+  });
+};

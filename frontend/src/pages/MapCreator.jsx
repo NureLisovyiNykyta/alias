@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -6,17 +6,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import RowNavigation from '@/components/nav/RowNavigation.jsx';
 import TransparentInput from '@/components/inputs/TransparentInput.jsx';
 import ImageInput from '@/components/inputs/ImageInput.jsx';
-import MapTemplateSelector from '@/components/inputs/MapTemplateSelector.jsx';
 import { Button } from '@/components/buttons/Button.jsx';
 import Spinner from '@/components/layouts/Spinner.jsx';
 import { useNotification } from "@/contexts/NotificationContext.jsx";
-import { useMapTemplatesQuery, useCreateMapMutation, useUploadMapCoverMutation } from "@/api/maps";
+import { useCreateMapMutation, useUploadMapCoverMutation, useMapSizesQuery } from "@/api/maps";
 import StatusLabel from "@/components/cards/StatusLabel.jsx";
 import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
+import DropDown from "@/components/inputs/DropDown.jsx";
+import { parseUpperCase } from "@/utils/parseUpperCase.js";
 
 const createMapSchema = z.object({
   name: z.string().min(1, "Name is required"),
   image: z.any().refine((file) => file !== null && file !== undefined, "Image is required"),
+  size: z.object({
+    id: z.string(),
+    label: z.string(),
+    code: z.string()
+  }, { required_error: "Map size is required" })
 });
 
 const MapCreator = () => {
@@ -43,26 +49,29 @@ const MapCreator = () => {
     defaultValues: {
       name: '',
       image: null,
+      size: null
     }
   });
 
-  const [currentName, currentImage] = useWatch({
+  const [currentName, currentImage, currentSize] = useWatch({
     control,
-    name: ["name", "image"],
+    name: ["name", "image", "size"],
   });
 
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-
-  const { data: rawTemplates, isLoading: isTemplatesLoading } = useMapTemplatesQuery();
-
-  const templates = rawTemplates?.map(template => ({
-    ...template,
-    label: template.name,
-    previewImage: template.model_3d_url
-  })) || [];
+  const { data: sizes, isLoading: isSizesLoading } = useMapSizesQuery();
 
   const { mutate: createMapDraft, isPending: isCreating } = useCreateMapMutation();
   const { mutate: uploadCover, isPending: isUploading } = useUploadMapCoverMutation();
+
+  const sizeOptions = useMemo(() => {
+    if (!sizes) return [];
+    return sizes.map((size) => ({
+      id: size.code,
+      label: parseUpperCase(size.code),
+      subLabel: `${size.max_fields} fields`,
+      code: size.code
+    }));
+  }, [sizes]);
 
   const handleFileSelect = (e) => {
     const file = e.target?.files ? e.target.files[0] : e;
@@ -84,7 +93,8 @@ const MapCreator = () => {
 
   const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.name;
   const isImageValid = !!currentImage && !errors.image;
-  const isFormValid = isNameValid && isImageValid && selectedTemplate !== null;
+  const isSizeValid = !!currentSize && !errors.size;
+  const isFormValid = isNameValid && isImageValid && isSizeValid;
   const isBusy = isCreating || isUploading;
 
   const onSubmit = (data) => {
@@ -92,7 +102,7 @@ const MapCreator = () => {
 
     createMapDraft({
       name: data.name,
-      template_id: selectedTemplate.id
+      size: data.size.code
     }, {
       onSuccess: (response) => {
         const newMapId = response.id;
@@ -181,16 +191,25 @@ const MapCreator = () => {
         />
       </div>
 
-      {isTemplatesLoading ? (
+      {isSizesLoading ? (
         <div className="flex flex-col items-center justify-center py-10 gap-4">
           <Spinner size="lg"/>
-          <span className="text-p font-noto text-text-label">Loading templates</span>
+          <span className="text-p font-noto text-text-label">Loading sizes</span>
         </div>
       ) : (
-        <MapTemplateSelector
-          templates={templates}
-          selectedTemplate={selectedTemplate}
-          onSelectTemplate={setSelectedTemplate}
+        <Controller
+          name="size"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <DropDown
+              label="Map Size"
+              placeholder="Select map size"
+              options={sizeOptions}
+              value={value}
+              onChange={onChange}
+              error={!!errors.size}
+            />
+          )}
         />
       )}
 

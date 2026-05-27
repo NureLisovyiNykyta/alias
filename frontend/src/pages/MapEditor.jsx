@@ -35,11 +35,6 @@ const MapEditor = () => {
   const [imageSrc, setImageSrc] = useState(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
 
-  const navLinks = [
-    { id: 1, label: 'Main Page', path: '/' },
-    { id: 2, label: 'Edit Map', path: null }
-  ];
-
   const {
     register,
     handleSubmit,
@@ -61,6 +56,12 @@ const MapEditor = () => {
   });
 
   const { data: mapData, isLoading: isMapLoading } = useMapQuery(mapId);
+
+  const navLinks = [
+    { id: 1, label: 'Main Page', path: '/' },
+    { id: 2, label: `${mapData?.name} Map`, path: `/map/${mapId}` },
+    { id: 3, label: 'Edit Map', path: null }
+  ];
 
   useEffect(() => {
     if (mapData) {

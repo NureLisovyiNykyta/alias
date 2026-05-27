@@ -140,7 +140,8 @@ const WordsEditor = () => {
 
   const navLinks = [
     { id: 1, label: 'Main Page', path: '/' },
-    { id: 2, label: 'Edit Card Pack Words', path: null }
+    { id: 2, label: `${packData?.name} Pack`, path: `/card-pack/${packId}` },
+    { id: 3, label: 'Edit Card Pack Words', path: null }
   ];
 
   const displayedWords = showAllWords ? words : words.slice(0, 20);

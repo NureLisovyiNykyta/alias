@@ -25,7 +25,7 @@ import LobbyLayout from "@/components/layouts/LobbyLayout.jsx";
 import WaitingRoom from "@/pages/WaitingRoom.jsx";
 
 function App() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   const isFullyVerified = isAuthenticated && user?.is_email_verified;
 
@@ -49,17 +49,19 @@ function App() {
           <Route path='map/:id' element={<MapPreview/>}/>
           <Route path='card-pack/:id' element={<CardPackPreview/>}/>
 
-          <Route path="/new" element={<ProtectedRoute isAllowed={isFullyVerified} redirectTo="/auth/sign-in"/>}>
-            <Route path="card-pack" element={<CardPackCreator/>}/>
-            <Route path="map" element={<MapCreator/>}/>
-            <Route path="lobby" element={<LobbyCreator/>}/>
-          </Route>
+          <Route element={<ProtectedRoute isAllowed={isFullyVerified} isLoading={isLoading} redirectTo="/auth/sign-in"/>}>
+            <Route path="/new">
+              <Route path="card-pack" element={<CardPackCreator/>}/>
+              <Route path="map" element={<MapCreator/>}/>
+              <Route path="lobby" element={<LobbyCreator/>}/>
+            </Route>
 
-          <Route path="/edit" element={<ProtectedRoute isAllowed={isFullyVerified} redirectTo="/auth/sign-in"/>}>
-            <Route path='card-pack/:id' element={<CardPackEditor/>}/>
-            <Route path='card-pack/:id/words' element={<WordsEditor/>}/>
-            <Route path="map/:id" element={<MapEditor/>}/>
-            <Route path="map/:id/fields" element={<MapFieldsEditor/>}/>
+            <Route path="/edit">
+              <Route path='card-pack/:id' element={<CardPackEditor/>}/>
+              <Route path='card-pack/:id/words' element={<WordsEditor/>}/>
+              <Route path="map/:id" element={<MapEditor/>}/>
+              <Route path="map/:id/fields" element={<MapFieldsEditor/>}/>
+            </Route>
           </Route>
         </Route>
 

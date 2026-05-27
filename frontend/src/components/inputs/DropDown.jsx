@@ -76,6 +76,10 @@ const   DropDown = ({
                           {option.icon}
                         </div>
                       )}
+
+                      {option.subLabel && (
+                        <span className="text-label text-text-label font-noto">{option.subLabel}</span>
+                      )}
                     </Listbox.Option>
                   ))}
                 </Listbox.Options>

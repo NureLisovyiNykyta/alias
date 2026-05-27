@@ -40,7 +40,7 @@ const MapFieldEditor = () => {
   const { data: serverFields, isLoading: isFieldsLoading } = useMapFieldsQuery(mapId);
   const { data: myPacks } = usePublicPacksQuery({});
 
-  const totalFields = mapData?.template?.max_fields_count || 0;
+  const totalFields = mapData?.max_fields_count || 0;
 
   const [gridFields, setGridFields] = useState([]);
   const [originalFields, setOriginalFields] = useState([]);
@@ -171,7 +171,8 @@ const MapFieldEditor = () => {
 
   const navLinks = [
     { id: 1, label: 'Main Page', path: '/' },
-    { id: 2, label: 'Edit Map Fields', path: null }
+    { id: 2, label: `${mapData?.name} Map`, path: `/map/${mapId}` },
+    { id: 3, label: 'Edit Map Fields', path: null }
   ];
 
   const canApply = positions.trim() !== '' && selectedPack !== null && timeLimit !== '' && reward !== '' && penalty !== '';

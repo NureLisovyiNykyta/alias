@@ -48,7 +48,7 @@ const MapPreviewCard = ({ map }) => {
 
           <div className='flex flex-col gap-2'>
             <span className='text-label text-text-label font-noto'>Field Limit</span>
-            <p className='font-noto text-p'>{map?.template?.max_fields_count}</p>
+            <p className='font-noto text-p'>{map?.max_fields_count}</p>
           </div>
 
           <div className='flex flex-col gap-2'>

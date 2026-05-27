@@ -5,13 +5,14 @@ import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import ProfileSettings from "@/components/nav/ProfileSettings.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
+import Spinner from "@/components/layouts/Spinner.jsx";
 
 const LINKS = [
   '/auth/sign-in',
 ];
 
 const Header = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   return (
     <header className='h-20 sticky top-0 bg-white z-50 flex items-center px-5 border-b border-surface justify-between'>
@@ -21,12 +22,14 @@ const Header = () => {
 
       {isAuthenticated ?
         <Popover className="relative">
-          <Popover.Button
-            disabled={isLoading}
-            className="w-12 h-12 rounded-[12px] border-2 border-surface shadow-buttons flex items-center justify-center hover:bg-surface transition-colors focus:outline-none"
-          >
-            <img src={profile} alt="MyProfile"/>
-          </Popover.Button>
+          {isLoading ? <Spinner size='sm' /> : (
+            <Popover.Button
+              disabled={isLoading}
+              className="w-12 h-12 rounded-[12px] border-2 border-surface shadow-buttons flex items-center justify-center hover:bg-surface transition-colors focus:outline-none"
+            >
+              <img className={`${user.avatar_url ? 'rounded-full size-8 shrink-0' : ''}`} src={user.avatar_url ?? profile} alt="My Profile"/>
+            </Popover.Button>
+          )}
 
           <Transition
             as={Fragment}

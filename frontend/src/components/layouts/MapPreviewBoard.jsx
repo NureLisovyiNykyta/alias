@@ -19,7 +19,7 @@ const MapPreviewBoard = ({ mapId }) => {
     );
   }
 
-  const totalFields = mapData?.template?.max_fields_count || 0;
+  const totalFields = mapData?.max_fields_count || 0;
   const gridFields = Array(totalFields).fill(null);
 
   if (serverFields && totalFields > 0) {

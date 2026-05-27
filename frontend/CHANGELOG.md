@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.3] - 2026-05-27
+
+### Changed
+- **Map Creation Logic**: Refactored the map creation process by removing the `map template` parameter and replacing it with `map size`, which is now dynamically fetched from the API.
+- **Form Validation**: Implemented mandatory field validation for map size to ensure data integrity during creation.
+
+### Added
+- **Navigation Enhancements**: Integrated preview links into the breadcrumb navigation on map editing pages, allowing quick access to the live map view directly from the editor.
+
 ## [0.15.2] - 2026-05-19
 
 ### Added

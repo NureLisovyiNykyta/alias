@@ -37,11 +37,6 @@ const CardPackEditor = () => {
   const [imageSrc, setImageSrc] = useState(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
 
-  const navLinks = [
-    { id: 1, label: 'Main Page', path: '/' },
-    { id: 2, label: 'Edit Card Pack', path: null }
-  ];
-
   const {
     register,
     handleSubmit,
@@ -65,6 +60,12 @@ const CardPackEditor = () => {
   const [description, setDescription] = useState('');
 
   const { data: packData, isLoading: isPackLoading } = usePackQuery(packId);
+
+  const navLinks = [
+    { id: 1, label: 'Main Page', path: '/' },
+    { id: 2, label: `${packData?.name} Pack`, path: `/card-pack/${packId}` },
+    { id: 3, label: 'Edit Card Pack', path: null }
+  ];
 
   useEffect(() => {
     if (packData) {
