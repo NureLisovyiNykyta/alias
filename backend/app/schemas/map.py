@@ -8,7 +8,7 @@ from app.schemas.user import UserPublicRead
 
 class MapCreate(BaseModel):
     name: str
-    template_id: uuid.UUID
+    size: str
 
 
 class MapUpdate(BaseModel):
@@ -17,6 +17,25 @@ class MapUpdate(BaseModel):
 
 class MapRatingInput(BaseModel):
     score: int = Field(ge=1, le=5)
+
+
+class MapThemeRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    code: str
+    name: str
+    preview_url: str | None
+    scene_url_small: str | None
+    scene_url_medium: str | None
+    scene_url_large: str | None
+    piece_model_url: str | None
+    color_textures: dict[str, str] | None
+
+
+class MapSizeRead(BaseModel):
+    code: str
+    max_fields: int
 
 
 class MapRead(BaseModel):
@@ -31,22 +50,13 @@ class MapRead(BaseModel):
     saves_count: int
     cover_url: str | None
     author_id: uuid.UUID
-    template_id: uuid.UUID
+    size: str
+    max_fields_count: int
     deleted_at: datetime.datetime | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
 
 
-class MapTemplateRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: uuid.UUID
-    code: str
-    name: str
-    max_fields_count: int
-    model_3d_url: str | None
-
-
 class MapReadDetailed(MapRead):
     author: UserPublicRead
-    template: MapTemplateRead
+

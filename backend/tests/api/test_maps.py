@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.messages import ErrorMessage
 from app.models.card import CardPack, CardType
 from app.models.enums import StatusEnum
-from app.models.map import Map, MapField, MapTemplate
+from app.models.map import Map, MapField
 from app.models.user import User
 from tests.conftest import MAP_FIELD_0, MAP_FIELD_1
 
@@ -17,7 +17,6 @@ class TestMaps:
     async def test_create_map(
         self,
         client: AsyncClient,
-        test_map_template: MapTemplate,
         auth_headers: dict[str, str],
         test_user: User,
     ) -> None:
@@ -25,7 +24,7 @@ class TestMaps:
             "/api/maps/",
             json={
                 "name": "My Map",
-                "template_id": str(test_map_template.id),
+                "size": "LARGE",
             },
             headers=auth_headers,
         )
@@ -169,14 +168,14 @@ class TestMaps:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
     ) -> None:
         map_obj = Map(
             id=uuid.uuid4(),
             name="Listed Public Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -191,7 +190,6 @@ class TestMaps:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         second_user: User,
         auth_headers: dict[str, str],
@@ -200,7 +198,8 @@ class TestMaps:
             id=uuid.uuid4(),
             name="Own Public Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -208,7 +207,8 @@ class TestMaps:
             id=uuid.uuid4(),
             name="Other Public Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=second_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -226,7 +226,6 @@ class TestMaps:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         second_user: User,
     ) -> None:
@@ -234,7 +233,8 @@ class TestMaps:
             id=uuid.uuid4(),
             name="Guest View Own Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -242,7 +242,8 @@ class TestMaps:
             id=uuid.uuid4(),
             name="Guest View Other Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=second_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -262,7 +263,6 @@ class TestPublishMap:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_card_type: CardType,
         test_user: User,
         second_user: User,
@@ -284,7 +284,8 @@ class TestPublishMap:
             id=uuid.uuid4(),
             name="Map To Publish",
             is_public=False,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -297,13 +298,11 @@ class TestPublishMap:
         data = response.json()
         assert data["is_public"] is True
         assert "author" in data
-        assert "template" in data
 
     async def test_publish_map_with_private_packs_fail(
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_card_type: CardType,
         test_user: User,
         auth_headers: dict[str, str],
@@ -324,7 +323,8 @@ class TestPublishMap:
             id=uuid.uuid4(),
             name="Map With Private Pack",
             is_public=False,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -340,7 +340,6 @@ class TestPublishMap:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         auth_headers: dict[str, str],
     ) -> None:
@@ -349,7 +348,8 @@ class TestPublishMap:
             id=uuid.uuid4(),
             name="Draft Map",
             is_public=False,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.DRAFT.value,
         )
@@ -366,7 +366,6 @@ class TestSavedMaps:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         second_user: User,
         auth_headers: dict[str, str],
         second_user_auth_headers: dict[str, str],
@@ -375,7 +374,8 @@ class TestSavedMaps:
             id=uuid.uuid4(),
             name="Saveable Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=second_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -396,7 +396,6 @@ class TestSavedMaps:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         second_user: User,
         auth_headers: dict[str, str],
     ) -> None:
@@ -404,7 +403,8 @@ class TestSavedMaps:
             id=uuid.uuid4(),
             name="Unsaveable Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=second_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -443,7 +443,6 @@ class TestSoftDeleteMap:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         auth_headers: dict[str, str],
     ) -> None:
@@ -451,7 +450,8 @@ class TestSoftDeleteMap:
             id=uuid.uuid4(),
             name="Trashed Map",
             is_public=False,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.DRAFT.value,
             deleted_at=datetime.datetime.now(datetime.timezone.utc),
@@ -467,7 +467,6 @@ class TestSoftDeleteMap:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         auth_headers: dict[str, str],
     ) -> None:
@@ -475,7 +474,8 @@ class TestSoftDeleteMap:
             id=uuid.uuid4(),
             name="Already Trashed",
             is_public=False,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.DRAFT.value,
             deleted_at=datetime.datetime.now(datetime.timezone.utc),
@@ -501,7 +501,6 @@ class TestSoftDeleteMap:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         auth_headers: dict[str, str],
         created_map: dict,
@@ -510,7 +509,8 @@ class TestSoftDeleteMap:
             id=uuid.uuid4(),
             name="In Trash",
             is_public=False,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.DRAFT.value,
             deleted_at=datetime.datetime.now(datetime.timezone.utc),
@@ -530,14 +530,14 @@ class TestDetailedMapView:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
     ) -> None:
         map_obj = Map(
             id=uuid.uuid4(),
             name="Public Active Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -549,14 +549,12 @@ class TestDetailedMapView:
         data = response.json()
         assert "author" in data
         assert "nickname" in data["author"]
-        assert "template" in data
-        assert data["template"]["code"] == test_map_template.code
+        assert data["size"] == "LARGE"
 
     async def test_get_map_detailed_private_owner(
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         auth_headers: dict[str, str],
     ) -> None:
@@ -564,7 +562,8 @@ class TestDetailedMapView:
             id=uuid.uuid4(),
             name="Private Map",
             is_public=False,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.DRAFT.value,
         )
@@ -579,7 +578,6 @@ class TestDetailedMapView:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         second_user_auth_headers: dict[str, str],
     ) -> None:
@@ -587,7 +585,8 @@ class TestDetailedMapView:
             id=uuid.uuid4(),
             name="Private Map Forbidden",
             is_public=False,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.DRAFT.value,
         )
@@ -601,7 +600,6 @@ class TestDetailedMapView:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         second_user_auth_headers: dict[str, str],
     ) -> None:
@@ -610,7 +608,8 @@ class TestDetailedMapView:
             id=uuid.uuid4(),
             name="Public Draft",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.DRAFT.value,
         )
@@ -624,7 +623,6 @@ class TestDetailedMapView:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_user: User,
         auth_headers: dict[str, str],
     ) -> None:
@@ -632,7 +630,8 @@ class TestDetailedMapView:
             id=uuid.uuid4(),
             name="Deleted Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=test_user.id,
             status=StatusEnum.ACTIVE.value,
             deleted_at=datetime.datetime.now(datetime.timezone.utc),

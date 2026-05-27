@@ -9,7 +9,7 @@ from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
 from app.models.card import CardPack
 from app.models.enums import StatusEnum
-from app.models.map import Map, MapField, MapTemplate
+from app.models.map import Map, MapField
 from app.schemas.map_field import BulkMapFieldSync
 
 
@@ -21,16 +21,8 @@ def check_map_ready_for_active(current_count: int, max_count: int) -> None:
 async def validate_map_for_activation(
     db: AsyncSession,
     map_id: uuid.UUID,
-    template_id: uuid.UUID,
+    max_fields_count: int,
 ) -> None:
-    max_fields_count: int | None = (
-        await db.execute(
-            select(MapTemplate.max_fields_count).where(MapTemplate.id == template_id)
-        )
-    ).scalar_one_or_none()
-
-    if max_fields_count is None:
-        raise NotFoundError(ErrorMessage.MAP_TEMPLATE_NOT_FOUND)
 
     count: int = (
         await db.execute(select(func.count(MapField.id)).where(MapField.map_id == map_id))
@@ -46,7 +38,7 @@ async def sync_map_fields(
     data: BulkMapFieldSync,
 ) -> list[MapField]:
     result = await db.execute(
-        select(Map).options(joinedload(Map.template)).where(Map.id == map_id)
+        select(Map).where(Map.id == map_id)
     )
     map_obj: Map | None = result.scalar_one_or_none()
     if map_obj is None:
@@ -58,13 +50,13 @@ async def sync_map_fields(
     indices = [f.position_index for f in data.fields]
     if len(set(indices)) != len(indices):
         raise BadRequestError(ErrorMessage.MAP_FIELD_DUPLICATE_POSITIONS)
-    if any(i >= map_obj.template.max_fields_count for i in indices):
+    if any(i >= map_obj.max_fields_count for i in indices):
         raise BadRequestError(ErrorMessage.MAP_FIELD_INDEX_OUT_OF_BOUNDS)
 
     if map_obj.status == StatusEnum.ACTIVE.value:
         check_map_ready_for_active(
             len(data.fields),
-            map_obj.template.max_fields_count,
+            map_obj.max_fields_count,
         )
 
     incoming_pack_ids = {f.card_pack_id for f in data.fields if f.card_pack_id is not None}

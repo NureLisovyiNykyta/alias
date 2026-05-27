@@ -2,7 +2,7 @@ import datetime
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, Integer, SmallInteger, String, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, Integer, JSON, SmallInteger, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -14,16 +14,25 @@ if TYPE_CHECKING:
     from app.models.card import CardPack
 
 
-class MapTemplate(Base):
-    __tablename__ = "map_templates"
+MAP_SIZE_FIELDS: dict[str, int] = {
+    "SMALL": 32,
+    "MEDIUM": 48,
+    "LARGE": 64,
+}
+
+
+class MapTheme(Base):
+    __tablename__ = "map_themes"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     code: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    max_fields_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    model_3d_url: Mapped[str | None] = mapped_column("3d_model_url", String, nullable=True)
-
-    maps: Mapped[list["Map"]] = relationship("Map", back_populates="template")
+    preview_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    scene_url_small: Mapped[str | None] = mapped_column(String, nullable=True)
+    scene_url_medium: Mapped[str | None] = mapped_column(String, nullable=True)
+    scene_url_large: Mapped[str | None] = mapped_column(String, nullable=True)
+    piece_model_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    color_textures: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
 
 class Map(Base):
@@ -41,7 +50,9 @@ class Map(Base):
     updated_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
     deleted_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
 
-    template_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("map_templates.id"), index=True, nullable=False)
+    size: Mapped[str] = mapped_column(String, nullable=False, index=True)
+
+    max_fields_count: Mapped[int] = mapped_column(Integer, nullable=False)
     author_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), index=True, nullable=False)
 
     __table_args__ = (
@@ -61,8 +72,8 @@ class Map(Base):
             postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
         ),
         Index(
-            "ix_maps_public_template",
-            "template_id",
+            "ix_maps_public_size",
+            "size",
             postgresql_where=(is_public.is_(True)) & (deleted_at.is_(None)) & (status == StatusEnum.ACTIVE.value)
         ),
         Index(
@@ -79,7 +90,6 @@ class Map(Base):
         ),
     )
 
-    template: Mapped["MapTemplate"] = relationship("MapTemplate", back_populates="maps")
     author: Mapped["User"] = relationship("User", back_populates="maps")
     fields: Mapped[list["MapField"]] = relationship("MapField", back_populates="map")
     saved_by: Mapped[list["SavedMap"]] = relationship("SavedMap", back_populates="map")

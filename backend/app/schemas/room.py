@@ -8,6 +8,7 @@ from app.schemas.game_room import TeamColor
 class CreateRoomRequest(BaseModel):
     room_name: str
     map_id: uuid.UUID
+    theme_id: uuid.UUID
 
 
 class JoinRoomRequest(BaseModel):

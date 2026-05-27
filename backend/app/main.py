@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,8 +14,17 @@ from app.api.v1.teams import router as teams_router
 from app.api.v1.users import router as users_router
 from app.ws.router import router as ws_router
 from app.core.config import settings
+from app.db.redis import connect_to_redis, close_redis_connection
 
-app = FastAPI(title="Alias API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await connect_to_redis()
+    yield
+    await close_redis_connection()
+
+
+app = FastAPI(title="Alias API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

@@ -8,3 +8,9 @@ class StatusEnum(enum.Enum):
 
 class CardMechanicEnum(enum.Enum):
     CLASSIC_ALIAS = "CLASSIC_ALIAS"
+
+
+class MapSizeEnum(enum.Enum):
+    SMALL = "SMALL"
+    MEDIUM = "MEDIUM"
+    LARGE = "LARGE"

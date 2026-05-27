@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.messages import ErrorMessage
 from app.models.card import CardPack, CardType
 from app.models.enums import StatusEnum
-from app.models.map import Map, MapField, MapTemplate
+from app.models.map import Map, MapField
 from app.models.user import User
 from tests.conftest import MAP_FIELD_0 as _FIELD_0, MAP_FIELD_1 as _FIELD_1
 
@@ -41,7 +41,6 @@ class TestMapFields:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        small_map_template: MapTemplate,
         test_user: User,
         auth_headers: dict[str, str],
     ) -> None:
@@ -50,7 +49,8 @@ class TestMapFields:
             id=uuid.uuid4(),
             name="Public Map",
             is_public=True,
-            template_id=small_map_template.id,
+            size="SMALL",
+            max_fields_count=2,
             author_id=test_user.id,
             status=StatusEnum.ACTIVE.value,
         )
@@ -290,7 +290,6 @@ class TestCascadingVisibilitySync:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        small_map_template: MapTemplate,
         test_card_type: CardType,
         test_user: User,
         auth_headers: dict[str, str],
@@ -300,7 +299,8 @@ class TestCascadingVisibilitySync:
             id=uuid.uuid4(),
             name="Public Map For Sync",
             is_public=True,
-            template_id=small_map_template.id,
+            size="SMALL",
+            max_fields_count=2,
             author_id=test_user.id,
             status=StatusEnum.DRAFT.value,
         )

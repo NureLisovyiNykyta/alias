@@ -33,7 +33,8 @@ class ErrorMessage(StrEnum):
     CARD_INVALID_FORMAT = "Invalid card format: {detail}"
     CARD_NOT_FOUND_IN_PACK = "Card with ID {card_id} was not found in this card pack."
 
-    MAP_TEMPLATE_NOT_FOUND = "Map template not found"
+    MAP_THEME_NOT_FOUND = "Map theme not found"
+    MAP_INVALID_SIZE = "Invalid map size. Must be SMALL, MEDIUM, or LARGE."
     MAP_NOT_FOUND = "Map not found"
     MAP_RATE_OWN = "You cannot rate your own map"
     MAP_SAVE_OWN = "You cannot save your own map"
@@ -65,6 +66,8 @@ class ErrorMessage(StrEnum):
     IMAGE_CORRUPTED = "The uploaded file is not a valid image"
 
     REDIS_NOT_INITIALISED = "Redis connection is not initialised. Call connect_to_redis() first."
+
+    MAP_THEME_INCOMPLETE = "Selected theme is missing required assets for this map size"
 
     ROOM_NOT_FOUND = "Room not found"
     ROOM_FINISHED = "This room has already finished"

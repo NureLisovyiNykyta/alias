@@ -8,18 +8,23 @@ from app.core.exceptions import NotFoundError
 from app.core.messages import ErrorMessage
 from app.models.card import CardPack
 from app.models.enums import StatusEnum
-from app.models.map import Map, MapField as MapFieldORM
+from app.models.map import Map, MapField as MapFieldORM, MapTheme
 
 
 class MapRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
+    async def get_theme(self, theme_id: uuid.UUID) -> MapTheme | None:
+        result = await self.db.execute(
+            select(MapTheme).where(MapTheme.id == theme_id)
+        )
+        return result.scalar_one_or_none()
+
     async def get_map_with_relations(self, map_id: uuid.UUID) -> Map:
         result = await self.db.execute(
             select(Map)
             .options(
-                joinedload(Map.template),
                 joinedload(Map.fields)
                 .joinedload(MapFieldORM.card_pack)
                 .joinedload(CardPack.type),

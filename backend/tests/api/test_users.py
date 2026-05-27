@@ -9,7 +9,7 @@ from app.core.messages import ErrorMessage
 from app.core.security import generate_token_pair
 from app.models.card import CardPack, CardType
 from app.models.enums import StatusEnum
-from app.models.map import Map, MapTemplate
+from app.models.map import Map
 from app.models.user import User
 
 
@@ -125,7 +125,6 @@ class TestDeleteAccount:
         self,
         client: AsyncClient,
         test_db: AsyncSession,
-        test_map_template: MapTemplate,
         test_card_type: CardType,
     ) -> None:
         user = User(
@@ -142,7 +141,8 @@ class TestDeleteAccount:
             id=uuid.uuid4(),
             name="Private Map",
             is_public=False,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=user.id,
             status=StatusEnum.DRAFT.value,
         )
@@ -150,7 +150,8 @@ class TestDeleteAccount:
             id=uuid.uuid4(),
             name="Public Map",
             is_public=True,
-            template_id=test_map_template.id,
+            size="LARGE",
+            max_fields_count=50,
             author_id=user.id,
             status=StatusEnum.ACTIVE.value,
         )
