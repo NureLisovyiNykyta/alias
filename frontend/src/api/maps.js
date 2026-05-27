@@ -5,8 +5,8 @@ import { useNotification } from "@/contexts/NotificationContext.jsx";
 
 // --- API Calls ---
 
-export const getMapTemplates = async () => {
-  const response = await api.get('/maps/templates');
+export const getMapThemes = async () => {
+  const response = await api.get('/maps/themes');
   return response.data;
 };
 
@@ -83,10 +83,10 @@ export const deleteMapCover = async (mapId) => {
 
 // --- Query Hooks ---
 
-export const useMapTemplatesQuery = (options) => {
+export const useMapThemesQuery = (options) => {
   return useQuery({
-    queryKey: ['mapTemplates'],
-    queryFn: getMapTemplates,
+    queryKey: ['mapThemes'],
+    queryFn: getMapThemes,
     ...options,
   });
 };

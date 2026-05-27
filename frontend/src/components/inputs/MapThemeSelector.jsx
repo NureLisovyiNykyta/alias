@@ -2,34 +2,34 @@ import React from 'react';
 import DropDown from '@/components/inputs/DropDown.jsx';
 import mapPreviewIcon from '@/assets/mapPreview.svg';
 
-const MapTemplateSelector = ({
-                               templates = [],
-                               selectedTemplate,
-                               onSelectTemplate
+const MapThemeSelector = ({
+                               templates: themes = [],
+                               selectedTemplate: selectedTheme,
+                               onSelectTemplate: onSelectTheme
                              }) => {
   return (
     <div className="flex flex-col gap-4 w-full">
-      <h2 className="text-h2">Select map template</h2>
+      <h2 className="text-h2">Select map theme</h2>
 
       <div className="flex items-center justify-center bg-surface rounded-[12px] py-15 px-4 gap-[136px] w-full">
         <div className="flex flex-col gap-2">
           <DropDown
             width="w-[280px]"
             placeholder="Choose the map template"
-            options={templates}
-            value={selectedTemplate}
-            onChange={onSelectTemplate}
+            options={themes}
+            value={selectedTheme}
+            onChange={onSelectTheme}
           />
           <span className="text-label text-text-label font-noto">
-            Pick an option from the templates
+            Pick an option from the themes
           </span>
         </div>
 
         <div className="flex flex-col items-center justify-center w-[420px] h-[270px] border border-text-label rounded-[12px] p-6 text-center overflow-hidden">
-          {selectedTemplate && selectedTemplate.previewImage ? (
+          {selectedTheme && selectedTheme.preview_url ? (
             <img
-              src={selectedTemplate.previewImage}
-              alt={selectedTemplate.label}
+              src={selectedTheme.preview_url}
+              alt={selectedTheme.label}
               className="w-full h-full object-cover rounded-[8px]"
             />
           ) : (
@@ -46,4 +46,4 @@ const MapTemplateSelector = ({
   );
 };
 
-export default MapTemplateSelector;
+export default MapThemeSelector;

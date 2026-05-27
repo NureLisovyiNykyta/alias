@@ -11,12 +11,14 @@ import Spinner from '@/components/layouts/Spinner.jsx';
 import dots from '@/assets/tripleDot.svg';
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useCreateRoomMutation } from "@/api/lobby";
-import { useMyMapsQuery } from "@/api/maps.js";
+import { useMyMapsQuery, useMapThemesQuery } from "@/api/maps.js";
 import mapPreviewIcon from "@/assets/mapPreview.svg";
+import MapThemeSelector from "@/components/inputs/MapThemeSelector.jsx";
 
 const createLobbySchema = z.object({
   room_name: z.string().min(1, "Name is required"),
   map: z.any().refine((val) => val !== null && val !== undefined, "Map is required"),
+  theme: z.any().refine((val) => val !== null && val !== undefined, "Theme is required"),
 });
 
 const LobbyCreator = () => {
@@ -39,22 +41,28 @@ const LobbyCreator = () => {
     defaultValues: {
       room_name: '',
       map: null,
+      theme: null,
     }
   });
 
-  const [currentName, currentMap] = useWatch({
+  const [currentName, currentMap, currentTheme] = useWatch({
     control,
-    name: ["room_name", "map"],
+    name: ["room_name", "map", "theme"],
   });
 
   const { data: rawMaps, isLoading: isMapsLoading } = useMyMapsQuery();
+  const { data: rawThemes, isLoading: isThemesLoading } = useMapThemesQuery();
 
   const mapOptions = Array.isArray(rawMaps)
     ? rawMaps.map(map => ({ ...map, label: map.name }))
     : rawMaps?.items?.map(map => ({ ...map, label: map.name })) || [];
 
+  const themeOptions = Array.isArray(rawThemes)
+    ? rawThemes.map(theme => ({ ...theme, label: theme.name }))
+    : rawThemes?.items?.map(theme => ({ ...theme, label: theme.name })) || [];
+
   const { mutate: createLobby, isPending } = useCreateRoomMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       showNotification({
         title: "Lobby Created!",
         message: "Your lobby has been successfully created. Redirecting.",
@@ -62,7 +70,7 @@ const LobbyCreator = () => {
       });
 
       setTimeout(() => {
-        navigate('/lobby');
+        navigate(`/lobby/${data.room_code}/waiting`);
       }, 2000);
     },
     onError: () => {
@@ -76,14 +84,16 @@ const LobbyCreator = () => {
 
   const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.room_name;
   const isMapValid = !!currentMap && !errors.map;
-  const isFormValid = isNameValid && isMapValid;
+  const isThemeValid = !!currentTheme && !errors.theme;
+  const isFormValid = isNameValid && isMapValid && isThemeValid;
 
   const onSubmit = (data) => {
     if (!isFormValid) return;
 
     createLobby({
       room_name: data.room_name,
-      map_id: data.map.id
+      map_id: data.map.id,
+      theme_id: data.theme.id
     });
   };
 
@@ -171,8 +181,25 @@ const LobbyCreator = () => {
               </div>
             </div>
           )}
-
         </div>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {isThemesLoading ? (
+          <Spinner size="md" />
+        ) : (
+          <Controller
+            name="theme"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <MapThemeSelector
+                templates={themeOptions}
+                selectedTemplate={value}
+                onSelectTemplate={onChange}
+              />
+            )}
+          />
+        )}
       </div>
 
       <Button

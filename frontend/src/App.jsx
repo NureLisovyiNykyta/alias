@@ -22,7 +22,7 @@ import CardPackPreview from "@/pages/CardPackPreview.jsx";
 import MapsGallery from "@/pages/MapsGallery.jsx";
 import LobbyCreator from "@/pages/LobbyCreator.jsx";
 import LobbyLayout from "@/components/layouts/LobbyLayout.jsx";
-import WaitingRoom from "@/pages/WaitingRoom.jsx";
+import WaitingRoom from "@/pages/WaitingRoom/index.jsx";
 
 function App() {
   const { isAuthenticated, user, isLoading } = useAuth();
