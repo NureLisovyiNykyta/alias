@@ -14,6 +14,7 @@ from app.models.user import User
 from app.repositories.card_repository import CardRepository
 from app.repositories.game_repository import GameRepository
 from app.repositories.map_repository import MapRepository
+from app.services.game import GameService
 from app.services.room import RoomService
 from app.services.team import TeamService
 from app.services.user import get_user_by_id
@@ -85,3 +86,12 @@ async def get_team_service(
     conn_manager: ConnectionManager = Depends(get_connection_manager),
 ) -> TeamService:
     return TeamService(game_repo=game_repo, conn_manager=conn_manager)
+
+
+async def get_game_service(
+    game_repo: GameRepository = Depends(get_game_repo),
+    conn_manager: ConnectionManager = Depends(get_connection_manager),
+    db: AsyncSession = Depends(get_db),
+) -> GameService:
+    return GameService(game_repo=game_repo, conn_manager=conn_manager, db=db)
+

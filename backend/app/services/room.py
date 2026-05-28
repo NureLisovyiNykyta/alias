@@ -175,6 +175,7 @@ class RoomService:
         room.current_turn = CurrentTurn(
             team_id=first_team.team_id,
             explainer_id=first_player_id,
+            explainer_index=0,
             phase=TurnPhase.PREPARE,
             ends_at=0.0,
             round_cards=[],

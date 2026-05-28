@@ -1,9 +1,10 @@
 from enum import StrEnum
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.schemas.game_room import Player, RoomStateJSON, Team
+from app.schemas.game_room import CurrentTurn, Player, RoomStateJSON, RoundCard, Team
 
 
 class ServerEventType(StrEnum):
@@ -19,6 +20,14 @@ class ServerEventType(StrEnum):
     TEAM_UPDATED = "team_updated"
     TEAM_DELETED = "team_deleted"
     PLAYER_TEAM_CHANGED = "player_team_changed"
+
+    # Game events
+    TURN_STARTED = "turn_started"
+    PHASE_CHANGED = "phase_changed"
+    CARD_DEALT = "card_dealt"
+    ROUND_RESULTS = "round_results"
+    SCORE_UPDATED = "score_updated"
+    GAME_FINISHED = "game_finished"
 
 
 # ---------------------------------------------------------------------------
@@ -77,6 +86,39 @@ class PlayerTeamChangedPayload(BaseModel):
     new_team_id: UUID | None
 
 
+# --- Game payloads ---
+
+
+class TurnStartedPayload(BaseModel):
+    current_turn: CurrentTurn
+
+
+class PhaseChangedPayload(BaseModel):
+    current_turn: CurrentTurn
+
+
+class CardDealtPayload(BaseModel):
+    card_id: UUID
+    content: dict[str, Any]
+
+
+class RoundResultsPayload(BaseModel):
+    team_id: UUID
+    round_cards: list[RoundCard]
+    score_delta: int
+    new_position: int
+
+
+class ScoreUpdatedPayload(BaseModel):
+    team_id: UUID
+    new_position: int
+
+
+class GameFinishedPayload(BaseModel):
+    winner_team_id: UUID
+    teams: dict[UUID, Team]
+
+
 # ---------------------------------------------------------------------------
 # ServerEvent
 # ---------------------------------------------------------------------------
@@ -97,7 +139,15 @@ class ServerEvent(BaseModel):
         | TeamUpdatedPayload
         | TeamDeletedPayload
         | PlayerTeamChangedPayload
+        | TurnStartedPayload
+        | PhaseChangedPayload
+        | CardDealtPayload
+        | RoundResultsPayload
+        | ScoreUpdatedPayload
+        | GameFinishedPayload
     )
+
+    # --- Lobby ---
 
     @classmethod
     def room_state(cls, room: RoomStateJSON) -> "ServerEvent":
@@ -156,3 +206,36 @@ class ServerEvent(BaseModel):
                 player_id=player_id, old_team_id=old_team_id, new_team_id=new_team_id
             ),
         )
+
+    # --- Game ---
+
+    @classmethod
+    def turn_started(cls, current_turn: CurrentTurn) -> "ServerEvent":
+        return cls(type=ServerEventType.TURN_STARTED, payload=TurnStartedPayload(current_turn=current_turn))
+
+    @classmethod
+    def phase_changed(cls, current_turn: CurrentTurn) -> "ServerEvent":
+        return cls(type=ServerEventType.PHASE_CHANGED, payload=PhaseChangedPayload(current_turn=current_turn))
+
+    @classmethod
+    def card_dealt(cls, card_id: UUID, content: dict[str, Any]) -> "ServerEvent":
+        return cls(type=ServerEventType.CARD_DEALT, payload=CardDealtPayload(card_id=card_id, content=content))
+
+    @classmethod
+    def round_results(
+        cls, team_id: UUID, round_cards: list[RoundCard], score_delta: int, new_position: int
+    ) -> "ServerEvent":
+        return cls(
+            type=ServerEventType.ROUND_RESULTS,
+            payload=RoundResultsPayload(
+                team_id=team_id, round_cards=round_cards, score_delta=score_delta, new_position=new_position
+            ),
+        )
+
+    @classmethod
+    def score_updated(cls, team_id: UUID, new_position: int) -> "ServerEvent":
+        return cls(type=ServerEventType.SCORE_UPDATED, payload=ScoreUpdatedPayload(team_id=team_id, new_position=new_position))
+
+    @classmethod
+    def game_finished(cls, winner_team_id: UUID, teams: dict[UUID, Team]) -> "ServerEvent":
+        return cls(type=ServerEventType.GAME_FINISHED, payload=GameFinishedPayload(winner_team_id=winner_team_id, teams=teams))

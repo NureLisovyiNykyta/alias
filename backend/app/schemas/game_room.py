@@ -105,6 +105,7 @@ class Team(BaseModel):
     color: TeamColor
     current_position: int
     player_ids: list[UUID]
+    explainer_index: int = 0
 
 
 class MapField(BaseModel):
@@ -140,6 +141,7 @@ class RoundCard(BaseModel):
 class CurrentTurn(BaseModel):
     team_id: UUID
     explainer_id: UUID
+    explainer_index: int
     phase: TurnPhase
     ends_at: float
     round_cards: list[RoundCard]

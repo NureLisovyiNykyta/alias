@@ -86,6 +86,13 @@ class ErrorMessage(StrEnum):
     ROOM_TEAM_FULL = "Team is full"
     ROOM_PLAYER_NOT_IN_TEAM = "Player is not in this team"
 
+    GAME_NOT_PLAYING = "Game is not in PLAYING status"
+    GAME_NOT_EXPLAINER = "Only the current explainer can perform this action"
+    GAME_WRONG_PHASE = "Action not allowed in the current turn phase"
+    GAME_NO_CARDS_LEFT = "No cards left in the queue"
+    GAME_CARD_NOT_IN_ROUND = "Card not found in current round"
+    GAME_INVALID_CARD_STATUS = "Card status can only be changed to GUESSED or FAILED"
+
 
 @dataclass
 class EmailContent:
