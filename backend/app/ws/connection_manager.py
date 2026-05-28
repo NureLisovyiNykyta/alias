@@ -46,5 +46,11 @@ class ConnectionManager:
         await ws.send_text(event.model_dump_json())
 
 
+    async def send_to_player(self, room_code: str, player_id: UUID, event: ServerEvent) -> None:
+        ws = self._rooms.get(room_code, {}).get(player_id)
+        if ws is not None:
+            await ws.send_text(event.model_dump_json())
+
+
 # Single application-wide instance
 manager = ConnectionManager()
