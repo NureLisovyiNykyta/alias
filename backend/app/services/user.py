@@ -67,13 +67,8 @@ async def create_user(
     return user
 
 
-async def get_user_by_id(db: AsyncSession, user_id: str | uuid.UUID) -> User:
-    if isinstance(user_id, str):
-        user_id_obj = uuid.UUID(user_id)
-    else:
-        user_id_obj = user_id
-
-    result = await db.execute(select(User).where(User.id == user_id_obj))
+async def get_user_by_id(db: AsyncSession, user_id: str) -> User:
+    result = await db.execute(select(User).where(User.id == uuid.UUID(user_id)))
     user: User | None = result.scalar_one_or_none()
     if user is None:
         raise UnauthorizedError(ErrorMessage.USER_NOT_FOUND)

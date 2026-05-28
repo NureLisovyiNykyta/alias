@@ -20,7 +20,7 @@ async def get_ws_player_id(
         try:
             user_id_str = decode_access_token(token)
             async with AsyncSessionLocal() as db:
-                user = await get_user_by_id(db, uuid.UUID(user_id_str))
+                user = await get_user_by_id(db, user_id_str)
             return user.id
         except (AppException, ValueError):
             raise WebSocketException(code=_WS_UNAUTHORIZED)
