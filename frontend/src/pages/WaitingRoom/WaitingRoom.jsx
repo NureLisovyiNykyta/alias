@@ -11,29 +11,32 @@ import { parseUpperCase } from "@/utils/parseUpperCase.js";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const WaitingRoom = () => {
   const { code: roomCode } = useParams();
-  const { roomData, isConnected } = useGameSocket(roomCode);
+  const { roomData, isConnected, isRoomClosed } = useGameSocket(roomCode);
   const { user } = useAuth();
 
-  const { showNotification } = useNotification();
+  const { showNotification, closeNotification } = useNotification();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isRoomClosed) {
+      showNotification({
+        title: "Lobby Closed",
+        message: "The game lobby has been closed. This page will soon be closed.",
+        isSuccess: true,
+      });
+      setTimeout(() => {
+        navigate('/');
+        closeNotification();
+      }, 1500)
+    }
+  }, [isRoomClosed, navigate, showNotification]);
 
   const { mutate: createTeam, isPending: isCreatingTeam } = useCreateTeamMutation();
   const { mutate: closeRoom, isPending: isClosingRoom } = useCloseRoomMutation({
-    onSuccess: (data) => {
-      showNotification({
-        title: "Lobby Closed!",
-        message: "Your lobby has been successfully closed. Redirecting.",
-        isSuccess: true,
-      });
-
-      setTimeout(() => {
-        navigate('/');
-      }, 1200);
-    },
     onError: () => {
       showNotification({
         title: "Error",
@@ -67,23 +70,49 @@ const WaitingRoom = () => {
 
   const [hoveredTeamId, setHoveredTeamId] = useState(null);
 
-  const getRandomColor = () => {
+  const nextTeamColor = useMemo(() => {
     const usedColors = teamsList.map(t => t.color);
     const availableColors = TEAM_COLORS.filter(color => !usedColors.includes(color));
     const pool = availableColors.length > 0 ? availableColors : TEAM_COLORS;
     return pool[Math.floor(Math.random() * pool.length)];
-  };
+  }, [teamsList.length]);
 
   const handleCreateTeam = () => {
-    const randomColor = getRandomColor();
-
     createTeam({
       roomCode: roomCode,
       teamData: {
-        name: `Team ${parseUpperCase(randomColor)}`,
-        color: randomColor
+        name: `Team ${parseUpperCase(nextTeamColor)}`,
+        color: nextTeamColor
       }
     });
+  };
+
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(roomCode);
+      showNotification({
+        title: "Copied!",
+        message: "The room code has been copied to the clipboard.",
+        isSuccess: true,
+      });
+    } catch (err) {
+      console.error("Failed to copy code: ", err);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    const joinLink = `${window.location.origin}/lobby/${roomCode}/join`;
+
+    try {
+      await navigator.clipboard.writeText(joinLink);
+      showNotification({
+        title: "Copied!",
+        message: "The lobby link has been copied to your clipboard.",
+        isSuccess: true,
+      });
+    } catch (err) {
+      console.error("Failed to copy link: ", err);
+    }
   };
 
   if (!roomData) {
@@ -92,12 +121,12 @@ const WaitingRoom = () => {
 
   return (
     <main className="grid grid-cols-[952px_1fr] w-full gap-16">
-      {!isConnected && (
-        <div className="absolute bottom-10 right-10 bg-surface rounded-[12px] shadow-buttons blur-md text-center py-2 z-50 flex items-center gap-2">
-          <p className='font-noto text-text-label'>Connection lost. Reconnecting to the lobby...</p>
-          <Spinner color="border-text-label" size="md"/>
-        </div>
-      )}
+      {/*{!isConnected && (*/}
+      {/*  <div className="absolute bottom-10 right-10 bg-surface rounded-[12px] shadow-buttons blur-md text-center py-2 z-50 flex items-center gap-2">*/}
+      {/*    <p className='font-noto text-text-label'>Connection lost. Reconnecting to the lobby...</p>*/}
+      {/*    <Spinner color="border-text-label" size="md"/>*/}
+      {/*  </div>*/}
+      {/*)}*/}
 
       <div className='flex flex-col w-[952px] gap-16'>
         <div className="flex flex-col w-full gap-4">
@@ -165,7 +194,7 @@ const WaitingRoom = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.1 }}
-                            className="text-sm absolute right-0"
+                            className="text-sm absolute right-0 text-white"
                           >
                             {team.player_ids?.length || 0} player{team.player_ids?.length !== 1 && 's'}
                           </motion.span>
@@ -188,7 +217,7 @@ const WaitingRoom = () => {
                 <Button
                   onClick={handleCreateTeam}
                   disabled={isCreatingTeam}
-                  style={{ backgroundColor: TEAM_BG_MAP[getRandomColor()], color: 'var(--color-text)' }}
+                  style={{ backgroundColor: TEAM_BG_MAP[nextTeamColor], color: 'var(--color-text)' }}
                   className="w-full shadow-sm"
                 >
                   {isCreatingTeam ? <>
@@ -210,7 +239,7 @@ const WaitingRoom = () => {
         <div className='flex flex-col w-full gap-4'>
           <h2 className='text-h2'>Invite your friends</h2>
 
-          <Button variant='tertiary' className='w-[189px]'>
+          <Button variant='tertiary' className='w-[189px]' onClick={handleCopyCode}>
             <img src={copy} alt="Copy"/>
             <span>{roomData.room_code}</span>
           </Button>
@@ -219,7 +248,7 @@ const WaitingRoom = () => {
             Share the connection code with your friends
           </span>
 
-          <Button variant='tertiary' className='w-[189px]'>
+          <Button variant='tertiary' className='w-[189px]' onClick={handleCopyLink}>
             <img src={copy} alt="Copy"/>
             <span>Copy the link</span>
           </Button>

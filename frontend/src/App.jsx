@@ -22,7 +22,8 @@ import CardPackPreview from "@/pages/CardPackPreview.jsx";
 import MapsGallery from "@/pages/MapsGallery.jsx";
 import LobbyCreator from "@/pages/LobbyCreator.jsx";
 import LobbyLayout from "@/components/layouts/LobbyLayout.jsx";
-import WaitingRoom from "@/pages/WaitingRoom/index.jsx";
+import WaitingRoom from "@/pages/WaitingRoom/WaitingRoom.jsx";
+import JoinRoom from "@/pages/JoinRoom.jsx";
 
 function App() {
   const { isAuthenticated, user, isLoading } = useAuth();
@@ -66,6 +67,7 @@ function App() {
         </Route>
 
         <Route path='/lobby/:code' element={<LobbyLayout/>}>
+          <Route path='join' element={<JoinRoom/>}/>
           <Route path='waiting' element={<WaitingRoom/>}/>
         </Route>
 

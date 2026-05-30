@@ -19,6 +19,7 @@ const Input = forwardRef(({
                             wide = false,
                             width= '',
                             showForgot = false,
+                            onArrowClick,
                             ...props
                           }, ref) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -60,7 +61,8 @@ const Input = forwardRef(({
         {showArrow &&
           <button
             type="button"
-            className="flex items-center justify-center w-8 h-6 rounded-[8px] bg-brand-500"
+            onClick={onArrowClick}
+            className="flex items-center justify-center w-8 h-6 rounded-[8px] bg-brand-500 hover:bg-brand-600 transition-colors"
           >
             <img src={rightArrow} alt=""/>
           </button>

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0] - 2026-05-30
+
+### Added
+- **Lobby Joining Mechanics**: Implemented the ability for users to join game lobbies via direct invite links or explicit game codes.
+- **Connection Processing**: Added a new `JoinRoom` intermediate page to handle REST API connections (`/api/rooms/join`) and validate user authentication prior to establishing the WebSocket connection.
+- **Clipboard Integration**: Added intuitive UI buttons in the waiting room for hosts to easily copy the lobby code or the direct join link.
+
+### Changed
+- **WebSocket Architecture Redesign**: Migrated the core `useGameSocket` hook to utilize the `react-use-websocket` library. This provides a highly stable connection with automatic exponential backoff reconnections and reliable heartbeat pinging.
+- **Synchronized Lobby Redirection**: Updated socket event handling to globally track the `room_closed` event. All connected players are now seamlessly and simultaneously redirected to the main page when the host stops the game.
+
 ## [0.16.0] - 2026-05-27
 
 ### Added

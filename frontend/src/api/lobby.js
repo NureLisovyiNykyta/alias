@@ -40,3 +40,13 @@ export const useDeleteTeamMutation = (options) => {
     ...options,
   });
 };
+
+export const useJoinRoomMutation = (options) => {
+  return useMutation({
+    mutationFn: async (joinData) => {
+      const response = await api.post('/rooms/join', joinData);
+      return response.data;
+    },
+    ...options,
+  });
+};

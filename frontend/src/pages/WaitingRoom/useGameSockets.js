@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import useWebSocket, { ReadyState } from "react-use-websocket";
+import wsPackage, { ReadyState } from "react-use-websocket";
 import Cookies from "js-cookie";
+
+const useWebSocket = wsPackage.default || wsPackage;
 
 export const useGameSocket = (roomCode) => {
   const location = useLocation();
   const initialData = location.state?.initialRoomData || null;
 
   const [roomData, setRoomData] = useState(initialData);
+  const [isRoomClosed, setIsRoomClosed] = useState(false);
 
   const getSocketUrl = () => {
     if (!roomCode) return null;
@@ -106,6 +109,11 @@ export const useGameSocket = (roomCode) => {
           return prev;
         }
 
+        case "room_closed": {
+          setIsRoomClosed(true);
+          return prev;
+        }
+
         case "error":
           console.error("Game error:", payload.message);
           return prev;
@@ -120,5 +128,6 @@ export const useGameSocket = (roomCode) => {
     roomData,
     isConnected: readyState === ReadyState.OPEN,
     sendMessage: sendJsonMessage,
+    isRoomClosed,
   };
 };
