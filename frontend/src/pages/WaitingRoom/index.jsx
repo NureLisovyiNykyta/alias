@@ -15,7 +15,7 @@ import { useState } from "react";
 
 const WaitingRoom = () => {
   const { code: roomCode } = useParams();
-  const { roomData } = useGameSocket(roomCode);
+  const { roomData, isConnected } = useGameSocket(roomCode);
   const { user } = useAuth();
 
   const { showNotification } = useNotification();
@@ -65,7 +65,6 @@ const WaitingRoom = () => {
   const maxTeams = roomData?.settings?.max_teams || 4;
   const canCreateTeam = teamsList.length < maxTeams && isHost;
 
-  // Keep track of which team header is currently being hovered
   const [hoveredTeamId, setHoveredTeamId] = useState(null);
 
   const getRandomColor = () => {
@@ -93,6 +92,13 @@ const WaitingRoom = () => {
 
   return (
     <main className="grid grid-cols-[952px_1fr] w-full gap-16">
+      {!isConnected && (
+        <div className="absolute bottom-10 right-10 bg-surface rounded-[12px] shadow-buttons blur-md text-center py-2 z-50 flex items-center gap-2">
+          <p className='font-noto text-text-label'>Connection lost. Reconnecting to the lobby...</p>
+          <Spinner color="border-text-label" size="md"/>
+        </div>
+      )}
+
       <div className='flex flex-col w-[952px] gap-16'>
         <div className="flex flex-col w-full gap-4">
           <h1 className="text-h1">Game <b>{roomData.room_code || id}</b> lobby — Waiting for players</h1>

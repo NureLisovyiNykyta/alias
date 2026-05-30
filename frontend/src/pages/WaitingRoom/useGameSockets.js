@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import useWebSocket, { ReadyState } from "react-use-websocket";
 import Cookies from "js-cookie";
 
 export const useGameSocket = (roomCode) => {
@@ -7,98 +8,117 @@ export const useGameSocket = (roomCode) => {
   const initialData = location.state?.initialRoomData || null;
 
   const [roomData, setRoomData] = useState(initialData);
-  const wsRef = useRef(null);
 
-  useEffect(() => {
-    if (!roomCode) {
-      console.log("WebSocket connection aborted: No roomCode provided");
-      return;
-    }
+  const getSocketUrl = () => {
+    if (!roomCode) return null;
 
-    const token = Cookies.get('authToken');
-    const guestId = localStorage.getItem('guest_id');
+    const token = Cookies.get("authToken");
+    const guestId = localStorage.getItem("guest_id");
     const baseUrl = import.meta.env.VITE_WS_BASE_URL;
 
-    let wsUrl = `${baseUrl}/ws/rooms/${roomCode}`;
+    if (token) return `${baseUrl}/ws/rooms/${roomCode}?token=${token}`;
+    if (guestId) return `${baseUrl}/ws/rooms/${roomCode}?guest_id=${guestId}`;
 
-    if (token) {
-      wsUrl += `?token=${token}`;
-    } else if (guestId) {
-      wsUrl += `?guest_id=${guestId}`;
-    } else {
-      console.log("WebSocket connection aborted: Missing auth token or guest ID");
-      return;
+    return null;
+  };
+
+  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
+    getSocketUrl(),
+    {
+      shouldReconnect: (closeEvent) => true,
+      reconnectAttempts: 10,
+      reconnectInterval: (attemptNumber) =>
+        Math.min(Math.pow(2, attemptNumber) * 1000, 10000),
+
+      heartbeat: {
+        message: JSON.stringify({ type: "ping" }),
+        returnMessage: "pong",
+        timeout: 30000,
+        interval: 25000,
+      },
+
+      onOpen: () => console.log(`[WS] Connected to room: ${roomCode}`),
+      onClose: () => console.log(`[WS] Disconnected from room: ${roomCode}`),
+      onError: (event) => console.error("[WS] Error:", event),
     }
+  );
 
-    console.log(`Attempting WebSocket connection to: ${wsUrl}`);
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
-    let pingInterval;
+  useEffect(() => {
+    if (!lastJsonMessage) return;
 
-    ws.onopen = () => {
-      console.log(`WebSocket successfully connected to room: ${roomCode}`);
-      pingInterval = setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: "ping" }));
+    const { type, payload } = lastJsonMessage;
+    console.log(`[WS] Event received: ${type}`, payload);
+
+    setRoomData((prev) => {
+      if (!prev && type !== "room_state") return prev;
+
+      switch (type) {
+        case "room_state":
+        case "game_started":
+          return payload.room;
+
+        case "team_created":
+        case "team_updated":
+          return {
+            ...prev,
+            teams: {
+              ...prev.teams,
+              [payload.team.team_id]: payload.team,
+            },
+          };
+
+        case "team_deleted": {
+          const newTeams = { ...prev.teams };
+          delete newTeams[payload.team_id];
+          return { ...prev, teams: newTeams };
         }
-      }, 30000);
-    };
 
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log(`WebSocket message received, type: ${data.type}`, data);
+        case "player_connected":
+        case "player_joined":
+          return {
+            ...prev,
+            players: {
+              ...prev.players,
+              [payload.player.id]: payload.player,
+            },
+          };
 
-        switch (data.type) {
-          case 'room_state':
-            setRoomData(data.payload.room);
-            break;
+        case "player_disconnected":
+          if (!prev.players[payload.player_id]) return prev;
+          return {
+            ...prev,
+            players: {
+              ...prev.players,
+              [payload.player_id]: {
+                ...prev.players[payload.player_id],
+                is_online: false,
+              },
+            },
+          };
 
-          case 'team_created':
-          case 'team_updated':
-            setRoomData(prev => prev ? {
-              ...prev,
-              teams: {
-                ...prev.teams,
-                [data.payload.team.team_id]: data.payload.team
-              }
-            } : prev);
-            break;
-
-          case 'team_deleted':
-            setRoomData(prev => {
-              if (!prev) return prev;
-              const newTeams = { ...prev.teams };
-              delete newTeams[data.payload.team_id];
-              return { ...prev, teams: newTeams };
-            });
-            break;
-
-          default:
-            break;
+        case "player_left": {
+          const newPlayers = { ...prev.players };
+          delete newPlayers[payload.player_id];
+          return { ...prev, players: newPlayers };
         }
-      } catch (error) {
-        console.error("WebSocket message parsing error:", error);
+
+        case "player_team_changed": {
+          return prev;
+        }
+
+        case "error":
+          console.error("Game error:", payload.message);
+          return prev;
+
+        default:
+          return prev;
       }
-    };
+    });
+  }, [lastJsonMessage]);
 
-    ws.onerror = (error) => {
-      console.error("WebSocket encountered an error:", error);
-    };
-
-    ws.onclose = (event) => {
-      console.log(`WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason}`);
-      clearInterval(pingInterval);
-    };
-
-    return () => {
-      clearInterval(pingInterval);
-      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-        console.log("Cleaning up WebSocket connection on component unmount");
-        ws.close();
-      }
-    };
-  }, [roomCode]);
-
-  return { roomData, ws: wsRef.current };
+  return {
+    roomData,
+    isConnected: readyState === ReadyState.OPEN,
+    sendMessage: sendJsonMessage,
+  };
 };
