@@ -4,6 +4,7 @@ import { useJoinRoomMutation } from "@/api/lobby.js";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
+import { useLobby } from "@/contexts/LobbyContext.jsx";
 
 const JoinRoom = () => {
   const { code: roomCode } = useParams();
@@ -11,9 +12,12 @@ const JoinRoom = () => {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { showNotification } = useNotification();
 
+  const { setRoom } = useLobby();
+
   const { mutate: joinRoom, isPending } = useJoinRoomMutation({
     onSuccess: () => {
       navigate(`/lobby/${roomCode}/waiting`, { replace: true });
+      setRoom(roomCode);
     },
     onError: (error) => {
       showNotification({

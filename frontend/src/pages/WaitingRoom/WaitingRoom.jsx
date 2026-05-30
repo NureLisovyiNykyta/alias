@@ -1,28 +1,41 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/buttons/Button.jsx";
-import cross from '@/assets/cross.svg';
 import copy from '@/assets/darkCopy.svg';
 import plus from '@/assets/plus.svg';
-import { useCloseRoomMutation, useCreateTeamMutation, useDeleteTeamMutation } from "@/api/lobby.js";
+import {
+  useCloseRoomMutation,
+  useCreateTeamMutation,
+  useDeleteTeamMutation,
+  useLeaveRoomMutation
+} from "@/api/lobby.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
-import { useGameSocket } from "./useGameSockets.js";
 import { TEAM_COLORS, TEAM_BG_MAP } from "./constants.js";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import { useEffect, useMemo } from "react";
+import TeamCard from "./TeamCard.jsx";
+import { useLobby } from "@/contexts/LobbyContext.jsx";
 
 const WaitingRoom = () => {
   const { code: roomCode } = useParams();
-  const { roomData, isConnected, isRoomClosed } = useGameSocket(roomCode);
+
+  const { activeRoom, setRoom, roomData, isRoomClosed, isConnected } = useLobby();
   const { user } = useAuth();
 
   const { showNotification, closeNotification } = useNotification();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (roomCode && activeRoom !== roomCode) {
+      setRoom(roomCode);
+    }
+  }, [roomCode, activeRoom, setRoom]);
+
+  useEffect(() => {
     if (isRoomClosed) {
+      setRoom(null);
       showNotification({
         title: "Lobby Closed",
         message: "The game lobby has been closed. This page will soon be closed.",
@@ -47,7 +60,7 @@ const WaitingRoom = () => {
   });
 
   const { mutate: deleteTeam, isPending: isDeletingTeam } = useDeleteTeamMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       showNotification({
         title: "Team Removed!",
         message: "Team has been successfully removed.",
@@ -68,8 +81,6 @@ const WaitingRoom = () => {
   const maxTeams = roomData?.settings?.max_teams || 4;
   const canCreateTeam = teamsList.length < maxTeams && isHost;
 
-  const [hoveredTeamId, setHoveredTeamId] = useState(null);
-
   const nextTeamColor = useMemo(() => {
     const usedColors = teamsList.map(t => t.color);
     const availableColors = TEAM_COLORS.filter(color => !usedColors.includes(color));
@@ -86,6 +97,28 @@ const WaitingRoom = () => {
       }
     });
   };
+
+  const { mutate: leaveRoom, isPending: isLeavingRoom } = useLeaveRoomMutation({
+    onSuccess: () => {
+      setRoom(null);
+      showNotification({
+        title: "Lobby Leaved!",
+        message: "You will soon be redirected to main page.",
+        isSuccess: true,
+      });
+
+      setTimeout(() => {
+        navigate('/');
+      }, 1500)
+    },
+    onError: () => {
+      showNotification({
+        title: "Error",
+        message: "Failed to leave the lobby. Try again.",
+        isSuccess: false,
+      });
+    },
+  });
 
   const handleCopyCode = async () => {
     try {
@@ -115,22 +148,19 @@ const WaitingRoom = () => {
     }
   };
 
+  const handleLeaveRoom = () => {
+    leaveRoom({ roomCode: roomCode, playerId: user?.id });
+  };
+
   if (!roomData) {
     return <div className="flex w-full h-full justify-center items-center"><Spinner/></div>;
   }
 
   return (
     <main className="grid grid-cols-[952px_1fr] w-full gap-16">
-      {/*{!isConnected && (*/}
-      {/*  <div className="absolute bottom-10 right-10 bg-surface rounded-[12px] shadow-buttons blur-md text-center py-2 z-50 flex items-center gap-2">*/}
-      {/*    <p className='font-noto text-text-label'>Connection lost. Reconnecting to the lobby...</p>*/}
-      {/*    <Spinner color="border-text-label" size="md"/>*/}
-      {/*  </div>*/}
-      {/*)}*/}
-
       <div className='flex flex-col w-[952px] gap-16'>
         <div className="flex flex-col w-full gap-4">
-          <h1 className="text-h1">Game <b>{roomData.room_code || id}</b> lobby — Waiting for players</h1>
+          <h1 className="text-h1">Game <b>{roomData.room_code || roomCode}</b> lobby — Waiting for players</h1>
           <span className="text-label text-text-label font-noto">
             Need at least {roomData.settings?.min_teams || 2} teams to start.
           </span>
@@ -150,65 +180,16 @@ const WaitingRoom = () => {
           <ul className='w-full flex items-center justify-start flex-wrap gap-5 overflow-hidden py-2'>
             <AnimatePresence>
               {teamsList.map((team) => (
-                <motion.li
+                <TeamCard
                   key={team.team_id}
-                  initial={{ opacity: 0, x: -50, scale: 0.8 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 260,
-                    damping: 20
-                  }}
-                  className='flex flex-col w-[220px] rounded-[12px] p-4 gap-4'
-                  style={{ backgroundColor: TEAM_BG_MAP[team.color] }}
-                >
-                  <div
-                    className="flex justify-between items-center h-6 overflow-hidden relative"
-                    onMouseEnter={() => isHost && setHoveredTeamId(team.team_id)}
-                    onMouseLeave={() => isHost && setHoveredTeamId(null)}
-                  >
-                    <span className="font-bold shrink-0">{team.name}</span>
-
-                    <div className="relative flex items-center justify-end w-full h-full">
-                      <AnimatePresence mode="wait">
-                        {hoveredTeamId === team.team_id && isHost ? (
-                          <motion.button
-                            key="delete-btn"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.1 }}
-                            onClick={() => {
-                              deleteTeam({ roomCode: roomCode, teamId: team.team_id })
-                            }}
-                            disabled={isDeletingTeam}
-                            className="absolute right-0"
-                          >
-                            <img src={cross} alt="cross" className='scale-80'/>
-                          </motion.button>
-                        ) : (
-                          <motion.span
-                            key="player-count"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.1 }}
-                            className="text-sm absolute right-0 text-white"
-                          >
-                            {team.player_ids?.length || 0} player{team.player_ids?.length !== 1 && 's'}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  </div>
-
-                  <div className='mt-auto self-center'>
-                    <Button className='w-[184px]' variant="tertiary">
-                      Join the team
-                    </Button>
-                  </div>
-                </motion.li>
+                  team={team}
+                  roomCode={roomCode}
+                  isHost={isHost}
+                  onDeleteTeam={(id) => deleteTeam({ roomCode, teamId: id })}
+                  isDeletingTeam={isDeletingTeam}
+                  roomPlayers={roomData.players}
+                  currentUser={user}
+                />
               ))}
             </AnimatePresence>
 
@@ -273,7 +254,12 @@ const WaitingRoom = () => {
               </Button>
             </>
           ) : (
-            <span className="text-label text-text-label">Waiting for host to start...</span>
+            <Button
+              onClick={handleLeaveRoom}
+              disabled={isLeavingRoom}
+            >
+              Leave the lobby
+            </Button>
           )}
         </div>
       </aside>

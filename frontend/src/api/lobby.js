@@ -50,3 +50,44 @@ export const useJoinRoomMutation = (options) => {
     ...options,
   });
 };
+
+export const useJoinTeamMutation = (options) => {
+  return useMutation({
+    mutationFn: async ({ roomCode, teamId, guestId }) => {
+      const body = guestId ? { guest_id: guestId } : {};
+      const response = await api.post(`/rooms/${roomCode}/teams/${teamId}/join`, body);
+      return response.data;
+    },
+    ...options,
+  });
+};
+
+export const useKickPlayerMutation = (options) => {
+  return useMutation({
+    mutationFn: async ({ roomCode, teamId, playerId }) => {
+      const response = await api.delete(`/rooms/${roomCode}/teams/${teamId}/players/${playerId}`);
+      return response.data;
+    },
+    ...options,
+  });
+};
+
+export const useLeaveTeamMutation = (options) => {
+  return useMutation({
+    mutationFn: async ({ roomCode, teamId, playerId }) => {
+      const response = await api.post(`/rooms/${roomCode}/teams/${teamId}/leave`, { guest_id: playerId });
+      return response.data;
+    },
+    ...options,
+  });
+};
+
+export const useLeaveRoomMutation = (options) => {
+  return useMutation({
+    mutationFn: async ({ roomCode, playerId }) => {
+      const response = await api.post(`/rooms/${roomCode}/leave`, { guest_id: playerId });
+      return response.data;
+    },
+    ...options,
+  });
+};

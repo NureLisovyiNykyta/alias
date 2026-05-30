@@ -23,7 +23,7 @@ const createLobbySchema = z.object({
 
 const LobbyCreator = () => {
   const navigate = useNavigate();
-  const { showNotification } = useNotification();
+  const { showNotification, closeNotification } = useNotification();
 
   const links = [
     { id: 1, label: "Main Page", path: "/" },
@@ -73,7 +73,8 @@ const LobbyCreator = () => {
         navigate(`/lobby/${data.room_code}/waiting`, {
           state: { initialRoomData: data }
         });
-      }, 2000);
+        closeNotification();
+      }, 1500);
     },
     onError: () => {
       showNotification({

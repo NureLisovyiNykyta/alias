@@ -24,6 +24,7 @@ import LobbyCreator from "@/pages/LobbyCreator.jsx";
 import LobbyLayout from "@/components/layouts/LobbyLayout.jsx";
 import WaitingRoom from "@/pages/WaitingRoom/WaitingRoom.jsx";
 import JoinRoom from "@/pages/JoinRoom.jsx";
+import ActiveLobbyWidget from "@/components/layouts/ActiveLobbyWidget.jsx";
 
 function App() {
   const { isAuthenticated, user, isLoading } = useAuth();
@@ -35,6 +36,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ActiveLobbyWidget/>
       <TopScroller/>
       <Routes>
         <Route element={<MainLayout/>}>

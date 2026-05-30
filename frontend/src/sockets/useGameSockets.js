@@ -1,15 +1,11 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import wsPackage, { ReadyState } from "react-use-websocket";
 import Cookies from "js-cookie";
 
 const useWebSocket = wsPackage.default || wsPackage;
 
 export const useGameSocket = (roomCode) => {
-  const location = useLocation();
-  const initialData = location.state?.initialRoomData || null;
-
-  const [roomData, setRoomData] = useState(initialData);
+  const [roomData, setRoomData] = useState(null);
   const [isRoomClosed, setIsRoomClosed] = useState(false);
 
   const getSocketUrl = () => {
@@ -82,7 +78,7 @@ export const useGameSocket = (roomCode) => {
             ...prev,
             players: {
               ...prev.players,
-              [payload.player.id]: payload.player,
+              [payload.player.user_id]: payload.player,
             },
           };
 
@@ -106,7 +102,30 @@ export const useGameSocket = (roomCode) => {
         }
 
         case "player_team_changed": {
-          return prev;
+          const { player_id, old_team_id, new_team_id } = payload;
+          const newTeams = { ...prev.teams };
+
+          if (old_team_id && newTeams[old_team_id]) {
+            newTeams[old_team_id] = {
+              ...newTeams[old_team_id],
+              player_ids: newTeams[old_team_id].player_ids?.filter(id => id !== player_id) || []
+            };
+          }
+
+          if (new_team_id && newTeams[new_team_id]) {
+            const currentPlayers = newTeams[new_team_id].player_ids || [];
+            if (!currentPlayers.includes(player_id)) {
+              newTeams[new_team_id] = {
+                ...newTeams[new_team_id],
+                player_ids: [...currentPlayers, player_id]
+              };
+            }
+          }
+
+          return {
+            ...prev,
+            teams: newTeams
+          };
         }
 
         case "room_closed": {
