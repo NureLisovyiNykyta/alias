@@ -8,21 +8,17 @@ export const LobbyProvider = ({ children }) => {
 
   const setRoom = (code) => {
     if (code) {
+      console.log('code setup', code);
       localStorage.setItem('activeRoom', code);
       setActiveRoom(code);
     } else {
+      console.log('code removal')
       localStorage.removeItem('activeRoom');
       setActiveRoom(null);
     }
   };
 
   const socket = useGameSocket(activeRoom);
-
-  useEffect(() => {
-    if (socket.isRoomClosed) {
-      setRoom(null);
-    }
-  }, [socket.isRoomClosed]);
 
   return (
     <LobbyContext.Provider value={{ activeRoom, setRoom, ...socket }}>

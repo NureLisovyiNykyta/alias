@@ -96,7 +96,7 @@ const TeamCard = ({ team, roomCode, isHost, onDeleteTeam, isDeletingTeam, roomPl
           <AnimatePresence>
             {players.map((player) => (
               <motion.li
-                key={player.id}
+                key={player.user_id}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8 }}

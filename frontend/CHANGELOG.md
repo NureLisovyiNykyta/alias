@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.1] - 2026-06-01
+
+### Fixed
+- **WebSocket State Synchronization**: Corrected the mapping of `player_connected` and `player_joined` socket events to use `user_id`, ensuring accurate real-time updates for the host when clients reconnect or refresh the page.
+- **Lobby Race Conditions**: Removed conflicting `useEffect` hooks in the lobby state management that caused infinite redirection loops and "zombie" widgets when returning to the main page after a room closure.
+- **Stale Session Cleanup**: Implemented automatic `localStorage` clearing for `activeRoom` and `guest_id` upon user logout, and ensured global socket states reset when joining a new room to prevent connection bugs.
+
 ## [0.17.0] - 2026-05-30
 
 ### Added

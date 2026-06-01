@@ -14,6 +14,7 @@ import { useCreateRoomMutation } from "@/api/lobby";
 import { useMyMapsQuery, useMapThemesQuery } from "@/api/maps.js";
 import mapPreviewIcon from "@/assets/mapPreview.svg";
 import MapThemeSelector from "@/components/inputs/MapThemeSelector.jsx";
+import { useLobby } from "@/contexts/LobbyContext.jsx";
 
 const createLobbySchema = z.object({
   room_name: z.string().min(1, "Name is required"),
@@ -24,6 +25,7 @@ const createLobbySchema = z.object({
 const LobbyCreator = () => {
   const navigate = useNavigate();
   const { showNotification, closeNotification } = useNotification();
+  const { setRoom } = useLobby();
 
   const links = [
     { id: 1, label: "Main Page", path: "/" },
@@ -68,6 +70,8 @@ const LobbyCreator = () => {
         message: "Your lobby has been successfully created. Redirecting.",
         isSuccess: true,
       });
+
+      setRoom(data.room_code);
 
       setTimeout(() => {
         navigate(`/lobby/${data.room_code}/waiting`, {

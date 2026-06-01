@@ -21,17 +21,11 @@ import { useLobby } from "@/contexts/LobbyContext.jsx";
 const WaitingRoom = () => {
   const { code: roomCode } = useParams();
 
-  const { activeRoom, setRoom, roomData, isRoomClosed, isConnected } = useLobby();
+  const { activeRoom, setRoom, roomData, isRoomClosed } = useLobby();
   const { user } = useAuth();
 
   const { showNotification, closeNotification } = useNotification();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (roomCode && activeRoom !== roomCode) {
-      setRoom(roomCode);
-    }
-  }, [roomCode, activeRoom, setRoom]);
 
   useEffect(() => {
     if (isRoomClosed) {
@@ -44,9 +38,9 @@ const WaitingRoom = () => {
       setTimeout(() => {
         navigate('/');
         closeNotification();
-      }, 1500)
+      }, 1500);
     }
-  }, [isRoomClosed, navigate, showNotification]);
+  }, [isRoomClosed, navigate, showNotification, setRoom]);
 
   const { mutate: createTeam, isPending: isCreatingTeam } = useCreateTeamMutation();
   const { mutate: closeRoom, isPending: isClosingRoom } = useCloseRoomMutation({
@@ -102,8 +96,8 @@ const WaitingRoom = () => {
     onSuccess: () => {
       setRoom(null);
       showNotification({
-        title: "Lobby Leaved!",
-        message: "You will soon be redirected to main page.",
+        title: "Lobby Left!",
+        message: "You will soon be redirected to the main page.",
         isSuccess: true,
       });
 

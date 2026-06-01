@@ -16,8 +16,8 @@ const JoinRoom = () => {
 
   const { mutate: joinRoom, isPending } = useJoinRoomMutation({
     onSuccess: () => {
-      navigate(`/lobby/${roomCode}/waiting`, { replace: true });
       setRoom(roomCode);
+      navigate(`/lobby/${roomCode}/waiting`, { replace: true });
     },
     onError: (error) => {
       showNotification({

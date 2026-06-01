@@ -8,6 +8,11 @@ export const useGameSocket = (roomCode) => {
   const [roomData, setRoomData] = useState(null);
   const [isRoomClosed, setIsRoomClosed] = useState(false);
 
+  useEffect(() => {
+    setIsRoomClosed(false);
+    setRoomData(null);
+  }, [roomCode]);
+
   const getSocketUrl = () => {
     if (!roomCode) return null;
 
