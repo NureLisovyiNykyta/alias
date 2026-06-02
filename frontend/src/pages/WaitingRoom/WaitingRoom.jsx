@@ -143,7 +143,9 @@ const WaitingRoom = () => {
   };
 
   const handleLeaveRoom = () => {
-    leaveRoom({ roomCode: roomCode, playerId: user?.id });
+    const guestId = localStorage.getItem("guest_id");
+    const playerId = user?.id || guestId;
+    leaveRoom({ roomCode: roomCode, playerId: playerId });
   };
 
   if (!roomData) {

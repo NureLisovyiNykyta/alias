@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.1] - 2026-06-02
+
+### Fixed
+- **Guest Mode Id Handling**: Implemented fix in `TeamCard` and `WaitingRoom` files allowing unregistered user leave team and room. 
+
 ## [0.18.0] - 2026-06-02
 
 ### Added
@@ -105,11 +110,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Form Validation & UX**: Added real-time validation for lobby names and map selection, including a disabled state for the submission button until requirements are met.
 - **Dynamic Map Preview**: Integrated a live preview feature in the lobby creator that updates the map image and title based on the dropdown selection.
 - **Success Workflow**: Implemented automated notifications upon room creation with a timed redirect to the lobby interface.
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.13.0] - 2026-05-09
 

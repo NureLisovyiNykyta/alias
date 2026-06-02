@@ -30,18 +30,20 @@ const TeamCard = ({ team, roomCode, isHost, onDeleteTeam, isDeletingTeam, roomPl
     }
   });
 
+  const guestId = localStorage.getItem("guest_id");
+
   const handleJoin = () => {
-    const guestId = localStorage.getItem("guest_id");
     joinTeam({ roomCode, teamId: team.team_id, guestId });
   };
 
   const handleLeave = () => {
-    const guestId = localStorage.getItem("guest_id");
-    leaveTeam({ roomCode, teamId: team.team_id, playerId: guestId });
+    const playerId = currentUser?.id || guestId;
+    leaveTeam({ roomCode, teamId: team.team_id, playerId });
   };
 
   const players = team.player_ids?.map(id => roomPlayers[id]).filter(Boolean) || [];
-  const isUserInTeam = players.some(p => p.user_id === currentUser?.id);
+
+  const isUserInTeam = players.some(p => p.user_id === currentUser?.id || p.user_id === guestId);
 
   return (
     <motion.li
