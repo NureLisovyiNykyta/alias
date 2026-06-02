@@ -1,18 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useJoinRoomMutation } from "@/api/lobby.js";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
+import GuestJoinModal from "@/components/modals/GuestJoinModal.jsx";
 
 const JoinRoom = () => {
   const { code: roomCode } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { showNotification } = useNotification();
-
   const { setRoom } = useLobby();
+
+  const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
 
   const { mutate: joinRoom, isPending } = useJoinRoomMutation({
     onSuccess: () => {
@@ -33,15 +35,7 @@ const JoinRoom = () => {
     if (isAuthLoading) return;
 
     if (!isAuthenticated || !user) {
-      // TODO: In the future there will be logic for guest login here.
-      showNotification({
-        title: "Authorization required",
-        message: "Sign in to your account to join the game.",
-        isSuccess: false,
-      });
-      setTimeout(() => {
-        navigate('/auth/sign-in', { state: { from: `/lobby/${roomCode}/join` } });
-      }, 1500)
+      setIsGuestModalOpen(true);
       return;
     }
 
@@ -52,13 +46,21 @@ const JoinRoom = () => {
       guest_id: user.id
     });
 
-  }, [isAuthLoading, isAuthenticated, user, roomCode, joinRoom, navigate, showNotification]);
+  }, [isAuthLoading, isAuthenticated, user, roomCode, joinRoom]);
 
   return (
-    <div className="flex flex-col w-full h-screen justify-center items-center gap-4">
-      <Spinner size="lg" />
-      <p className="text-h2 font-noto">Connecting to lobby...</p>
-    </div>
+    <>
+      <div className="flex flex-col w-full h-screen justify-center items-center gap-4">
+        <Spinner size="lg" />
+        <p className="text-h2 font-noto">Connecting to lobby...</p>
+      </div>
+
+      <GuestJoinModal
+        isOpen={isGuestModalOpen}
+        onClose={() => navigate("/")}
+        roomCode={roomCode}
+      />
+    </>
   );
 };
 

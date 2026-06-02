@@ -21,7 +21,7 @@ import { useLobby } from "@/contexts/LobbyContext.jsx";
 const WaitingRoom = () => {
   const { code: roomCode } = useParams();
 
-  const { activeRoom, setRoom, roomData, isRoomClosed } = useLobby();
+  const { setRoom, roomData, isRoomClosed } = useLobby();
   const { user } = useAuth();
 
   const { showNotification, closeNotification } = useNotification();
@@ -154,7 +154,7 @@ const WaitingRoom = () => {
     <main className="grid grid-cols-[952px_1fr] w-full gap-16">
       <div className='flex flex-col w-[952px] gap-16'>
         <div className="flex flex-col w-full gap-4">
-          <h1 className="text-h1">Game <b>{roomData.room_code || roomCode}</b> lobby — Waiting for players</h1>
+          <h1 className="text-h1">Game <b>{roomData.name}</b> lobby — Waiting for players</h1>
           <span className="text-label text-text-label font-noto">
             Need at least {roomData.settings?.min_teams || 2} teams to start.
           </span>

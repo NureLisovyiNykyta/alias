@@ -70,3 +70,14 @@ export const useDeleteAvatarMutation = (options) => {
     ...options,
   });
 };
+
+export const useDefaultAvatarsQuery = () => {
+  return useQuery({
+    queryKey: ['defaultAvatars'],
+    queryFn: async () => {
+      const response = await api.get('/users/avatars/defaults');
+      return response.data;
+    },
+    staleTime: Infinity,
+  });
+};

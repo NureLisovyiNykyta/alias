@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-06-02
+
+### Added
+- **Guest Access**: Implemented the ability for unauthenticated users to join game lobbies as guests without requiring an account.
+- **Guest Join Flow**: Added the `GuestJoinModal` component, prompting unauthenticated users to enter a temporary nickname and select a profile picture from a fetched list of default avatars.
+- **Guest Session Management**: Integrated local generation and storage of a unique `guest_id` to reliably maintain the guest's identity and WebSocket connection across page reloads.
+- **Dynamic Connection Routing**: Updated both `CodeInput.jsx` and `JoinRoom.jsx` to seamlessly intercept unauthenticated join attempts and route them through the new guest modal flow instead of redirecting to the login page.
+
 ## [0.17.1] - 2026-06-01
 
 ### Fixed
