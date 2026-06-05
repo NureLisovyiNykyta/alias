@@ -62,6 +62,7 @@ def build_room(host_id: uuid.UUID, room_code: str = ROOM_CODE) -> RoomStateJSON:
             name="Test Theme",
             scene_url="",
             piece_model_url="",
+            background_url="",
             color_textures={},
         ),
         teams={},
@@ -214,6 +215,7 @@ async def game_theme(test_db: AsyncSession) -> MapTheme:
         scene_url_medium="https://cdn.test/themes/beach/scene_medium.glb",
         scene_url_large="https://cdn.test/themes/beach/scene_large.glb",
         piece_model_url="https://cdn.test/themes/beach/piece.glb",
+        background_url="https://cdn.test/themes/beach/background.webp",
         color_textures={
             "GREEN": "https://cdn.test/themes/beach/colors/green.webp",
             "BLUE": "https://cdn.test/themes/beach/colors/blue.webp",

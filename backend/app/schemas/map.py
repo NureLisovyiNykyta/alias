@@ -30,6 +30,7 @@ class MapThemeRead(BaseModel):
     scene_url_medium: str | None
     scene_url_large: str | None
     piece_model_url: str | None
+    background_url: str | None
     color_textures: dict[str, str] | None
 
 

@@ -32,6 +32,7 @@ class MapTheme(Base):
     scene_url_medium: Mapped[str | None] = mapped_column(String, nullable=True)
     scene_url_large: Mapped[str | None] = mapped_column(String, nullable=True)
     piece_model_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    background_url: Mapped[str | None] = mapped_column(String, nullable=True)
     color_textures: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
 
