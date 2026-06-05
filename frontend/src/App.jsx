@@ -69,10 +69,12 @@ function App() {
           </Route>
         </Route>
 
+
+        <Route path='/theme' element={<ThemeViewerPage/>}/>
+
         <Route path='/lobby/:code' element={<LobbyLayout/>}>
           <Route path='join' element={<JoinRoom/>}/>
           <Route path='waiting' element={<WaitingRoom/>}/>
-          <Route path='theme' element={<ThemeViewerPage/>}/>
         </Route>
 
         <Route path='/auth' element={<ProtectedRoute isAllowed={canAccessAuth} redirectTo="/"/>}>

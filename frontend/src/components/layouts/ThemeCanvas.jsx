@@ -1,6 +1,7 @@
 import React, { Suspense, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, useTexture } from '@react-three/drei';
+import { MapControls, useGLTF, useTexture } from '@react-three/drei';
+import * as THREE from 'three';
 
 const Board = ({ url }) => {
   const { scene } = useGLTF(url);
@@ -30,8 +31,8 @@ const Piece = ({ modelUrl, textureUrl }) => {
 
 export default function ThemeCanvas({ mapUrl, pieceUrl, colorTextureUrl }) {
   return (
-    <div className="absolute inset-0 bg-slate-200 overflow-hidden rounded-xl border border-slate-800">
-      <Canvas camera={{ position: [5, 5, 8], fov: 45 }}>
+    <div className="absolute inset-0 bg-yellow-100 overflow-hidden">
+      <Canvas camera={{ position: [0, 15, 15], fov: 45 }}>
         <ambientLight intensity={0.7} />
         <directionalLight position={[10, 15, 10]} intensity={1.2} castShadow />
         <pointLight position={[-10, -10, -10]} intensity={0.4} />
@@ -41,11 +42,21 @@ export default function ThemeCanvas({ mapUrl, pieceUrl, colorTextureUrl }) {
           <Piece modelUrl={pieceUrl} textureUrl={colorTextureUrl} />
         </Suspense>
 
-        <OrbitControls
-          enableDamping
-          dampingFactor={0.05}
+        <MapControls
+          enableDamping={true}
+          dampingFactor={0.03}
+          zoomSpeed={1}
           minDistance={3}
-          maxDistance={15}
+          maxDistance={45}
+          maxPolarAngle={Math.PI / 2.1}
+          minPolarAngle={0}
+          target={[15, 0, 5]}
+
+          mouseButtons={{
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.PAN,
+          }}
         />
       </Canvas>
     </div>
