@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.development
 .env.production
+
+scene.json
+frontend/public/citrus_2k.hdr

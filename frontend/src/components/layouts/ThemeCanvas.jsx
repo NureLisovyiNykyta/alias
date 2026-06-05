@@ -38,42 +38,32 @@ const Piece = ({ modelUrl, textureUrl, position }) => {
     const targetY = position[1];
     const targetZ = position[2];
 
-    // Вычисляем оставшуюся дистанцию до цели по плоской земле (X и Z)
     const dx = targetX - currentX;
     const dz = targetZ - currentZ;
     const distToTarget = Math.sqrt(dx * dx + dz * dz);
 
-    // Если цель далеко (больше 0.1), значит мы начали новый прыжок
     if (distToTarget > 0.1 && jumpStartDist.current === 0) {
       jumpStartDist.current = distToTarget;
     }
 
-    // Если долетели — сбрасываем состояние прыжка
     if (distToTarget <= 0.1) {
       jumpStartDist.current = 0;
     }
 
-    // 1. Двигаем фишку по X и Z
     groupRef.current.position.x = THREE.MathUtils.lerp(currentX, targetX, 0.08);
     groupRef.current.position.z = THREE.MathUtils.lerp(currentZ, targetZ, 0.08);
 
-    // 2. Управляем высотой (Y)
     if (jumpStartDist.current > 0) {
-      // Вычисляем прогресс прыжка (от 0 до 1)
       let progress = 1 - (distToTarget / jumpStartDist.current);
       progress = THREE.MathUtils.clamp(progress, 0, 1);
-
-      // Формула дуги (синусоида). Множитель 2.5 - это максимальная высота прыжка.
       const jumpHeight = Math.sin(progress * Math.PI) * 2.5;
       groupRef.current.position.y = targetY + jumpHeight;
     } else {
-      // Обычное падение при спавне фишки
       groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 0.1);
     }
   });
 
   return (
-    // При спавне забрасываем фишку на +5 по Y, чтобы она упала
     <group ref={groupRef} position={[position[0], position[1] + 5, position[2]]}>
       <primitive object={clonedPiece} scale={1.5} />
     </group>

@@ -2,13 +2,40 @@ import React, { useState } from 'react';
 import { useMapThemesQuery } from '@/api/maps';
 import ThemeCanvas from "@/components/layouts/ThemeCanvas.jsx";
 
-// Увеличиваем смещение до 0.5 во все стороны от центра
-const PATH_STEPS = [
-  [0.75, 0, 0.68],  // Камень 1 (Старт)
-  [3.75, 0, 0.68],  // Камень 2
-  [6.75, 0, 0.68],  // Камень 3
-  [9.75, 0, 0.68],  // Камень 4
+const generatePath = (startPos, stepSize, directions) => {
+  let currentPos = [...startPos];
+  const path = [[...currentPos]];
+
+  directions.forEach(dir => {
+    let nextPos = [...currentPos];
+    switch (dir) {
+      case 'R': nextPos[0] += stepSize; break;
+      case 'L': nextPos[0] -= stepSize; break;
+      case 'U': nextPos[2] -= stepSize; break;
+      case 'D': nextPos[2] += stepSize; break;
+      default: break;
+    }
+    path.push(nextPos);
+    currentPos = [...nextPos];
+  });
+
+  return path;
+};
+
+const START_POS = [0.75, 0, 0.68];
+const STEP_SIZE = 3.0;
+const MAP_DIRECTIONS = [
+  'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R',
+  'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D',
+  'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L',
+  'U', 'U', 'U', 'U', 'U', 'U',
+  'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R',
+  'D', 'D', 'D', 'D',
+  'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L',
+  'U', 'U',
+  'R', 'R', 'R', 'R', 'R',
 ];
+const PATH_STEPS = generatePath(START_POS, STEP_SIZE, MAP_DIRECTIONS);
 
 const SPOT_OFFSETS = [
   [-0.5, 0, -0.5],
@@ -17,7 +44,6 @@ const SPOT_OFFSETS = [
   [ 0.5, 0,  0.5],
 ];
 
-// Дефолтная последовательность цветов для новых игроков
 const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
 export default function ThemeViewerPage() {
@@ -26,21 +52,18 @@ export default function ThemeViewerPage() {
   const [selectedThemeIndex, setSelectedThemeIndex] = useState(0);
   const [quality, setQuality] = useState('scene_url_large');
 
-  // Храним массив активных команд. По умолчанию на старте 1 игрок.
   const [activeTeams, setActiveTeams] = useState([
     { id: 'team-1', colorName: TEAM_COLORS[0], spotIndex: 0 }
   ]);
 
   const [currentStep, setCurrentStep] = useState(0);
 
-  // НОВОЕ: Функция для перемещения вперед
   const moveNext = () => {
     if (currentStep < PATH_STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
     }
   };
 
-  // Фуллскрин лоадеры
   if (isLoading) {
     return (
       <div className="flex items-center justify-center w-screen h-screen bg-slate-950 text-slate-400">
@@ -64,7 +87,6 @@ export default function ThemeViewerPage() {
     brown: '#78350f', green: '#22c55e', purple: '#a855f7', yellow: '#eab308',
   };
 
-  // Функция добавления новой фишки
   const addTeam = () => {
     if (activeTeams.length >= 4) return;
 
@@ -81,7 +103,6 @@ export default function ThemeViewerPage() {
 
   const piecesData = activeTeams.map((team) => {
     const offset = SPOT_OFFSETS[team.spotIndex];
-    // Берем базовую позицию из массива маршрута
     const basePos = PATH_STEPS[currentStep];
     return {
       id: team.id,
@@ -96,15 +117,12 @@ export default function ThemeViewerPage() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
-
-      {/* UI Overlay Panel */}
       <div className="absolute top-4 left-4 z-10 w-full max-w-xs bg-slate-900/90 backdrop-blur-md p-5 rounded-xl border border-slate-800 shadow-2xl text-slate-200">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-white tracking-wide">Theme Preview</h3>
           <p className="text-xs text-slate-400 mt-0.5">Live API Data</p>
         </div>
 
-        {/* Theme Selector */}
         <div className="mb-4">
           <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
             Select Theme
@@ -120,7 +138,6 @@ export default function ThemeViewerPage() {
           </select>
         </div>
 
-        {/* Quality Selector */}
         <div className="mb-6">
           <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
             Visual Quality
@@ -138,13 +155,11 @@ export default function ThemeViewerPage() {
 
         <hr className="border-slate-700 mb-6" />
 
-        {/* Секция лобби команд */}
         <div className="mb-2">
           <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
             Active Teams ({activeTeams.length}/4)
           </label>
 
-          {/* Список добавленных игроков */}
           <div className="flex flex-col gap-2 mb-4">
             {activeTeams.map((team, idx) => (
               <div key={team.id} className="flex items-center gap-3 bg-slate-800 p-2.5 rounded-lg border border-slate-700">
@@ -161,14 +176,14 @@ export default function ThemeViewerPage() {
             <button
               onClick={addTeam}
               disabled={activeTeams.length >= 4}
-              className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
+              className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:border disabled:border-slate-700 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
             >
               + Add
             </button>
             <button
               onClick={moveNext}
               disabled={currentStep >= PATH_STEPS.length - 1 || activeTeams.length === 0}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:border disabled:border-slate-700 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
             >
               Move Next
             </button>
@@ -176,7 +191,6 @@ export default function ThemeViewerPage() {
         </div>
       </div>
 
-      {/* 3D Scene */}
       {activeTheme && activeTheme[quality] && (
         <ThemeCanvas
           mapUrl={activeTheme[quality]}
