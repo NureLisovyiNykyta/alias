@@ -69,7 +69,7 @@ const Navigation = () => {
               to="/new/card-pack"
               className="flex items-center gap-1 text-sm text-text-label hover:text-gray-600 transition-colors"
             >
-              <img src={grayPlus} alt="" className="w-4 h-4"/> Create new
+              <img src={grayPlus} alt="" className="w-4 h-4 scale-80"/> Create new
             </Link>
           </div>
 
@@ -119,7 +119,7 @@ const Navigation = () => {
               to="/new/map"
               className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <img src={grayPlus} alt="" className="w-4 h-4"/> Create new
+              <img src={grayPlus} alt="" className="w-4 h-4 scale-80"/> Create new
             </Link>
           </div>
 

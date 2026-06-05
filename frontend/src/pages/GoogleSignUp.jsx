@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AuthLayout from "@/components/layouts/AuthLayout.jsx";
 import UsernameStep from "@/components/auth/UsernameStep.jsx";
 import GooglePasswordStep from "@/components/auth/GooglePasswordStep.jsx";
+import AvatarStep from "@/components/auth/AvatarStep.jsx";
 
 const GoogleSignUp = () => {
   const navigate = useNavigate();
@@ -27,26 +28,19 @@ const GoogleSignUp = () => {
     { id: 2, label: "Google Sign Up" },
   ];
 
-  const titles = {
-    1: "Choose a username",
-    2: "Create a password",
-  };
-
+  const titles = { 1: "Choose a username", 2: "Create a password", 3: "Personalize your profile" };
   const subtitles = {
     1: "Your unique identity on the platform. You can always change this later.",
     2: "Make sure it's strong and secure to keep your account safe.",
+    3: "Add a nickname and an avatar so others can recognize you. You can skip this for now.",
   };
 
   const handleStepSuccess = (stepData) => {
-    if (stepData) {
-      setFormData((prev) => ({ ...prev, ...stepData }));
-    }
+    if (stepData) setFormData((prev) => ({ ...prev, ...stepData }));
     setCurrentStep((prev) => prev + 1);
   };
 
-  const handleBack = () => {
-    setCurrentStep((prev) => prev - 1);
-  };
+  const handleBack = () => setCurrentStep((prev) => prev - 1);
 
   if (!googleToken) return null;
 
@@ -71,10 +65,18 @@ const GoogleSignUp = () => {
           googleToken={googleToken}
           username={formData.username}
           onSuccess={handleStepSuccess}
-          onBack={handleBack}
         />
       )}
 
+      {currentStep === 3 && (
+        <AvatarStep
+          onSuccess={() => {
+            sessionStorage.removeItem('temp_google_token');
+            navigate('/');
+          }}
+          onBack={handleBack}
+        />
+      )}
     </AuthLayout>
   );
 };

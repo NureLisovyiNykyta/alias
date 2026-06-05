@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 
 // API Calls ------------------
@@ -63,6 +63,22 @@ export const publishPack = async (packId) => {
   return response.data;
 };
 
+export const uploadPackCover = async ({ packId, file }) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post(`/card-packs/${packId}/cover`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export const deletePackCover = async (packId) => {
+  const response = await api.delete(`/card-packs/${packId}/cover`);
+  return response.data;
+};
+
 // Query Hooks ------------------
 
 export const usePublicPacksQuery = (params, options) => {
@@ -106,8 +122,17 @@ export const useSavePackMutation = (options) => {
 };
 
 export const useCreatePackMutation = (options) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (packData) => createPack(packData),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ['myPacks'] });
+
+      if (options?.onSuccess) {
+        options.onSuccess(data, variables, context);
+      }
+    },
     ...options,
   });
 };
@@ -162,6 +187,20 @@ export const useActivatePackMutation = (options) => {
 export const usePublishPackMutation = (options) => {
   return useMutation({
     mutationFn: (packId) => publishPack(packId),
+    ...options,
+  });
+};
+
+export const useUploadPackCoverMutation = (options) => {
+  return useMutation({
+    mutationFn: ({ packId, file }) => uploadPackCover({ packId, file }),
+    ...options,
+  });
+};
+
+export const useDeletePackCoverMutation = (options) => {
+  return useMutation({
+    mutationFn: (packId) => deletePackCover(packId),
     ...options,
   });
 };

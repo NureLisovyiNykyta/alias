@@ -5,6 +5,112 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.1] - 2026-06-02
+
+### Fixed
+- **Guest Mode Id Handling**: Implemented fix in `TeamCard` and `WaitingRoom` files allowing unregistered user leave team and room. 
+
+## [0.18.0] - 2026-06-02
+
+### Added
+- **Guest Access**: Implemented the ability for unauthenticated users to join game lobbies as guests without requiring an account.
+- **Guest Join Flow**: Added the `GuestJoinModal` component, prompting unauthenticated users to enter a temporary nickname and select a profile picture from a fetched list of default avatars.
+- **Guest Session Management**: Integrated local generation and storage of a unique `guest_id` to reliably maintain the guest's identity and WebSocket connection across page reloads.
+- **Dynamic Connection Routing**: Updated both `CodeInput.jsx` and `JoinRoom.jsx` to seamlessly intercept unauthenticated join attempts and route them through the new guest modal flow instead of redirecting to the login page.
+
+## [0.17.1] - 2026-06-01
+
+### Fixed
+- **WebSocket State Synchronization**: Corrected the mapping of `player_connected` and `player_joined` socket events to use `user_id`, ensuring accurate real-time updates for the host when clients reconnect or refresh the page.
+- **Lobby Race Conditions**: Removed conflicting `useEffect` hooks in the lobby state management that caused infinite redirection loops and "zombie" widgets when returning to the main page after a room closure.
+- **Stale Session Cleanup**: Implemented automatic `localStorage` clearing for `activeRoom` and `guest_id` upon user logout, and ensured global socket states reset when joining a new room to prevent connection bugs.
+
+## [0.17.0] - 2026-05-30
+
+### Added
+- **Lobby Joining Mechanics**: Implemented the ability for users to join game lobbies via direct invite links or explicit game codes.
+- **Connection Processing**: Added a new `JoinRoom` intermediate page to handle REST API connections (`/api/rooms/join`) and validate user authentication prior to establishing the WebSocket connection.
+- **Clipboard Integration**: Added intuitive UI buttons in the waiting room for hosts to easily copy the lobby code or the direct join link.
+
+### Changed
+- **WebSocket Architecture Redesign**: Migrated the core `useGameSocket` hook to utilize the `react-use-websocket` library. This provides a highly stable connection with automatic exponential backoff reconnections and reliable heartbeat pinging.
+- **Synchronized Lobby Redirection**: Updated socket event handling to globally track the `room_closed` event. All connected players are now seamlessly and simultaneously redirected to the main page when the host stops the game.
+
+## [0.16.0] - 2026-05-27
+
+### Added
+- **Team Management**: Added the ability to dynamically create and remove teams within the pre-game lobby interface, complete with smooth `framer-motion` UI transitions.
+- **Real-time WebSocket Integration**: Established active WebSocket connections via the new `useGameSocket` hook to enable live, bi-directional communication with the game server.
+- **Live Data Synchronization**: The waiting room now instantly receives and reflects real-time room information and player actions (e.g., team creation, deletion, state updates) directly from the server socket events.
+
+## [0.15.4] - 2025-05-27
+
+### Added
+- **Lobby Creation Logic**: Added `Theme` option to choose. 
+
+## [0.15.3] - 2026-05-27
+
+### Changed
+- **Map Creation Logic**: Refactored the map creation process by removing the `map template` parameter and replacing it with `map size`, which is now dynamically fetched from the API.
+- **Form Validation**: Implemented mandatory field validation for map size to ensure data integrity during creation.
+
+### Added
+- **Navigation Enhancements**: Integrated preview links into the breadcrumb navigation on map editing pages, allowing quick access to the live map view directly from the editor.
+
+## [0.15.2] - 2026-05-19
+
+### Added
+- **Map Cover Management**: Integrated `POST` (upload) and `DELETE` (remove) API endpoints and corresponding `react-query` mutations (`useUploadMapCoverMutation`, `useDeleteMapCoverMutation`) in `api/maps.js` to handle map cover images.
+
+### Changed
+- **Map Creator & Editor Enhancements**: Updated `MapCreator.jsx` and `MapEditor.jsx` to support uploading, editing, and deleting map cover images with a strict 3:2 aspect ratio using the reusable `ImageCropperModal`.
+- **Map Data Synchronization**: Implemented automatic `queryClient` cache invalidation for map queries (`myMaps`, `publicMaps`) upon successful map creation and cover modifications to instantly reflect changes across the application.
+
+## [0.15.1] - 2026-05-16
+
+### Added
+- **Registration Personalization Step**: Created the `AvatarStep.jsx` onboarding component, allowing users to select a display nickname and configure a 1:1 profile picture directly during the registration process.
+- **Onboarding Flow Integration**: Embedded the profile personalization phase as the final step in both the standard `SignUp.jsx` wizard and the `GoogleSignUp.jsx` external provider flow, featuring dynamic finish/skip action mapping.
+
+### Changed
+- **Authentication Route Guard Enhancement**: Optimized the `canAccessAuth` condition within `App.jsx` to respect the lifecycle of `temp_google_token` in session storage. This prevents pre-verified external accounts from being prematurely redirected to the root (`/`) path by the global router before completing their profile customization.
+
+## [0.15.0] - 2026-05-15
+
+### Added
+- **Profile Avatar Management**: Integrated `POST` (upload) and `DELETE` (remove) endpoints for user profile pictures in `MyProfile.jsx`.
+- **Image Cropping Interface**: Implemented a dedicated cropping modal using `react-easy-crop` to ensure all uploaded avatars strictly adhere to a 1:1 aspect ratio before submission.
+- **Avatar Processing Utility**: Created `cropUtils.js` utilizing the HTML5 Canvas API to transform UI crop coordinates into high-quality image blobs.
+- **Avatar API Hooks**: Expanded `api/user.js` with `useUploadAvatarMutation` and `useDeleteAvatarMutation` to handle multipart/form-data uploads and avatar removal.
+- **Reusable Cropping Modal**: Developed `ImageCropperModal.jsx` driven by `@headlessui/react` transitions with a custom background architecture that safely circumvents native scrollbar locking and layout shifts.
+- **Card Pack Cover API Hooks**: Extended `api/card-packs.js` with `useUploadPackCoverMutation` and `useDeletePackCoverMutation` to handle multipart file multi-step uploads and explicit cover deletion.
+
+### Changed
+- **Profile Layout Refactoring**: Redesigned the avatar section to move action buttons below the image, ensuring the 250x250px profile picture remains fully visible without UI overlays.
+- **Enhanced Loading UX**: Integrated `Spinner` components directly into the avatar container to provide clear visual feedback during asynchronous upload and deletion states.
+- **Automatic Data Synchronization**: Added `queryClient` invalidation logic to automatically refresh user metadata across the application immediately after an avatar update.
+- **Card Pack Creation Flow**: Upgraded `CardPackCreator.jsx` to intercept image selection, passing it to the `ImageCropperModal` with a 3:2 aspect ratio constraint. Implemented a sequential two-stage request pipeline that registers the pack draft first and then binds the media object using the newly provisioned entity ID.
+- **Card Pack Editor Enhancements**: Updated `CardPackEditor.jsx` to trigger instant 3:2 aspect ratio cover updates, automatic query cache invalidation, and introduced a contextual "Delete cover" control accompanied by active mutation loading toggles.
+
+## [0.14.1] - 2026-05-09
+
+### Added
+- **Waiting Room Page**: Developed `WaitingRoom.jsx` for the pre-game lobby interface, featuring team selection and player management.
+- **Lobby Layout**: Implemented `LobbyLayout.jsx` to provide a consistent header and footer structure for game-specific pages.
+- **Routing**: Integrated the new Waiting Room into `App.jsx` under the `/lobby/:id/waiting` path.
+- **Team Selection UI**: Created a 4-team grid layout with player slots, status indicators, and join/remove functionality.
+- **Invitation Sidebar**: Added a dedicated sidebar for game codes and invite links with "click-to-copy" buttons.
+- **Host Controls**: Integrated conditional rendering for "Start Game" and "Stop Game" actions based on host status.
+
+## [0.14.0] - 2026-05-09
+
+### Added
+- **Lobby Creation Page**: Implemented `LobbyCreator.jsx` with full form validation using `react-hook-form` and `zod`.
+- **Lobby API Integration**: Created `api/lobby.js` with `useCreateRoomMutation` for room initialization and `usePublicMapsQuery` for dynamic map selection.
+- **Form Validation & UX**: Added real-time validation for lobby names and map selection, including a disabled state for the submission button until requirements are met.
+- **Dynamic Map Preview**: Integrated a live preview feature in the lobby creator that updates the map image and title based on the dropdown selection.
+- **Success Workflow**: Implemented automated notifications upon room creation with a timed redirect to the lobby interface.
+
 ## [0.13.0] - 2026-05-09
 
 ### Added

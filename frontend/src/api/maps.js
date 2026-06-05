@@ -1,12 +1,12 @@
 import { api } from "./axios";
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPackCards } from "@/api/card-packs.js";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 
 // --- API Calls ---
 
-export const getMapTemplates = async () => {
-  const response = await api.get('/maps/templates');
+export const getMapThemes = async () => {
+  const response = await api.get('/maps/themes');
   return response.data;
 };
 
@@ -65,19 +65,44 @@ export const saveMap = async (mapId) => {
   return response.data;
 };
 
+export const uploadMapCover = async ({ mapId, file }) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post(`/maps/${mapId}/cover`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export const deleteMapCover = async (mapId) => {
+  const response = await api.delete(`/maps/${mapId}/cover`);
+  return response.data;
+};
+
 // --- Query Hooks ---
 
-export const useMapTemplatesQuery = (options) => {
+export const useMapThemesQuery = (options) => {
   return useQuery({
-    queryKey: ['mapTemplates'],
-    queryFn: getMapTemplates,
+    queryKey: ['mapThemes'],
+    queryFn: getMapThemes,
     ...options,
   });
 };
 
 export const useCreateMapMutation = (options) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (mapData) => createMap(mapData),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ['myMaps'] });
+
+      if (options?.onSuccess) {
+        options.onSuccess(data, variables, context);
+      }
+    },
     ...options,
   });
 };
@@ -149,5 +174,29 @@ export const useSaveMapMutation = (options) => {
       });
     },
     ...options,
+  });
+};
+
+export const useUploadMapCoverMutation = (options) => {
+  return useMutation({
+    mutationFn: ({ mapId, file }) => uploadMapCover({ mapId, file }),
+    ...options,
+  });
+};
+
+export const useDeleteMapCoverMutation = (options) => {
+  return useMutation({
+    mutationFn: (mapId) => deleteMapCover(mapId),
+    ...options,
+  });
+};
+
+export const useMapSizesQuery = () => {
+  return useQuery({
+    queryKey: ['map-sizes'],
+    queryFn: async () => {
+      const response = await api.get('/maps/sizes');
+      return response.data;
+    }
   });
 };

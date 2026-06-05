@@ -1,4 +1,4 @@
-import profile from '@/assets/profile.png';
+import profile from '@/assets/userProfile.svg';
 import gamepad from "@/assets/gamepad.svg";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import { formatPackDate } from "@/utils/parseTime.js";
@@ -32,13 +32,13 @@ const PublicProfile = () => {
 
       <div className='flex gap-8 w-full'>
         <div
-          style={{ backgroundImage: `url(${user?.imageUrl ? user.imageUrl : profile})` }}
+          style={{ backgroundImage: `url(${user?.avatar_url})` }}
           className='w-[310px] h-[310px] flex flex-col justify-end rounded-[16px] bg-cover bg-center'
         />
 
         <ul className='flex flex-col gap-[22px]'>
           <li className='flex flex-col gap-2'>
-            <span className='text-label text-text-label font-noto'>Playing on Alias.com since</span>
+            <span className='text-label text-text-label font-noto'>Playing Alias since</span>
             <p className='font-noto text-p'>{formatPackDate(user?.created_at)}</p>
           </li>
 

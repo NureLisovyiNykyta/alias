@@ -92,7 +92,7 @@ const InfoCards = () => {
 
       <ul className='flex flex-col gap-5 w-full'>
         {MAPS.map(map => (
-          <MapListCard map={map}/>
+          <MapListCard key={map.id} map={map}/>
         ))}
       </ul>
     </div>

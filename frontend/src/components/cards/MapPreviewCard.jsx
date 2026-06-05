@@ -1,5 +1,5 @@
 import star from '@/assets/star.svg';
-import pokemonGo from '@/assets/pokemonGo.png';
+import mapPreview from '@/assets/mapPreview.svg';
 import { formatPackDate } from "@/utils/parseTime.js";
 import { Link } from "react-router-dom";
 import React from "react";
@@ -7,11 +7,17 @@ import React from "react";
 const MapPreviewCard = ({ map }) => {
   return (
     <li className='flex items-center gap-5 py-6 rounded-[12px] w-full h-[320px]'>
-      <img
-        className='w-[420px] h-[270px] rounded-[12px] border border-text-label object-cover shrink-0'
-        src={pokemonGo}
-        alt='Map Image'
-      />
+      {map?.cover_url ?
+        <img
+          className='w-[420px] h-[270px] rounded-[12px] border border-text-label object-cover shrink-0'
+          src={map?.cover_url}
+          alt='Map Image'
+        /> :
+        <div className='w-[420px] h-[270px] rounded-[12px] border border-text-label shrink-0 flex flex-col items-center justify-center gap-2'>
+          <img src={mapPreview} alt="Map Template"/>
+          <span className='text-label text-text-label'>No Image Selected</span>
+        </div>
+      }
 
       <div className='flex flex-col gap-4'>
         <h2 className='text-h1'>{map?.name}</h2>
@@ -42,7 +48,7 @@ const MapPreviewCard = ({ map }) => {
 
           <div className='flex flex-col gap-2'>
             <span className='text-label text-text-label font-noto'>Field Limit</span>
-            <p className='font-noto text-p'>{map?.template?.max_fields_count}</p>
+            <p className='font-noto text-p'>{map?.max_fields_count}</p>
           </div>
 
           <div className='flex flex-col gap-2'>

@@ -1,17 +1,20 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthLayout from "@/components/layouts/AuthLayout.jsx";
 import EmailStep from "@/components/auth/EmailStep.jsx";
 import UsernameStep from "@/components/auth/UsernameStep.jsx";
 import PasswordStep from "@/components/auth/PasswordStep.jsx";
 import VerificationStep from "@/components/auth/VerificationStep.jsx";
+import AvatarStep from "@/components/auth/AvatarStep.jsx";
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     username: "",
   });
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const breadcrumbs = [
     { id: 1, path: "/", label: "Main menu" },
@@ -23,6 +26,7 @@ const SignUp = () => {
     2: "Choose a username",
     3: "Create a password",
     4: "Verify your email",
+    5: "Personalize your profile",
   };
 
   const subtitles = {
@@ -30,6 +34,7 @@ const SignUp = () => {
     2: "Your unique identity on the platform. You can always change this later.",
     3: "Make sure it's strong and secure to keep your account safe.",
     4: "We've sent a 6-digit code to your inbox. Enter it below to continue.",
+    5: "Add a nickname and an avatar so others can recognize you. You can skip this for now.",
   };
 
   const handleStepSuccess = (stepData) => {
@@ -77,6 +82,13 @@ const SignUp = () => {
       {currentStep === 4 && (
         <VerificationStep
           onSuccess={handleStepSuccess}
+          onBack={handleBack}
+        />
+      )}
+
+      {currentStep === 5 && (
+        <AvatarStep
+          onSuccess={() => navigate('/')}
           onBack={handleBack}
         />
       )}
