@@ -1,19 +1,49 @@
 import React, { useState } from 'react';
 import { useMapThemesQuery } from '@/api/maps';
-import Spinner from "@/components/layouts/Spinner.jsx";
 import ThemeCanvas from "@/components/layouts/ThemeCanvas.jsx";
+
+// Увеличиваем смещение до 0.5 во все стороны от центра
+const PATH_STEPS = [
+  [0.75, 0, 0.68],  // Камень 1 (Старт)
+  [3.75, 0, 0.68],  // Камень 2
+  [6.75, 0, 0.68],  // Камень 3
+  [9.75, 0, 0.68],  // Камень 4
+];
+
+const SPOT_OFFSETS = [
+  [-0.5, 0, -0.5],
+  [ 0.5, 0, -0.5],
+  [-0.5, 0,  0.5],
+  [ 0.5, 0,  0.5],
+];
+
+// Дефолтная последовательность цветов для новых игроков
+const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
 export default function ThemeViewerPage() {
   const { data: themes, isLoading, isError } = useMapThemesQuery();
 
   const [selectedThemeIndex, setSelectedThemeIndex] = useState(0);
   const [quality, setQuality] = useState('scene_url_large');
-  const [selectedColor, setSelectedColor] = useState('cyan');
 
+  // Храним массив активных команд. По умолчанию на старте 1 игрок.
+  const [activeTeams, setActiveTeams] = useState([
+    { id: 'team-1', colorName: TEAM_COLORS[0], spotIndex: 0 }
+  ]);
+
+  const [currentStep, setCurrentStep] = useState(0);
+
+  // НОВОЕ: Функция для перемещения вперед
+  const moveNext = () => {
+    if (currentStep < PATH_STEPS.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  // Фуллскрин лоадеры
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center gap-3 w-screen h-screen bg-slate-950 text-slate-400">
-        <Spinner/>
+      <div className="flex items-center justify-center w-screen h-screen bg-slate-950 text-slate-400">
         <span className="text-sm font-medium animate-pulse">Loading themes...</span>
       </div>
     );
@@ -34,14 +64,47 @@ export default function ThemeViewerPage() {
     brown: '#78350f', green: '#22c55e', purple: '#a855f7', yellow: '#eab308',
   };
 
+  // Функция добавления новой фишки
+  const addTeam = () => {
+    if (activeTeams.length >= 4) return;
+
+    const newTeamIndex = activeTeams.length;
+    setActiveTeams((prev) => [
+      ...prev,
+      {
+        id: `team-${newTeamIndex + 1}`,
+        colorName: TEAM_COLORS[newTeamIndex],
+        spotIndex: newTeamIndex
+      }
+    ]);
+  };
+
+  const piecesData = activeTeams.map((team) => {
+    const offset = SPOT_OFFSETS[team.spotIndex];
+    // Берем базовую позицию из массива маршрута
+    const basePos = PATH_STEPS[currentStep];
+    return {
+      id: team.id,
+      textureUrl: activeTheme.color_textures[team.colorName],
+      position: [
+        basePos[0] + offset[0],
+        basePos[1] + offset[1],
+        basePos[2] + offset[2],
+      ]
+    };
+  });
+
   return (
-    <main className="relative w-screen h-screen overflow-hidden">
+    <div className="relative w-screen h-screen overflow-hidden">
+
+      {/* UI Overlay Panel */}
       <div className="absolute top-4 left-4 z-10 w-full max-w-xs bg-slate-900/90 backdrop-blur-md p-5 rounded-xl border border-slate-800 shadow-2xl text-slate-200">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-white tracking-wide">Theme Preview</h3>
           <p className="text-xs text-slate-400 mt-0.5">Live API Data</p>
         </div>
 
+        {/* Theme Selector */}
         <div className="mb-4">
           <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
             Select Theme
@@ -57,7 +120,8 @@ export default function ThemeViewerPage() {
           </select>
         </div>
 
-        <div className="mb-4">
+        {/* Quality Selector */}
+        <div className="mb-6">
           <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
             Visual Quality
           </label>
@@ -72,35 +136,54 @@ export default function ThemeViewerPage() {
           </select>
         </div>
 
-        {activeTheme.color_textures && (
-          <div>
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-              Piece Color
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {Object.keys(activeTheme.color_textures).map((color) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  style={{ backgroundColor: colorMap[color] || color }}
-                  className={`w-8 h-8 rounded-full transition-transform hover:scale-110 active:scale-95 focus:outline-none ring-2 ring-offset-2 ring-offset-slate-900 ${
-                    selectedColor === color ? 'ring-indigo-500 scale-105' : 'ring-transparent'
-                  }`}
-                  title={color.charAt(0).toUpperCase() + color.slice(1)}
+        <hr className="border-slate-700 mb-6" />
+
+        {/* Секция лобби команд */}
+        <div className="mb-2">
+          <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
+            Active Teams ({activeTeams.length}/4)
+          </label>
+
+          {/* Список добавленных игроков */}
+          <div className="flex flex-col gap-2 mb-4">
+            {activeTeams.map((team, idx) => (
+              <div key={team.id} className="flex items-center gap-3 bg-slate-800 p-2.5 rounded-lg border border-slate-700">
+                <div
+                  className="w-4 h-4 rounded-full shadow-sm"
+                  style={{ backgroundColor: colorMap[team.colorName] || team.colorName }}
                 />
-              ))}
-            </div>
+                <span className="text-sm text-slate-200 font-medium">Player {idx + 1}</span>
+              </div>
+            ))}
           </div>
-        )}
+
+          <div className="flex gap-2">
+            <button
+              onClick={addTeam}
+              disabled={activeTeams.length >= 4}
+              className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
+            >
+              + Add
+            </button>
+            <button
+              onClick={moveNext}
+              disabled={currentStep >= PATH_STEPS.length - 1 || activeTeams.length === 0}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
+            >
+              Move Next
+            </button>
+          </div>
+        </div>
       </div>
 
+      {/* 3D Scene */}
       {activeTheme && activeTheme[quality] && (
         <ThemeCanvas
           mapUrl={activeTheme[quality]}
           pieceUrl={activeTheme.piece_model_url}
-          colorTextureUrl={activeTheme.color_textures[selectedColor]}
+          pieces={piecesData}
         />
       )}
-    </main>
+    </div>
   );
 }
