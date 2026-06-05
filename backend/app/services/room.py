@@ -238,7 +238,7 @@ class RoomService:
         }
 
         scene_url = size_to_url.get(size)
-        if not scene_url or not theme.piece_model_url or not theme.color_textures:
+        if not scene_url or not theme.piece_model_url or not theme.color_textures or not theme.background_url:
             raise BadRequestError(ErrorMessage.MAP_THEME_INCOMPLETE)
 
         return ThemeInfo(
@@ -247,6 +247,7 @@ class RoomService:
             name=theme.name,
             scene_url=scene_url,
             piece_model_url=theme.piece_model_url or "",
+            background_url=theme.background_url or "",
             color_textures=theme.color_textures or {},
         )
 

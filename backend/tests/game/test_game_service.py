@@ -93,7 +93,7 @@ def build_playing_room(
         ),
         theme_info=ThemeInfo(
             theme_id=uuid.uuid4(), code="test", name="Test",
-            scene_url="", piece_model_url="", color_textures={},
+            scene_url="", piece_model_url="", background_url="", color_textures={},
         ),
         teams=teams,
         players=players,

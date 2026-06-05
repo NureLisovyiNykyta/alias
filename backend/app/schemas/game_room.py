@@ -129,6 +129,7 @@ class ThemeInfo(BaseModel):
     name: str
     scene_url: str
     piece_model_url: str
+    background_url: str
     color_textures: dict[str, str]
 
 
