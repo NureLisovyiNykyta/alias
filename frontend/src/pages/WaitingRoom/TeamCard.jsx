@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/buttons/Button.jsx";
 import cross from '@/assets/cross.svg';
-import { TEAM_BG_MAP, TEAM_BG_MAP_DARK } from "./constants.js";
+import { TEAM_BG_MAP, TEAM_BG_MAP_DARK } from "@/constants/teamColors.js";
 import { useJoinTeamMutation, useKickPlayerMutation, useLeaveTeamMutation } from "@/api/lobby.js";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";

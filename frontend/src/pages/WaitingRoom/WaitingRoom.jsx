@@ -9,7 +9,7 @@ import {
   useLeaveRoomMutation
 } from "@/api/lobby.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
-import { TEAM_COLORS, TEAM_BG_MAP } from "./constants.js";
+import { TEAM_COLORS, TEAM_BG_MAP } from "@/constants/teamColors.js";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";

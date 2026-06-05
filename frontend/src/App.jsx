@@ -25,6 +25,7 @@ import LobbyLayout from "@/components/layouts/LobbyLayout.jsx";
 import WaitingRoom from "@/pages/WaitingRoom/WaitingRoom.jsx";
 import JoinRoom from "@/pages/JoinRoom.jsx";
 import ActiveLobbyWidget from "@/components/layouts/ActiveLobbyWidget.jsx";
+import ThemeViewerPage from "@/pages/ThemeViewerPage.jsx";
 
 function App() {
   const { isAuthenticated, user, isLoading } = useAuth();
@@ -71,6 +72,7 @@ function App() {
         <Route path='/lobby/:code' element={<LobbyLayout/>}>
           <Route path='join' element={<JoinRoom/>}/>
           <Route path='waiting' element={<WaitingRoom/>}/>
+          <Route path='theme' element={<ThemeViewerPage/>}/>
         </Route>
 
         <Route path='/auth' element={<ProtectedRoute isAllowed={canAccessAuth} redirectTo="/"/>}>
