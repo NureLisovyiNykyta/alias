@@ -1,24 +1,67 @@
-import React, { Suspense, useMemo, useRef } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { MapControls, useGLTF, useTexture } from '@react-three/drei';
+import { MapControls, useGLTF, useTexture, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
-const Board = ({ url }) => {
+const Board = ({ url, onAnchorsLoaded }) => {
   const { scene } = useGLTF(url);
+
+  useEffect(() => {
+    if (!scene) return;
+    scene.updateMatrixWorld(true);
+
+    const extractedAnchors = {};
+
+    scene.traverse((child) => {
+      const match = child.name.match(/^(\d+)_pos(\d+)$/);
+
+      if (match) {
+        const squareIdx = parseInt(match[1], 10);
+        const posNum = parseInt(match[2], 10);
+
+        const flatIndex = squareIdx * 4 + (posNum - 1);
+
+        const worldPos = new THREE.Vector3();
+        child.getWorldPosition(worldPos);
+
+        const posArray = [
+          parseFloat(worldPos.x.toFixed(3)),
+          parseFloat(worldPos.y.toFixed(3)),
+          parseFloat(worldPos.z.toFixed(3)),
+        ];
+
+        extractedAnchors[flatIndex] = posArray;
+      }
+    });
+
+    if (onAnchorsLoaded) {
+      onAnchorsLoaded(extractedAnchors);
+    }
+  }, [scene, onAnchorsLoaded]);
+
   const clonedScene = useMemo(() => scene.clone(), [scene]);
   return <primitive object={clonedScene} />;
 };
 
 const Piece = ({ modelUrl, textureUrl, position }) => {
   const { scene } = useGLTF(modelUrl);
-  const texture = useTexture(textureUrl);
+  const texture = useTexture(textureUrl || '/placeholder.png');
   texture.flipY = false;
 
   const groupRef = useRef();
   const jumpStartDist = useRef(0);
+  const safePosition = position || [0, 0, 0];
 
   const clonedPiece = useMemo(() => {
     const clone = scene.clone();
+
+    const box = new THREE.Box3().setFromObject(clone);
+    const center = box.getCenter(new THREE.Vector3());
+
+    clone.position.x = -center.x;
+    clone.position.z = -center.z;
+    clone.position.y = -box.min.y;
+
     clone.traverse((child) => {
       if (child.isMesh && child.material) {
         child.material = child.material.clone();
@@ -26,17 +69,18 @@ const Piece = ({ modelUrl, textureUrl, position }) => {
         child.material.needsUpdate = true;
       }
     });
+
     return clone;
   }, [scene, texture]);
 
   useFrame(() => {
-    if (!groupRef.current) return;
+    if (!groupRef.current || !position) return;
 
     const currentX = groupRef.current.position.x;
     const currentZ = groupRef.current.position.z;
-    const targetX = position[0];
-    const targetY = position[1];
-    const targetZ = position[2];
+    const targetX = safePosition[0];
+    const targetY = safePosition[1];
+    const targetZ = safePosition[2];
 
     const dx = targetX - currentX;
     const dz = targetZ - currentZ;
@@ -64,22 +108,23 @@ const Piece = ({ modelUrl, textureUrl, position }) => {
   });
 
   return (
-    <group ref={groupRef} position={[position[0], position[1] + 5, position[2]]}>
-      <primitive object={clonedPiece} scale={1.5} />
+    <group ref={groupRef} position={[safePosition[0], safePosition[1] + 5, safePosition[2]]} scale={1.5}>
+      <primitive object={clonedPiece} />
     </group>
   );
 };
 
-export default function ThemeCanvas({ mapUrl, pieceUrl, pieces }) {
+export default function ThemeCanvas({ mapUrl, pieceUrl, pieces, onAnchorsLoaded }) {
   return (
-    <div className="absolute inset-0 bg-yellow-100 overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden">
       <Canvas camera={{ position: [0, 15, 15], fov: 45 }}>
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[10, 15, 10]} intensity={1.2} castShadow />
+        <Environment files='/citrus_2k.hdr' background backgroundIntensity={0.6} environmentIntensity={0.45} />
+        <ambientLight />
+        <directionalLight position={[10, 15, 1000]} intensity={1.2} castShadow />
         <pointLight position={[-10, -10, -10]} intensity={0.4} />
 
         <Suspense fallback={null}>
-          <Board url={mapUrl} />
+          <Board url={mapUrl} onAnchorsLoaded={onAnchorsLoaded} />
         </Suspense>
 
         {pieces && pieces.map((piece) => (
@@ -101,7 +146,6 @@ export default function ThemeCanvas({ mapUrl, pieceUrl, pieces }) {
           maxPolarAngle={Math.PI / 2.1}
           minPolarAngle={0}
           target={[5, 0, 5]}
-
           mouseButtons={{
             RIGHT: THREE.MOUSE.ROTATE,
             MIDDLE: THREE.MOUSE.DOLLY,

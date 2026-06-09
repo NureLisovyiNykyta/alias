@@ -2,48 +2,6 @@ import React, { useState } from 'react';
 import { useMapThemesQuery } from '@/api/maps';
 import ThemeCanvas from "@/components/layouts/ThemeCanvas.jsx";
 
-const generatePath = (startPos, stepSize, directions) => {
-  let currentPos = [...startPos];
-  const path = [[...currentPos]];
-
-  directions.forEach(dir => {
-    let nextPos = [...currentPos];
-    switch (dir) {
-      case 'R': nextPos[0] += stepSize; break;
-      case 'L': nextPos[0] -= stepSize; break;
-      case 'U': nextPos[2] -= stepSize; break;
-      case 'D': nextPos[2] += stepSize; break;
-      default: break;
-    }
-    path.push(nextPos);
-    currentPos = [...nextPos];
-  });
-
-  return path;
-};
-
-const START_POS = [0.75, 0, 0.68];
-const STEP_SIZE = 3.0;
-const MAP_DIRECTIONS = [
-  'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R',
-  'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D',
-  'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L',
-  'U', 'U', 'U', 'U', 'U', 'U',
-  'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R',
-  'D', 'D', 'D', 'D',
-  'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L',
-  'U', 'U',
-  'R', 'R', 'R', 'R', 'R',
-];
-const PATH_STEPS = generatePath(START_POS, STEP_SIZE, MAP_DIRECTIONS);
-
-const SPOT_OFFSETS = [
-  [-0.5, 0, -0.5],
-  [ 0.5, 0, -0.5],
-  [-0.5, 0,  0.5],
-  [ 0.5, 0,  0.5],
-];
-
 const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
 export default function ThemeViewerPage() {
@@ -51,18 +9,11 @@ export default function ThemeViewerPage() {
 
   const [selectedThemeIndex, setSelectedThemeIndex] = useState(0);
   const [quality, setQuality] = useState('scene_url_large');
+  const [anchors, setAnchors] = useState({});
 
   const [activeTeams, setActiveTeams] = useState([
-    { id: 'team-1', colorName: TEAM_COLORS[0], spotIndex: 0 }
+    { id: 'team-1', colorName: TEAM_COLORS[0], spotIndex: 0, step: 0 }
   ]);
-
-  const [currentStep, setCurrentStep] = useState(0);
-
-  const moveNext = () => {
-    if (currentStep < PATH_STEPS.length - 1) {
-      setCurrentStep(prev => prev + 1);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -96,22 +47,39 @@ export default function ThemeViewerPage() {
       {
         id: `team-${newTeamIndex + 1}`,
         colorName: TEAM_COLORS[newTeamIndex],
-        spotIndex: newTeamIndex
+        spotIndex: newTeamIndex,
+        step: 0
       }
     ]);
   };
 
+  const changeTeamStep = (id, amount) => {
+    setActiveTeams((prev) =>
+      prev.map((team) => {
+        if (team.id === id) {
+          const nextStep = Math.max(0, Math.min(63, team.step + amount));
+          return { ...team, step: nextStep };
+        }
+        return team;
+      })
+    );
+  };
+
   const piecesData = activeTeams.map((team) => {
-    const offset = SPOT_OFFSETS[team.spotIndex];
-    const basePos = PATH_STEPS[currentStep];
+    let targetPos = [0, 0, 0];
+
+    const targetAnchorIndex = team.step * 4 + team.spotIndex;
+
+    if (anchors && anchors[targetAnchorIndex]) {
+      targetPos = anchors[targetAnchorIndex];
+    } else if (anchors && anchors[team.step * 4]) {
+      targetPos = anchors[team.step * 4];
+    }
+
     return {
       id: team.id,
       textureUrl: activeTheme.color_textures[team.colorName],
-      position: [
-        basePos[0] + offset[0],
-        basePos[1] + offset[1],
-        basePos[2] + offset[2],
-      ]
+      position: targetPos
     };
   });
 
@@ -129,7 +97,11 @@ export default function ThemeViewerPage() {
           </label>
           <select
             value={selectedThemeIndex}
-            onChange={(e) => setSelectedThemeIndex(Number(e.target.value))}
+            onChange={(e) => {
+              setSelectedThemeIndex(Number(e.target.value));
+              setAnchors({});
+              setActiveTeams([{ id: 'team-1', colorName: TEAM_COLORS[0], spotIndex: 0, step: 0 }]);
+            }}
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
           >
             {themes.map((theme, index) => (
@@ -162,32 +134,45 @@ export default function ThemeViewerPage() {
 
           <div className="flex flex-col gap-2 mb-4">
             {activeTeams.map((team, idx) => (
-              <div key={team.id} className="flex items-center gap-3 bg-slate-800 p-2.5 rounded-lg border border-slate-700">
-                <div
-                  className="w-4 h-4 rounded-full shadow-sm"
-                  style={{ backgroundColor: colorMap[team.colorName] || team.colorName }}
-                />
-                <span className="text-sm text-slate-200 font-medium">Player {idx + 1}</span>
+              <div key={team.id} className="flex items-center justify-between bg-slate-800 p-2.5 rounded-lg border border-slate-700">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-4 h-4 rounded-full shadow-sm"
+                    style={{ backgroundColor: colorMap[team.colorName] || team.colorName }}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm text-slate-200 font-medium">Player {idx + 1}</span>
+                    <span className="text-xs text-slate-400 font-mono">Square index: {team.step}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => changeTeamStep(team.id, -1)}
+                    disabled={team.step === 0}
+                    className="bg-slate-700 hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed text-white text-xs font-bold w-7 h-7 rounded flex items-center justify-center transition-colors"
+                  >
+                    -
+                  </button>
+                  <button
+                    onClick={() => changeTeamStep(team.id, 1)}
+                    disabled={team.step >= 63}
+                    className="bg-slate-700 hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed text-white text-xs font-bold w-7 h-7 rounded flex items-center justify-center transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={addTeam}
-              disabled={activeTeams.length >= 4}
-              className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:border disabled:border-slate-700 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
-            >
-              + Add
-            </button>
-            <button
-              onClick={moveNext}
-              disabled={currentStep >= PATH_STEPS.length - 1 || activeTeams.length === 0}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:border disabled:border-slate-700 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
-            >
-              Move Next
-            </button>
-          </div>
+          <button
+            onClick={addTeam}
+            disabled={activeTeams.length >= 4}
+            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:border disabled:border-slate-700 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
+          >
+            + Add New Player Piece
+          </button>
         </div>
       </div>
 
@@ -196,6 +181,7 @@ export default function ThemeViewerPage() {
           mapUrl={activeTheme[quality]}
           pieceUrl={activeTheme.piece_model_url}
           pieces={piecesData}
+          onAnchorsLoaded={setAnchors}
         />
       )}
     </div>

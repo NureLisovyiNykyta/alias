@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2026-06-09
+
+### Added
+- 3D Map Viewer page (`ThemeViewerPage`) for previewing game boards and themes.
+- Player piece management system with independent step controls (supports up to 4 pieces).
+- Dynamic parsing of embedded 3D anchors (pattern: `Index_posN`) from `.glb` models for precise piece positioning.
+- English UI for the 3D map viewer control panel.
+
+### Changed
+- Replaced hardcoded piece movement coordinates with a dynamic dictionary built from embedded `.glb` anchors.
+- Removed artificial scaling from player pieces to use the exact 1:1 scale from the 3D model.
+- Centered piece geometry programmatically based on its bounding box to fix Blender origin offset issues.
+
 ## [0.18.1] - 2026-06-02
 
 ### Fixed
