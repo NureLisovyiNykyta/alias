@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export default function NeutralSwitch({ options, activeId, onChange }) {
+export default function NeutralSwitch({ options, activeId, onChange, layoutId }) {
   return (
     <div className='-mx-4 border-b border-surface flex items-center px-4 gap-2'>
       {options.map(option => (
@@ -16,7 +16,7 @@ export default function NeutralSwitch({ options, activeId, onChange }) {
 
             {activeId === option.id && (
               <motion.div
-                layoutId="activeTabIndicator"
+                layoutId={layoutId}
                 className="absolute -bottom-[17px] left-0 right-0 h-[3px] bg-decorative-900 rounded-t-sm"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
