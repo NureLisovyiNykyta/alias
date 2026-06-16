@@ -1,24 +1,12 @@
 import { useState } from "react";
 import NeutralSwitch from "@/components/buttons/NeutralSwitch.jsx";
 import Chat from "@/components/layouts/Chat.jsx";
-import { useAuth } from "@/contexts/AuthContext.jsx";
-
-export const TeamList = () => {
-  const { user } = useAuth();
-
-  return (
-    <ul className='w-[246px] rounded-[12px] bg-white p-4 gap-[10px] shadow-buttons flex flex-col'>
-      {Array.from({length: 5}).map((_, i) => (
-        <li key={i} className='flex items-center p-2 border border-surface shadow-buttons w-full gap-4 rounded-[12px]'>
-          <img src={user?.avatar_url} alt={`User ${user?.nickname} Profile Picture`} className='rounded-full size-[30px] shadow-lobby-modal shrink-0'/>
-          <span className='text-label font-noto text-team-green-dark'>{user?.nickname}</span>
-        </li>
-      ))}
-    </ul>
-  );
-};
+import { useUI } from "@/contexts/UIContext.jsx";
+import burgerMenu from "@/assets/burgerMenu.svg";
+import cross from "@/assets/cross.svg";
 
 export default function ChatAndLeaderboard() {
+  const { isBoardOpen, toggleBoard } = useUI();
 
   const types = {
     chat: [
@@ -37,14 +25,29 @@ export default function ChatAndLeaderboard() {
   });
 
   const handleTypeChange = (section, newId) => {
-    setActiveTypes((prev) => ({
-      ...prev,
-      [section]: newId
-    }));
+    setActiveTypes((prev) => ({ ...prev, [section]: newId }));
   };
 
+  if (!isBoardOpen) {
+    return (
+      <button
+        onClick={toggleBoard}
+        className="fixed top-6 right-6 z-50 bg-white p-3 rounded-[12px] shadow-buttons hover:bg-surface transition-colors cursor-pointer"
+      >
+        <img src={burgerMenu} alt="Open Menu" className="size-6" />
+      </button>
+    );
+  }
+
   return (
-    <aside className='w-[358px] fixed right-0 top-0 h-screen p-8 flex flex-col justify-end gap-8 bg-neutral-bg'>
+    <aside className='w-[358px] fixed right-0 top-0 h-screen p-8 flex flex-col justify-end gap-8 bg-neutral-bg z-40 shadow-xl'>
+      <button
+        onClick={toggleBoard}
+        className="absolute top-6 right-6 p-2 bg-white rounded-full shadow-buttons hover:bg-surface transition-colors cursor-pointer"
+      >
+        <img src={cross} alt="Close Board" className="size-4" />
+      </button>
+
       <Chat
         types={types.chat}
         activeType={activeTypes.chat}

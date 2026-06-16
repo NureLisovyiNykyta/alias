@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMapThemesQuery } from '@/api/maps';
 import ThemeCanvas from "@/components/layouts/ThemeCanvas.jsx";
 import TeamsDashboard from "@/components/layouts/TeamsDashboard.jsx";
 import PhaseAndTimer from "@/components/layouts/PhaseAndTimer.jsx";
 import ChatAndLeaderboard from "@/components/layouts/ChatAndLeaderboard.jsx";
+import TurnAlert from "@/components/layouts/TurnAlert.jsx";
+import { useNotification } from "@/contexts/NotificationContext.jsx";
 
 const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
 export default function ThemeViewerPage() {
   const { data: themes, isLoading, isError } = useMapThemesQuery();
+  const { showNotification } = useNotification();
 
   const [selectedThemeIndex, setSelectedThemeIndex] = useState(0);
   const [quality, setQuality] = useState('scene_url_large');
@@ -17,6 +20,15 @@ export default function ThemeViewerPage() {
   const [activeTeams, setActiveTeams] = useState([
     { id: 'team-1', colorName: TEAM_COLORS[0], spotIndex: 0, step: 0 }
   ]);
+
+  useEffect(() => {
+    showNotification({
+      type: 'game',
+      title: 'Explainer is preparing...',
+      isSuccess: null,
+      message: 'The game will start soon',
+    });
+  }, [])
 
   if (isLoading) {
     return (
@@ -191,6 +203,7 @@ export default function ThemeViewerPage() {
       <TeamsDashboard/>
       <PhaseAndTimer/>
       <ChatAndLeaderboard/>
+      {/*<TurnAlert/>*/}
     </main>
   );
 }
