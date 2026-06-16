@@ -34,16 +34,16 @@ export default function ChatAndLeaderboard() {
         onClick={toggleBoard}
         className="fixed top-6 right-6 z-50 bg-white p-3 rounded-[12px] shadow-buttons hover:bg-surface transition-colors cursor-pointer"
       >
-        <img src={burgerMenu} alt="Open Menu" className="size-6" />
+        <img src={burgerMenu} alt="Open Menu" className="size-4" />
       </button>
     );
   }
 
   return (
-    <aside className='w-[358px] fixed right-0 top-0 h-screen p-8 flex flex-col justify-end gap-8 bg-neutral-bg z-40 shadow-xl'>
+    <aside className='w-[358px] fixed right-0 top-0 h-screen p-8 pt-12 flex flex-col justify-end gap-8 bg-neutral-bg z-40 shadow-xl'>
       <button
         onClick={toggleBoard}
-        className="absolute top-6 right-6 p-2 bg-white rounded-full shadow-buttons hover:bg-surface transition-colors cursor-pointer"
+        className="absolute top-2 left-8 p-2 bg-white rounded-[12px] shadow-buttons hover:bg-surface transition-colors cursor-pointer"
       >
         <img src={cross} alt="Close Board" className="size-4" />
       </button>
