@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useMapThemesQuery } from '@/api/maps';
 import ThemeCanvas from "@/components/layouts/ThemeCanvas.jsx";
+import TeamsDashboard from "@/components/layouts/TeamsDashboard.jsx";
+import PhaseAndTimer from "@/components/layouts/PhaseAndTimer.jsx";
+import ChatAndLeaderboard from "@/components/layouts/ChatAndLeaderboard.jsx";
 
 const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
@@ -84,7 +87,7 @@ export default function ThemeViewerPage() {
   });
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden">
+    <main className="relative w-screen h-screen overflow-hidden">
       <div className="absolute top-4 left-4 z-10 w-full max-w-xs bg-slate-900/90 backdrop-blur-md p-5 rounded-xl border border-slate-800 shadow-2xl text-slate-200">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-white tracking-wide">Theme Preview</h3>
@@ -184,6 +187,10 @@ export default function ThemeViewerPage() {
           onAnchorsLoaded={setAnchors}
         />
       )}
-    </div>
+
+      <TeamsDashboard/>
+      <PhaseAndTimer/>
+      <ChatAndLeaderboard/>
+    </main>
   );
 }
