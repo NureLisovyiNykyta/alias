@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUI } from '@/contexts/UIContext.jsx';
 
-export default function ModalLayout({ isOpen, children }) {
+export default function ModalLayout({ isOpen, onClose, children }) {
   const { isBoardOpen } = useUI();
 
   return (
@@ -12,6 +12,7 @@ export default function ModalLayout({ isOpen, children }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={onClose}
             className="absolute inset-0 bg-black/40 backdrop-blur-[7px] pointer-events-auto"
           />
 
@@ -24,7 +25,7 @@ export default function ModalLayout({ isOpen, children }) {
               isBoardOpen ? 'pr-[358px]' : 'pr-0'
             }`}
           >
-            <div className="pointer-events-auto">
+            <div className="pointer-events-auto cursor-default">
               {children}
             </div>
           </motion.div>

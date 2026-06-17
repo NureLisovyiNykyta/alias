@@ -4,16 +4,19 @@ import ThemeCanvas from "@/components/layouts/ThemeCanvas.jsx";
 import TeamsDashboard from "@/components/layouts/TeamsDashboard.jsx";
 import PhaseAndTimer from "@/components/layouts/PhaseAndTimer.jsx";
 import ChatAndLeaderboard from "@/components/layouts/ChatAndLeaderboard.jsx";
-import TurnAlert from "@/components/layouts/TurnAlert.jsx";
+import TurnAlert from "@/components/modals/TurnAlert.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import GuessModal from "@/components/modals/GuessModal.jsx";
 import Results from "@/components/modals/Results.jsx";
+import GameConfirmModal from "@/components/modals/GameConfirmModal.jsx";
 
 const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
 export default function Gameplay() {
   const { data: themes, isLoading, isError } = useMapThemesQuery();
   const { showNotification } = useNotification();
+
+  const [modalIsOpen, setModalIsOpen] = useState(true);
 
   const [selectedThemeIndex, setSelectedThemeIndex] = useState(0);
   const [quality, setQuality] = useState('scene_url_large');
@@ -23,14 +26,14 @@ export default function Gameplay() {
     { id: 'team-1', colorName: TEAM_COLORS[0], spotIndex: 0, step: 0 }
   ]);
 
-  useEffect(() => {
-    showNotification({
-      type: 'game',
-      title: 'Explainer is preparing...',
-      isSuccess: null,
-      message: 'The game will start soon',
-    });
-  }, [])
+  // useEffect(() => {
+  //   showNotification({
+  //     type: 'game',
+  //     title: 'Explainer is preparing...',
+  //     isSuccess: null,
+  //     message: 'The game will start soon',
+  //   });
+  // }, [])
 
   if (isLoading) {
     return (
@@ -205,10 +208,12 @@ export default function Gameplay() {
       <TeamsDashboard/>
       <PhaseAndTimer/>
       <ChatAndLeaderboard/>
-      {/*<TurnAlert/>*/}
+      <TurnAlert/>
 
       {/*<GuessModal isOpen={true}/>*/}
-      <Results isOpen={true}/>
+      {/*<Results isOpen={true}/>*/}
+
+      {/*<GameConfirmModal isOpen={modalIsOpen} onClose={() => setModalIsOpen(false)}/>*/}
     </main>
   );
 }
