@@ -9,6 +9,7 @@ import { useNotification } from "@/contexts/NotificationContext.jsx";
 import GuessModal from "@/components/modals/GuessModal.jsx";
 import Results from "@/components/modals/Results.jsx";
 import GameConfirmModal from "@/components/modals/GameConfirmModal.jsx";
+import HostActions from "@/components/layouts/hostActions.jsx";
 
 const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
@@ -208,12 +209,11 @@ export default function Gameplay() {
       <TeamsDashboard/>
       <PhaseAndTimer/>
       <ChatAndLeaderboard/>
-      <TurnAlert/>
-
+      {/*<TurnAlert/>*/}
       {/*<GuessModal isOpen={true}/>*/}
       {/*<Results isOpen={true}/>*/}
-
       {/*<GameConfirmModal isOpen={modalIsOpen} onClose={() => setModalIsOpen(false)}/>*/}
+      <HostActions/>
     </main>
   );
 }

@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0] - 2026-06-17
+
+### Added
+- **Chat and Leaderboards**: Implemented the `ChatAndLeaderboard` component, integrating both chat functionality and a synchronized leaderboard system into the game interface.
+- **Chat State Management**: Added explicit state handling for different chat types (e.g., global, team) to allow users to switch between communication channels.
+- **Guess Modal UI**: Developed the `GuessModal` interface for the "Guessing" game phase, featuring progress tracking and word outcome selection.
+- **Results Table UI**: Created the `Results` table UI to summarize round outcomes, score calculations, and allow host verification during the "Review" phase.
+- **Host Control Panel**: Implemented a responsive `HostActions` modal using `@headlessui/react` to provide game creators with centralized controls (edit score, restart turn, end game).
+- **Game Confirm Window**: Developed a reusable `GameConfirmModal` to explicitly verify critical host actions and prevent accidental game disruptions.
+
+### Changed
+- **Right Board Mechanics**: Implemented functionality to toggle the visibility of the right sidebar (`ChatAndLeaderboard`), saving the user's preference persistently via `localStorage`.
+- **Streamlined Board Toggle**: Replaced the previous board toggle button layout by moving the control directly to the main stream view for better accessibility.
+- **Dynamic Turn Alert Alignment**: Updated the `TurnAlert` component to automatically and smoothly adjust its horizontal position (center alignment) based on whether the right sidebar is open or closed.
+
 ## [0.19.0] - 2026-06-09
 
 ### Added
