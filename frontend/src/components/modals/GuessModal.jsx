@@ -26,13 +26,13 @@ export default function GuessModal({ isOpen }) {
         <div className='flex flex-col w-full gap-[26px]'>
           <div className='w-full h-[180px] rounded-[12px] p-5 flex flex-col items-center justify-center gap-2.5 bg-surface-light'>
             <p className='font-noto'>Word</p>
-            <h2 class="font-bold text-[40px] leading-[100%] tracking-normal">Elephant</h2>
+            <h2 className="font-bold text-[40px] leading-[100%] tracking-normal">Elephant</h2>
           </div>
 
           <ul className='flex items-center justify-between w-[185px] self-center'>
             {actionButtons.map(button => (
               <li key={button.id} className='flex flex-col gap-4 items-center'>
-                <button type='button' className={`size-[46px] rounded-full flex items-center justify-center ${button.bg}`}>
+                <button type='button' className={`size-[46px] rounded-full flex items-center justify-center ${button.bg} hover:bg-black/30 active:bg-black/70 transition-colors`}>
                   <img src={button.arrow} alt='Skip Word'/>
                 </button>
 

@@ -7,6 +7,7 @@ import ChatAndLeaderboard from "@/components/layouts/ChatAndLeaderboard.jsx";
 import TurnAlert from "@/components/layouts/TurnAlert.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import GuessModal from "@/components/modals/GuessModal.jsx";
+import Results from "@/components/modals/Results.jsx";
 
 const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
@@ -206,7 +207,8 @@ export default function Gameplay() {
       <ChatAndLeaderboard/>
       {/*<TurnAlert/>*/}
 
-      <GuessModal isOpen={true}/>
+      {/*<GuessModal isOpen={true}/>*/}
+      <Results isOpen={true}/>
     </main>
   );
 }
