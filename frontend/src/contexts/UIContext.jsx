@@ -8,14 +8,23 @@ export const UIProvider = ({ children }) => {
     return saved !== null ? JSON.parse(saved) : true;
   });
 
+  const [gamePhase, setGamePhase] = useState(() => {
+    const saved = localStorage.getItem('gamePhase');
+    return saved !== null ? JSON.parse(saved) : 'GUESSING';
+  });
+
   useEffect(() => {
     localStorage.setItem('isBoardOpen', JSON.stringify(isBoardOpen));
   }, [isBoardOpen]);
 
+  useEffect(() => {
+    localStorage.setItem('gamePhase', JSON.stringify(gamePhase));
+  }, [gamePhase]);
+
   const toggleBoard = () => setIsBoardOpen((prev) => !prev);
 
   return (
-    <UIContext.Provider value={{ isBoardOpen, toggleBoard }}>
+    <UIContext.Provider value={{ isBoardOpen, toggleBoard, gamePhase, setGamePhase }}>
       {children}
     </UIContext.Provider>
   );

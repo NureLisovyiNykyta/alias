@@ -6,10 +6,11 @@ import PhaseAndTimer from "@/components/layouts/PhaseAndTimer.jsx";
 import ChatAndLeaderboard from "@/components/layouts/ChatAndLeaderboard.jsx";
 import TurnAlert from "@/components/layouts/TurnAlert.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
+import GuessModal from "@/components/modals/GuessModal.jsx";
 
 const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
-export default function ThemeViewerPage() {
+export default function Gameplay() {
   const { data: themes, isLoading, isError } = useMapThemesQuery();
   const { showNotification } = useNotification();
 
@@ -204,6 +205,8 @@ export default function ThemeViewerPage() {
       <PhaseAndTimer/>
       <ChatAndLeaderboard/>
       {/*<TurnAlert/>*/}
+
+      <GuessModal isOpen={true}/>
     </main>
   );
 }

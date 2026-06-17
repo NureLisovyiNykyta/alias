@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.19.0] - 2026-06-09
 
 ### Added
-- 3D Map Viewer page (`ThemeViewerPage`) for previewing game boards and themes.
+- 3D Map Viewer page (`Gameplay`) for previewing game boards and themes.
 - Player piece management system with independent step controls (supports up to 4 pieces).
 - Dynamic parsing of embedded 3D anchors (pattern: `Index_posN`) from `.glb` models for precise piece positioning.
 - English UI for the 3D map viewer control panel.
