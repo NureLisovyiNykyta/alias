@@ -6,8 +6,7 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
   const { user } = useAuth();
 
   return (
-    <div className={`w-full h-full min-h-0 bg-white rounded-[12px] flex p-3 flex-col pt-0
-    ${types && 'border border-surface'}`}>
+    <div className='w-full h-full min-h-0 bg-white rounded-[12px] flex p-3 flex-col pt-0 border border-surface'>
       {types ? <NeutralSwitch options={types} onChange={onChangeType} activeId={activeType} layoutId="chatSwitchIndicator"/> :
         <div className='-mx-3 flex items-center border-b border-surface p-4 shrink-0'>
           <h2 className='text-h2'>Lobby chat</h2>

@@ -15,8 +15,9 @@ import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useMemo } from "react";
-import TeamCard from "./TeamCard.jsx";
+import TeamCard from "../components/cards/TeamCard.jsx";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
+import Chat from "@/components/layouts/Chat.jsx";
 
 const WaitingRoom = () => {
   const { code: roomCode } = useParams();
@@ -212,7 +213,7 @@ const WaitingRoom = () => {
         </div>
       </div>
 
-      <aside className='flex flex-col w-full justify-between gap-[70px]'>
+      <aside className='flex flex-col w-full gap-6 h-[calc(100vh-120px)]'>
         <div className='flex flex-col w-full gap-4'>
           <h2 className='text-h2'>Invite your friends</h2>
 
@@ -233,6 +234,10 @@ const WaitingRoom = () => {
           <span className='text-label text-text-label font-noto'>
             Or simply share the link to join the game
           </span>
+        </div>
+
+        <div className="flex-1 min-h-0 flex flex-col">
+          <Chat/>
         </div>
 
         <div className='flex flex-col w-full gap-[10px] items-end'>

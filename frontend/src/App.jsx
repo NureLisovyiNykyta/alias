@@ -22,7 +22,7 @@ import CardPackPreview from "@/pages/CardPackPreview.jsx";
 import MapsGallery from "@/pages/MapsGallery.jsx";
 import LobbyCreator from "@/pages/LobbyCreator.jsx";
 import LobbyLayout from "@/components/layouts/LobbyLayout.jsx";
-import WaitingRoom from "@/pages/WaitingRoom/WaitingRoom.jsx";
+import WaitingRoom from "@/pages/WaitingRoom.jsx";
 import JoinRoom from "@/pages/JoinRoom.jsx";
 import ActiveLobbyWidget from "@/components/layouts/ActiveLobbyWidget.jsx";
 import Gameplay from "@/pages/Gameplay.jsx";

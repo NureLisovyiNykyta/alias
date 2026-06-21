@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Leaderboard Modal**: Introduced the `LeaderboardModal` component, enabling centralized game state management and host-specific interactions.
 - **Dumb Component Refactoring**: Decoupled `Leaderboard` UI into a stateless/dumb component, improving reusability across different game views.
+- **Lobby Chat**: Added `Chat` Component for Waiting Room Page.
 
 ### Changed
 - **UI Alignment**: Updated `PhaseAndTimer` layout logic to adapt dynamically to the presence of the `ChatAndLeaderboard` sidebar, ensuring consistent horizontal centering.
