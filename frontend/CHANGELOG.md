@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.1] - 2026-06-21
+
+### Added
+- **Leaderboard Modal**: Introduced the `LeaderboardModal` component, enabling centralized game state management and host-specific interactions.
+- **Dumb Component Refactoring**: Decoupled `Leaderboard` UI into a stateless/dumb component, improving reusability across different game views.
+
+### Changed
+- **UI Alignment**: Updated `PhaseAndTimer` layout logic to adapt dynamically to the presence of the `ChatAndLeaderboard` sidebar, ensuring consistent horizontal centering.
+
 ## [0.20.0] - 2026-06-17
 
 ### Added

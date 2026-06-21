@@ -10,6 +10,8 @@ import GuessModal from "@/components/modals/GuessModal.jsx";
 import Results from "@/components/modals/Results.jsx";
 import GameConfirmModal from "@/components/modals/GameConfirmModal.jsx";
 import HostActions from "@/components/layouts/hostActions.jsx";
+import Leaderboard from "@/components/layouts/Leaderboard.jsx";
+import LeaderboardModal from "@/components/modals/LeaderboardModal.jsx";
 
 const TEAM_COLORS = ['cyan', 'pink', 'yellow', 'purple'];
 
@@ -213,7 +215,8 @@ export default function Gameplay() {
       {/*<GuessModal isOpen={true}/>*/}
       {/*<Results isOpen={true}/>*/}
       {/*<GameConfirmModal isOpen={modalIsOpen} onClose={() => setModalIsOpen(false)}/>*/}
-      <HostActions/>
+      {/*<HostActions/>*/}
+      {/*<LeaderboardModal isOpen={true}/>*/}
     </main>
   );
 }

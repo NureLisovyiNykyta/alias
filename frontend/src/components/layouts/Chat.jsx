@@ -17,7 +17,7 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
         {Array.from({ length: 20 }).map((_, i) => {
           const isMyMsg = i % 5 === 0;
           let message = <div className={`flex rounded-t-[12px] py-[10px] px-4 w-fit ${isMyMsg ? 'bg-brand-300 rounded-bl-[12px]' : 'bg-surface rounded-br-[12px]'}`}>
-            <p className='font-noto wrap-break-word'>{i % 2 === 0 ? 'Hey pal! I’m looking for teammates in my team _punks. Join us!Hey pal! I’m looking for teammates in my team _punks. Join us!Hey pal! I’m looking for teammates in my team _punks. Join us!' : 'LOL'}</p>
+            <p className='font-noto wrap-break-word'>{i % 2 === 0 ? 'Hey pal! I’m looking f' : 'LOL'}</p>
           </div>;
 
           return (
