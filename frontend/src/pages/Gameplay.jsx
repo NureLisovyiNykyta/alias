@@ -9,7 +9,7 @@ import { useNotification } from "@/contexts/NotificationContext.jsx";
 import GuessModal from "@/components/modals/GuessModal.jsx";
 import Results from "@/components/modals/Results.jsx";
 import GameConfirmModal from "@/components/modals/GameConfirmModal.jsx";
-import HostActions from "@/components/layouts/hostActions.jsx";
+import HostActions from "@/components/layouts/HostActions.jsx";
 import Leaderboard from "@/components/layouts/Leaderboard.jsx";
 import LeaderboardModal from "@/components/modals/LeaderboardModal.jsx";
 
@@ -214,9 +214,7 @@ export default function Gameplay() {
       {/*<TurnAlert/>*/}
       {/*<GuessModal isOpen={true}/>*/}
       {/*<Results isOpen={true}/>*/}
-      {/*<GameConfirmModal isOpen={modalIsOpen} onClose={() => setModalIsOpen(false)}/>*/}
-      {/*<HostActions/>*/}
-      {/*<LeaderboardModal isOpen={true}/>*/}
+      <HostActions/>
     </main>
   );
 }

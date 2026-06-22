@@ -2,8 +2,8 @@ import { useState } from "react";
 import Chat from "@/components/layouts/Chat.jsx";
 import Leaderboard from "@/components/layouts/Leaderboard.jsx";
 import { useUI } from "@/contexts/UIContext.jsx";
-import openSideBar from "@/assets/openSideBar.svg";
-import closeSideBar from "@/assets/closeSideBar.svg";
+import closeSideBar from "@/assets/openSideBar.svg";
+import openSideBar from "@/assets/closeSideBar.svg";
 
 export default function ChatAndLeaderboard() {
   const { isBoardOpen, toggleBoard } = useUI();

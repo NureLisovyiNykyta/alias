@@ -36,8 +36,10 @@ const WaitingRoom = () => {
         message: "The game lobby has been closed. This page will soon be closed.",
         isSuccess: true,
       });
+
+      navigate('/');
+
       setTimeout(() => {
-        navigate('/');
         closeNotification();
       }, 1500);
     }
@@ -102,9 +104,11 @@ const WaitingRoom = () => {
         isSuccess: true,
       });
 
+      navigate('/');
+
       setTimeout(() => {
-        navigate('/');
-      }, 1500)
+        closeNotification();
+      }, 1500);
     },
     onError: () => {
       showNotification({
@@ -240,7 +244,7 @@ const WaitingRoom = () => {
           <Chat/>
         </div>
 
-        <div className='flex flex-col w-full gap-[10px] items-end'>
+        <div className='flex w-full gap-[10px] items-center justify-center'>
           {isHost ? (
             <>
               <Button disabled={teamsList.length < (roomData.settings?.min_teams || 2)}>
