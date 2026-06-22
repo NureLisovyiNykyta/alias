@@ -17,10 +17,10 @@ export default function ModalLayout({ isOpen, onClose, children }) {
           />
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
+            initial={{ opacity: 0,  y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ type: "spring", bounce: 0.3, duration: 0.1 }}
             className={`relative z-40 w-full h-full flex items-center justify-center pointer-events-none transition-all duration-300 ${
               isBoardOpen ? 'pr-[358px]' : 'pr-0'
             }`}

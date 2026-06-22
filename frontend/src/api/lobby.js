@@ -91,3 +91,13 @@ export const useLeaveRoomMutation = (options) => {
     ...options,
   });
 };
+
+export const useStartGameMutation = (options) => {
+  return useMutation({
+    mutationFn: async (roomCode) => {
+      const response = await api.post(`/rooms/${roomCode}/start`);
+      return response.data;
+    },
+    ...options,
+  });
+};

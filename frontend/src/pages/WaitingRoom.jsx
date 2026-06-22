@@ -6,7 +6,8 @@ import {
   useCloseRoomMutation,
   useCreateTeamMutation,
   useDeleteTeamMutation,
-  useLeaveRoomMutation
+  useLeaveRoomMutation,
+  useStartGameMutation
 } from "@/api/lobby.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { TEAM_COLORS, TEAM_BG_MAP } from "@/constants/teamColors.js";
@@ -29,6 +30,22 @@ const WaitingRoom = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (roomData?.status === 'PLAYING') {
+      showNotification({
+        title: "Game is starting",
+        message: "The host has started the game. You are being redirected to map page.",
+        isSuccess: true,
+      });
+
+      navigate(`/lobby/${roomCode}/game`);
+
+      setTimeout(() => {
+        closeNotification();
+      }, 1500);
+    }
+  }, [roomData?.status, roomCode, navigate]);
+
+  useEffect(() => {
     if (isRoomClosed) {
       setRoom(null);
       showNotification({
@@ -44,6 +61,16 @@ const WaitingRoom = () => {
       }, 1500);
     }
   }, [isRoomClosed, navigate, showNotification, setRoom]);
+
+  const { mutate: startGame, isPending: isStartingGame } = useStartGameMutation({
+    onError: () => {
+      showNotification({
+        title: "Error",
+        message: "Failed to start the game. Try again",
+        isSuccess: false,
+      });
+    },
+  });
 
   const { mutate: createTeam, isPending: isCreatingTeam } = useCreateTeamMutation();
   const { mutate: closeRoom, isPending: isClosingRoom } = useCloseRoomMutation({
@@ -247,15 +274,20 @@ const WaitingRoom = () => {
         <div className='flex w-full gap-[10px] items-center justify-center'>
           {isHost ? (
             <>
-              <Button disabled={teamsList.length < (roomData.settings?.min_teams || 2)}>
-                Start the game
-              </Button>
+
               <Button
                 onClick={() => closeRoom(roomCode)}
                 disabled={isClosingRoom}
                 variant='tertiary'
               >
                 Stop the game
+              </Button>
+
+              <Button
+                disabled={teamsList.length < (roomData.settings?.min_teams || 2) || isStartingGame}
+                onClick={() => startGame(roomCode)}
+              >
+                Start the game
               </Button>
             </>
           ) : (
