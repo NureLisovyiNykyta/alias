@@ -1,6 +1,7 @@
 import info from '@/assets/info.svg';
 import { useUI } from "@/contexts/UIContext.jsx";
 import { useEffect, useState } from "react";
+import Digit from "@/components/layouts/Digit.jsx";
 
 const PHASE_LABELS = {
   PREPARE: 'Preparing',
@@ -52,7 +53,9 @@ export default function PhaseAndTimer({ phase, endsAt, isExplainer, onTimerExpir
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
+
   const displayTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const timeArray = displayTime.split('');
 
   return (
     <div
@@ -66,13 +69,17 @@ export default function PhaseAndTimer({ phase, endsAt, isExplainer, onTimerExpir
           <span className={`text-btn font-noto ${PHASE_COLORS[phase]}`}>
             {displayPhase}
           </span>
-          <img src={info} alt="Phase info" className='cursor-pointer' />
+          <img src={info} alt="Phase info" />
         </div>
 
-        <div className='bg-white w-[130px] shadow-buttons flex items-center justify-center h-[50px] px-6 py-4 rounded-[12px]'>
-          <h1 className='text-h1'>
-            {displayTime}
-          </h1>
+        <div className='bg-white shadow-buttons flex items-center justify-center h-[50px] px-6 py-4 rounded-[12px] min-w-[100px]'>
+          <div className={`text-h1 tabular-nums flex items-center ${timeLeft <= 10 && timeLeft > 0 && 'text-text-warning'}`}>
+            {timeArray.map((char, index) => (
+              char === ':' ?
+                <span key={index} className="mx-[1px]">{char}</span> :
+                <Digit key={index} value={char} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
