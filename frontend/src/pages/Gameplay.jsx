@@ -8,18 +8,17 @@ import { useNotification } from "@/contexts/NotificationContext.jsx";
 import GuessModal from "@/components/modals/GuessModal.jsx";
 import Results from "@/components/modals/Results.jsx";
 import HostActions from "@/components/layouts/HostActions.jsx";
-import Leaderboard from "@/components/layouts/Leaderboard.jsx";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
+import LeaderboardModal from "@/components/modals/LeaderboardModal.jsx";
 
 export default function Gameplay() {
-  const { code: roomCode } = useParams();
   const navigate = useNavigate();
   const { showNotification, closeNotification } = useNotification();
 
-  const { roomData, sendMessage } = useLobby();
+  const { roomData, sendMessage, setRoom } = useLobby();
   const { user } = useAuth();
 
   const currentUserId = user?.id || localStorage.getItem('guest_id');
@@ -28,7 +27,7 @@ export default function Gameplay() {
   const isHost = roomData?.host_id === currentUserId;
 
   const isExplainer = currentTurn?.explainer_id === currentUserId;
-  const currentPhase = currentTurn?.phase; // PREPARE, GUESSING, REVIEW
+  const currentPhase = currentTurn?.phase;
 
   const currentTeam = roomData?.teams?.[currentTurn?.team_id];
   const currentPosition = currentTeam?.current_position || 0;
@@ -37,12 +36,12 @@ export default function Gameplay() {
 
   const explainerName = roomData?.players?.[currentTurn?.explainer_id]?.username || 'Explainer';
 
-  const [modalIsOpen, setModalIsOpen] = useState(true);
+  const isGameFinished = roomData?.status === 'FINISHED';
+
   const [anchors, setAnchors] = useState({});
 
   useEffect(() => {
     if (currentPhase === 'PREPARE' && !isExplainer) {
-      // Показываем плашку ожидания без автозакрытия
       showNotification({
         title: "Explainer is preparing...",
         message: `The game will start soon`,
@@ -51,11 +50,9 @@ export default function Gameplay() {
         autoClose: false
       });
     } else {
-      // Как только фаза меняется на GUESSING или REVIEW, закрываем плашку
       closeNotification();
     }
 
-    // Подчищаем за собой при размонтировании
     return () => closeNotification();
   }, [currentPhase, isExplainer, explainerName, showNotification, closeNotification]);
 
@@ -81,11 +78,16 @@ export default function Gameplay() {
     });
   }, [roomData?.teams, themeInfo, anchors]);
 
+  const handleMainMenu = () => {
+    setRoom(null);
+    navigate('/');
+  };
+
   if (!roomData || !themeInfo) {
     return (
       <div className="flex items-center justify-center w-screen h-screen bg-slate-950 text-slate-400 gap-2">
         <Spinner color='border-text-slate-400'/>
-        <span className="text-sm font-medium animate-pulse">Loading themes</span>
+        <span className="text-sm font-medium animate-pulse">Loading scene</span>
       </div>
     );
   }
@@ -144,6 +146,14 @@ export default function Gameplay() {
         pieces={piecesData}
         onAnchorsLoaded={setAnchors}
       />
+
+      {isGameFinished && (
+        <LeaderboardModal
+          isHost={false}
+          isOpen={true}
+          onClose={handleMainMenu}
+        />
+      )}
     </main>
   );
 }

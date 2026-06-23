@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2026-06-23
+
+### Added
+- **Full Gameplay Integration**: Connected all core game phases (`PREPARE`, `GUESSING`, `REVIEW`) with the backend WebSocket server, enabling a seamless real-time alias game loop.
+- **Host Controls Integration**: Linked `HostActions` and `Leaderboard` to the backend socket, allowing the host to dynamically adjust team scores, restart active turns, and end the game.
+- **Final Leaderboard**: Added handling for the `game_finished` event, smoothly transitioning all players to a final results screen with an option to safely leave the room and return to the Main Menu.
+
+### Changed
+- **WebSocket Stability**: Overhauled the connection logic in `useGameSockets` to prevent constant disconnect loops. Replaced the strict built-in heartbeat with a robust "fire-and-forget" ping mechanism and memoized the socket URL.
+- **Timer Logic**: Updated `PhaseAndTimer` to sync accurately with the server's absolute `ends_at` timestamp. The timer now cleanly stops at 0 and automatically dispatches a `timer_expired` event to eliminate negative countdown bugs.
+- **Card Rendering Flow**: Modified `GuessModal` to accurately track the active card by rendering the latest addition to the `round_cards` array, preventing UI desyncs during rapid swiping.
+- **Results & Scoring**: Empowered the `Results` modal to calculate actual points using dynamic `award` and `penalty` values derived from the current 3D map field. Separated the interactive UI for the explainer from the read-only view for regular players.
+- **Preparation Notifications**: Updated `NotificationContext` to support non-auto-closing alerts, displaying a persistent waiting state for regular players while the explainer prepares for the round.
+- **Dynamic Colors Rendering**: Switched team color indicators in the Leaderboard to use inline CSS variables, bypassing Tailwind's class-purging mechanism for dynamically generated colors.
+
 ## [0.20.2] - 2026-06-22
 
 ### Added

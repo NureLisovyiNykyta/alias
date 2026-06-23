@@ -175,6 +175,29 @@ export const useGameSocket = (roomCode) => {
           };
         }
 
+        case "score_updated":
+        case "round_results": {
+          return {
+            ...prev,
+            teams: {
+              ...prev.teams,
+              [payload.team_id]: {
+                ...prev.teams[payload.team_id],
+                current_position: payload.new_position
+              }
+            }
+          };
+        }
+
+        case "game_finished": {
+          return {
+            ...prev,
+            status: "FINISHED",
+            teams: payload.teams,
+            winner_team_id: payload.winner_team_id
+          };
+        }
+
         case "error":
           console.error("Game error:", payload.message);
           return prev;

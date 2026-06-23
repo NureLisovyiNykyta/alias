@@ -5,13 +5,13 @@ import { Button } from "@/components/buttons/Button.jsx";
 export default function LeaderboardModal({ isHost = false, isOpen, onClose }) {
   const buttons = [
     { id: 1, variant: 'tertiary', label: 'Cancel', onClick: onClose },
-    { id: 2, variant: 'primary', label: 'Confirm changes', onClick: () => {} },
+    { id: 2, variant: 'primary', label: 'Confirm changes', onClick: onClose },
   ];
 
   return (
-    <ModalLayout isOpen={isOpen} onClose={onClose}>
+    <ModalLayout isOpen={isOpen} onClose={isHost ? onClose : undefined}>
       <div className='bg-white w-[520px] rounded-[12px] flex flex-col pb-4 gap-2'>
-        <Leaderboard isHost={isHost} />
+        <Leaderboard isHost={isHost}/>
 
         {isHost ? (
           <ul className='flex items-center justify-center gap-2.5 w-full'>
@@ -24,7 +24,7 @@ export default function LeaderboardModal({ isHost = false, isOpen, onClose }) {
             ))}
           </ul>
         ) : (
-          <Button className='self-center'>
+          <Button className='self-center' onClick={onClose}>
             Main Menu
           </Button>
         )}

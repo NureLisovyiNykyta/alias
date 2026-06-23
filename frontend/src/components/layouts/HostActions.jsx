@@ -7,10 +7,13 @@ import gear from '@/assets/gear.svg';
 import { Button } from "@/components/buttons/Button.jsx";
 import LeaderboardModal from "@/components/modals/LeaderboardModal.jsx";
 import GameConfirmModal from "@/components/modals/GameConfirmModal.jsx";
+import { useLobby } from "@/contexts/LobbyContext.jsx";
 
 export default function HostActions() {
   const [activeModal, setActiveModal] = useState(null);
   const closeModal = () => setActiveModal(null);
+
+  const { sendMessage } = useLobby();
 
   return (
     <>
@@ -98,7 +101,7 @@ export default function HostActions() {
         title="Are you sure you want to restart turn?"
         label="This action cannot be undone, and the turn will start again"
         onSuccess={() => {
-          console.log("Turn restarted");
+          sendMessage({ type: 'restart_turn' });
           closeModal();
         }}
       />
@@ -109,7 +112,7 @@ export default function HostActions() {
         title="Are you sure you want to end game?"
         label="This action cannot be undone, and the game will end"
         onSuccess={() => {
-          console.log("Game ended");
+          sendMessage({ type: 'end_game' });
           closeModal();
         }}
       />
