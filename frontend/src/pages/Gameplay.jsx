@@ -17,9 +17,9 @@ import Spinner from "@/components/layouts/Spinner.jsx";
 export default function Gameplay() {
   const { code: roomCode } = useParams();
   const navigate = useNavigate();
-  const { showNotification } = useNotification();
+  const { showNotification, closeNotification } = useNotification();
 
-  const { roomData } = useLobby();
+  const { roomData, sendMessage } = useLobby();
   const { user } = useAuth();
 
   const currentUserId = user?.id || localStorage.getItem('guest_id');
@@ -31,16 +31,33 @@ export default function Gameplay() {
   const currentPhase = currentTurn?.phase; // PREPARE, GUESSING, REVIEW
 
   const currentTeam = roomData?.teams?.[currentTurn?.team_id];
+  const currentPosition = currentTeam?.current_position || 0;
+  const currentField = roomData?.map_info?.fields?.[currentPosition];
   const currentExplainer = roomData?.players?.[currentTurn?.explainer_id];
+
+  const explainerName = roomData?.players?.[currentTurn?.explainer_id]?.username || 'Explainer';
 
   const [modalIsOpen, setModalIsOpen] = useState(true);
   const [anchors, setAnchors] = useState({});
 
-  // useEffect(() => {
-  //   if (!roomData) {
-  //     navigate(`/lobby/${roomCode}/waiting`);
-  //   }
-  // }, [roomData, navigate, roomCode]);
+  useEffect(() => {
+    if (currentPhase === 'PREPARE' && !isExplainer) {
+      // Показываем плашку ожидания без автозакрытия
+      showNotification({
+        title: "Explainer is preparing...",
+        message: `The game will start soon`,
+        type: 'game',
+        isSuccess: null,
+        autoClose: false
+      });
+    } else {
+      // Как только фаза меняется на GUESSING или REVIEW, закрываем плашку
+      closeNotification();
+    }
+
+    // Подчищаем за собой при размонтировании
+    return () => closeNotification();
+  }, [currentPhase, isExplainer, explainerName, showNotification, closeNotification]);
 
   const themeInfo = roomData?.theme_info;
 
@@ -76,47 +93,48 @@ export default function Gameplay() {
   return (
     <main className="relative w-screen h-screen overflow-hidden">
       <TeamsDashboard team={currentTeam} explainer={currentExplainer} />
-      <PhaseAndTimer phase={currentPhase} endsAt={currentTurn?.ends_at} />
+      <PhaseAndTimer
+        phase={currentPhase}
+        endsAt={currentTurn?.ends_at}
+        isExplainer={isExplainer}
+        onTimerExpired={() => sendMessage({ type: 'timer_expired' })}
+      />
 
       <ChatAndLeaderboard />
 
-      {/*{currentPhase === 'PREPARE' && (*/}
-      {/*  <TurnAlert*/}
-      {/*    isOpen={true}*/}
-      {/*    isExplainer={isExplainer}*/}
-      {/*    currentTurn={currentTurn}*/}
-      {/*    teams={roomData.teams}*/}
-      {/*    onStart={() => sendJsonMessage({ type: 'ready' })}*/}
-      {/*  />*/}
-      {/*)}*/}
+      {currentPhase === 'PREPARE' && isExplainer && (
+        <TurnAlert
+          onStart={() => sendMessage({ type: 'ready' })}
+        />
+      )}
 
-      {/*{currentPhase === 'GUESSING' && (*/}
-      {/*  <GuessModal*/}
-      {/*    isOpen={true}*/}
-      {/*    isExplainer={isExplainer}*/}
-      {/*    currentTurn={currentTurn}*/}
-      {/*    // Передаем функции для отправки свайпов на бекенд*/}
-      {/*    onSwipeSwipeRight={() => sendJsonMessage({ type: 'card_swipe', payload: { status: 'GUESSED' } })}*/}
-      {/*    onSwipeSwipeLeft={() => sendJsonMessage({ type: 'card_swipe', payload: { status: 'FAILED' } })}*/}
-      {/*    onTimerExpired={() => sendJsonMessage({ type: 'timer_expired' })}*/}
-      {/*  />*/}
-      {/*)}*/}
+      {currentPhase === 'GUESSING' && isExplainer && (
+        <GuessModal
+          isOpen={true}
+          currentTurn={currentTurn}
+          onSwipeRight={() => sendMessage({ type: 'card_swipe', payload: { status: 'GUESSED' } })}
+          onSwipeLeft={() => sendMessage({ type: 'card_swipe', payload: { status: 'FAILED' } })}
+        />
+      )}
 
-      {/*{currentPhase === 'REVIEW' && (*/}
-      {/*  <Results*/}
-      {/*    isOpen={true}*/}
-      {/*    isExplainer={isExplainer}*/}
-      {/*    isHost={isHost}*/}
-      {/*    roundCards={currentTurn?.round_cards || []}*/}
-      {/*    onEditCardStatus={(cardId, newStatus) =>*/}
-      {/*      sendJsonMessage({*/}
-      {/*        type: 'edit_card_status',*/}
-      {/*        payload: { card_id: cardId, new_status: newStatus }*/}
-      {/*      })*/}
-      {/*    }*/}
-      {/*    onConfirm={() => sendJsonMessage({ type: 'confirm_results' })}*/}
-      {/*  />*/}
-      {/*)}*/}
+      {currentPhase === 'REVIEW' && (
+        <Results
+          isOpen={true}
+          isEditable={isExplainer}
+          award={currentField?.award || 1}
+          penalty={currentField?.penalty || 1}
+          roundCards={currentTurn?.round_cards || []}
+          onEditCardStatus={(cardId, newStatus) =>
+            sendMessage({
+              type: 'edit_card_status',
+              payload: { card_id: cardId, new_status: newStatus }
+            })
+          }
+          onConfirm={() => sendMessage({ type: 'confirm_results' })}
+          onOkay={() => {
+          }}
+        />
+      )}
 
       {isHost && <HostActions />}
 

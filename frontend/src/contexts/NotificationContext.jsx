@@ -22,14 +22,16 @@ export const NotificationProvider = ({ children }) => {
     if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
 
-  const showNotification = useCallback(({ title, message, isSuccess = true, type = 'default' }) => {
+  const showNotification = useCallback(({ title, message, isSuccess = true, type = 'default', autoClose = false }) => {
     closeNotification();
 
     setNotification({ title, message, isSuccess, type });
 
-    timerRef.current = setTimeout(() => {
-      closeNotification();
-    }, 10000);
+    if (autoClose) {
+      timerRef.current = setTimeout(() => {
+        closeNotification();
+      }, 10000);
+    }
   }, [closeNotification]);
 
   return (

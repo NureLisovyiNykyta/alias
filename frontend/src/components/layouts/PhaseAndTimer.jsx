@@ -14,7 +14,7 @@ const PHASE_COLORS = {
   REVIEW: 'text-team-green-dark',
 };
 
-export default function PhaseAndTimer({ phase, endsAt }) {
+export default function PhaseAndTimer({ phase, endsAt, isExplainer, onTimerExpired }) {
   const { isBoardOpen } = useUI();
   const [timeLeft, setTimeLeft] = useState(0);
 
@@ -24,17 +24,29 @@ export default function PhaseAndTimer({ phase, endsAt }) {
       return;
     }
 
+    let hasExpired = false;
+
     const updateTimer = () => {
       const now = Date.now() / 1000;
       const diff = Math.ceil(endsAt - now);
-      setTimeLeft(Math.max(0, diff));
+
+      if (diff <= 0 && !hasExpired) {
+        hasExpired = true;
+        setTimeLeft(0);
+
+        if (isExplainer && onTimerExpired) {
+          onTimerExpired();
+        }
+      } else if (!hasExpired) {
+        setTimeLeft(diff);
+      }
     };
 
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
-  }, [endsAt, phase]);
+  }, [endsAt, phase, isExplainer, onTimerExpired]);
 
   const displayPhase = PHASE_LABELS[phase] || 'Waiting';
 
@@ -54,11 +66,10 @@ export default function PhaseAndTimer({ phase, endsAt }) {
           <span className={`text-btn font-noto ${PHASE_COLORS[phase]}`}>
             {displayPhase}
           </span>
-          <img src={info} alt="Note"/>
+          <img src={info} alt="Phase info" className='cursor-pointer' />
         </div>
 
-        {/* Показываем таймер только во время отгадывания, или всегда, но 0:00 в других фазах */}
-        <div className='bg-white shadow-buttons flex items-center justify-center h-[50px] px-6 py-4 rounded-[12px]'>
+        <div className='bg-white w-[130px] shadow-buttons flex items-center justify-center h-[50px] px-6 py-4 rounded-[12px]'>
           <h1 className='text-h1'>
             {displayTime}
           </h1>

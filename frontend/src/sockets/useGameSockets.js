@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import wsPackage, { ReadyState } from "react-use-websocket";
 import Cookies from "js-cookie";
 
@@ -13,7 +13,8 @@ export const useGameSocket = (roomCode) => {
     setRoomData(null);
   }, [roomCode]);
 
-  const getSocketUrl = () => {
+  // 1. Мемоизируем URL. Защищает от сбросов сокета при ререндерах компонентов.
+  const socketUrl = useMemo(() => {
     if (!roomCode) return null;
 
     const token = Cookies.get("authToken");
@@ -24,28 +25,32 @@ export const useGameSocket = (roomCode) => {
     if (guestId) return `${baseUrl}/ws/rooms/${roomCode}?guest_id=${guestId}`;
 
     return null;
-  };
+  }, [roomCode]);
 
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
-    getSocketUrl(),
+    socketUrl,
     {
-      shouldReconnect: (closeEvent) => true,
-      reconnectAttempts: 10,
-      reconnectInterval: (attemptNumber) =>
-        Math.min(Math.pow(2, attemptNumber) * 1000, 10000),
-
-      heartbeat: {
-        message: JSON.stringify({ type: "ping" }),
-        returnMessage: "pong",
-        timeout: 30000,
-        interval: 25000,
-      },
-
+      shouldReconnect: () => true,
+      reconnectAttempts: 20,
+      // 2. Делаем агрессивный реконнект каждую 1 секунду вместо долгой экспоненциальной паузы
+      reconnectInterval: 1000,
+      // Встроенный heartbeat убираем полностью!
       onOpen: () => console.log(`[WS] Connected to room: ${roomCode}`),
       onClose: () => console.log(`[WS] Disconnected from room: ${roomCode}`),
       onError: (event) => console.error("[WS] Error:", event),
     }
   );
+
+  // 3. Ручной, железобетонный Ping каждые 10 секунд
+  useEffect(() => {
+    if (readyState !== ReadyState.OPEN) return;
+
+    const interval = setInterval(() => {
+      sendJsonMessage({ type: "ping" });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [readyState, sendJsonMessage]);
 
   useEffect(() => {
     if (!lastJsonMessage) return;
@@ -136,6 +141,38 @@ export const useGameSocket = (roomCode) => {
         case "room_closed": {
           setIsRoomClosed(true);
           return prev;
+        }
+
+        case "turn_started":
+        case "phase_changed": {
+          return {
+            ...prev,
+            current_turn: payload.current_turn
+          };
+        }
+
+        case "card_dealt": {
+          if (!prev.current_turn) return prev;
+
+          const cardExists = prev.current_turn.round_cards?.some(
+            (c) => c.card_id === payload.card_id
+          );
+
+          if (cardExists) return prev;
+
+          const newCard = {
+            card_id: payload.card_id,
+            content: payload.content,
+            status: "UNPLAYED"
+          };
+
+          return {
+            ...prev,
+            current_turn: {
+              ...prev.current_turn,
+              round_cards: [...(prev.current_turn.round_cards || []), newCard]
+            }
+          };
         }
 
         case "error":
