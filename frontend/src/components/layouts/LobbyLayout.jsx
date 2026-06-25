@@ -12,8 +12,6 @@ const LobbyLayout = () => {
           <Outlet/>
         </div>
       </div>
-
-      <Footer/>
     </>
   );
 };

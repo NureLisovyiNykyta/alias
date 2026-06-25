@@ -6,17 +6,19 @@ import {
   useCloseRoomMutation,
   useCreateTeamMutation,
   useDeleteTeamMutation,
-  useLeaveRoomMutation
+  useLeaveRoomMutation,
+  useStartGameMutation
 } from "@/api/lobby.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
-import { TEAM_COLORS, TEAM_BG_MAP } from "./constants.js";
+import { TEAM_COLORS, TEAM_BG_MAP } from "@/constants/teamColors.js";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useMemo } from "react";
-import TeamCard from "./TeamCard.jsx";
+import TeamCard from "../components/cards/TeamCard.jsx";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
+import Chat from "@/components/layouts/Chat.jsx";
 
 const WaitingRoom = () => {
   const { code: roomCode } = useParams();
@@ -28,6 +30,22 @@ const WaitingRoom = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (roomData?.status === 'PLAYING') {
+      showNotification({
+        title: "Game is starting",
+        message: "The host has started the game. You are being redirected to map page.",
+        isSuccess: true,
+      });
+
+      navigate(`/lobby/${roomCode}/game`);
+
+      setTimeout(() => {
+        closeNotification();
+      }, 1500);
+    }
+  }, [roomData?.status, roomCode, navigate]);
+
+  useEffect(() => {
     if (isRoomClosed) {
       setRoom(null);
       showNotification({
@@ -35,12 +53,24 @@ const WaitingRoom = () => {
         message: "The game lobby has been closed. This page will soon be closed.",
         isSuccess: true,
       });
+
+      navigate('/');
+
       setTimeout(() => {
-        navigate('/');
         closeNotification();
       }, 1500);
     }
   }, [isRoomClosed, navigate, showNotification, setRoom]);
+
+  const { mutate: startGame, isPending: isStartingGame } = useStartGameMutation({
+    onError: () => {
+      showNotification({
+        title: "Error",
+        message: "Failed to start the game. Try again",
+        isSuccess: false,
+      });
+    },
+  });
 
   const { mutate: createTeam, isPending: isCreatingTeam } = useCreateTeamMutation();
   const { mutate: closeRoom, isPending: isClosingRoom } = useCloseRoomMutation({
@@ -101,9 +131,11 @@ const WaitingRoom = () => {
         isSuccess: true,
       });
 
+      navigate('/');
+
       setTimeout(() => {
-        navigate('/');
-      }, 1500)
+        closeNotification();
+      }, 1500);
     },
     onError: () => {
       showNotification({
@@ -212,7 +244,7 @@ const WaitingRoom = () => {
         </div>
       </div>
 
-      <aside className='flex flex-col w-full justify-between gap-[70px]'>
+      <aside className='flex flex-col w-full gap-6 h-[calc(100vh-120px)]'>
         <div className='flex flex-col w-full gap-4'>
           <h2 className='text-h2'>Invite your friends</h2>
 
@@ -235,18 +267,27 @@ const WaitingRoom = () => {
           </span>
         </div>
 
-        <div className='flex flex-col w-full gap-[10px] items-end'>
+        <div className="flex-1 min-h-0 flex flex-col">
+          <Chat/>
+        </div>
+
+        <div className='flex w-full gap-[10px] items-center justify-center'>
           {isHost ? (
             <>
-              <Button disabled={teamsList.length < (roomData.settings?.min_teams || 2)}>
-                Start the game
-              </Button>
+
               <Button
                 onClick={() => closeRoom(roomCode)}
                 disabled={isClosingRoom}
                 variant='tertiary'
               >
                 Stop the game
+              </Button>
+
+              <Button
+                disabled={teamsList.length < (roomData.settings?.min_teams || 2) || isStartingGame}
+                onClick={() => startGame(roomCode)}
+              >
+                Start the game
               </Button>
             </>
           ) : (

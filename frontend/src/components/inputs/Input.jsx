@@ -47,7 +47,7 @@ const Input = forwardRef(({
       <label htmlFor={id} className="font-noto text-p">{label}</label>
 
       <div
-        className={`flex bg-surface items-center border ${borderColorClass} rounded-[8px] py-[10px] px-4 justify-between w-full h-[48px] transition-colors`}
+        className={`flex bg-surface items-center gap-4 border ${borderColorClass} rounded-[8px] py-[10px] px-4 justify-between w-full h-[48px] transition-colors`}
       >
         <input
           id={id}

@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.2] - 2026-06-25
+
+### Added
+- **Queue List**: Implemented Queue list in `Leaderboard` component to see the next explainer team, enhanced UX with animation swap between two lists.
+
+### Changed
+- **Leaderboard List Animation**: Added `Motion li` animation for dynamic lists.
+- **Chat Animations**: Added similar to `Leaderboard` components animations.
+
+## [0.21.1] - 2026-06-24
+
+### Added
+- **Theme HDRI Difference**: Implemented cloud storage downloading for each distinct map theme.
+
+## [0.21.0] - 2026-06-23
+
+### Added
+- **Full Gameplay Integration**: Connected all core game phases (`PREPARE`, `GUESSING`, `REVIEW`) with the backend WebSocket server, enabling a seamless real-time alias game loop.
+- **Host Controls Integration**: Linked `HostActions` and `Leaderboard` to the backend socket, allowing the host to dynamically adjust team scores, restart active turns, and end the game.
+- **Final Leaderboard**: Added handling for the `game_finished` event, smoothly transitioning all players to a final results screen with an option to safely leave the room and return to the Main Menu.
+
+### Changed
+- **WebSocket Stability**: Overhauled the connection logic in `useGameSockets` to prevent constant disconnect loops. Replaced the strict built-in heartbeat with a robust "fire-and-forget" ping mechanism and memoized the socket URL.
+- **Timer Logic**: Updated `PhaseAndTimer` to sync accurately with the server's absolute `ends_at` timestamp. The timer now cleanly stops at 0 and automatically dispatches a `timer_expired` event to eliminate negative countdown bugs.
+- **Card Rendering Flow**: Modified `GuessModal` to accurately track the active card by rendering the latest addition to the `round_cards` array, preventing UI desyncs during rapid swiping.
+- **Results & Scoring**: Empowered the `Results` modal to calculate actual points using dynamic `award` and `penalty` values derived from the current 3D map field. Separated the interactive UI for the explainer from the read-only view for regular players.
+- **Preparation Notifications**: Updated `NotificationContext` to support non-auto-closing alerts, displaying a persistent waiting state for regular players while the explainer prepares for the round.
+- **Dynamic Colors Rendering**: Switched team color indicators in the Leaderboard to use inline CSS variables, bypassing Tailwind's class-purging mechanism for dynamically generated colors.
+
+## [0.20.2] - 2026-06-22
+
+### Added
+- **Dynamic Host Modals**: Enhanced `HostActions` to properly handle and invoke specific `GameConfirmModal` variations (Restart Turn, End Game) using a unified `activeModal` state, preventing multiple modals from opening simultaneously.
+
+### Changed
+- **Chat UX Improvements**: Redesigned the `Chat` component to visually group consecutive messages from the same user. This eliminates redundant avatar and name rendering while introducing a sticky avatar behavior for improved scrolling readability.
+
+## [0.20.1] - 2026-06-21
+
+### Added
+- **Leaderboard Modal**: Introduced the `LeaderboardModal` component, enabling centralized game state management and host-specific interactions.
+- **Dumb Component Refactoring**: Decoupled `Leaderboard` UI into a stateless/dumb component, improving reusability across different game views.
+- **Lobby Chat**: Added `Chat` Component for Waiting Room Page.
+
+### Changed
+- **UI Alignment**: Updated `PhaseAndTimer` layout logic to adapt dynamically to the presence of the `ChatAndLeaderboard` sidebar, ensuring consistent horizontal centering.
+
+## [0.20.0] - 2026-06-17
+
+### Added
+- **Chat and Leaderboards**: Implemented the `ChatAndLeaderboard` component, integrating both chat functionality and a synchronized leaderboard system into the game interface.
+- **Chat State Management**: Added explicit state handling for different chat types (e.g., global, team) to allow users to switch between communication channels.
+- **Guess Modal UI**: Developed the `GuessModal` interface for the "Guessing" game phase, featuring progress tracking and word outcome selection.
+- **Results Table UI**: Created the `Results` table UI to summarize round outcomes, score calculations, and allow host verification during the "Review" phase.
+- **Host Control Panel**: Implemented a responsive `HostActions` modal using `@headlessui/react` to provide game creators with centralized controls (edit score, restart turn, end game).
+- **Game Confirm Window**: Developed a reusable `GameConfirmModal` to explicitly verify critical host actions and prevent accidental game disruptions.
+
+### Changed
+- **Right Board Mechanics**: Implemented functionality to toggle the visibility of the right sidebar (`ChatAndLeaderboard`), saving the user's preference persistently via `localStorage`.
+- **Streamlined Board Toggle**: Replaced the previous board toggle button layout by moving the control directly to the main stream view for better accessibility.
+- **Dynamic Turn Alert Alignment**: Updated the `TurnAlert` component to automatically and smoothly adjust its horizontal position (center alignment) based on whether the right sidebar is open or closed.
+
+## [0.19.0] - 2026-06-09
+
+### Added
+- 3D Map Viewer page (`Gameplay`) for previewing game boards and themes.
+- Player piece management system with independent step controls (supports up to 4 pieces).
+- Dynamic parsing of embedded 3D anchors (pattern: `Index_posN`) from `.glb` models for precise piece positioning.
+- English UI for the 3D map viewer control panel.
+
+### Changed
+- Replaced hardcoded piece movement coordinates with a dynamic dictionary built from embedded `.glb` anchors.
+- Removed artificial scaling from player pieces to use the exact 1:1 scale from the 3D model.
+- Centered piece geometry programmatically based on its bounding box to fix Blender origin offset issues.
+
 ## [0.18.1] - 2026-06-02
 
 ### Fixed

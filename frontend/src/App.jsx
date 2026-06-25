@@ -22,9 +22,10 @@ import CardPackPreview from "@/pages/CardPackPreview.jsx";
 import MapsGallery from "@/pages/MapsGallery.jsx";
 import LobbyCreator from "@/pages/LobbyCreator.jsx";
 import LobbyLayout from "@/components/layouts/LobbyLayout.jsx";
-import WaitingRoom from "@/pages/WaitingRoom/WaitingRoom.jsx";
+import WaitingRoom from "@/pages/WaitingRoom.jsx";
 import JoinRoom from "@/pages/JoinRoom.jsx";
 import ActiveLobbyWidget from "@/components/layouts/ActiveLobbyWidget.jsx";
+import Gameplay from "@/pages/Gameplay.jsx";
 
 function App() {
   const { isAuthenticated, user, isLoading } = useAuth();
@@ -68,9 +69,13 @@ function App() {
           </Route>
         </Route>
 
-        <Route path='/lobby/:code' element={<LobbyLayout/>}>
+        <Route path='/lobby/:code'>
+          <Route element={<LobbyLayout/>}>
+            <Route path='waiting' element={<WaitingRoom/>}/>
+          </Route>
+
+          <Route path='game' element={<Gameplay/>}/>
           <Route path='join' element={<JoinRoom/>}/>
-          <Route path='waiting' element={<WaitingRoom/>}/>
         </Route>
 
         <Route path='/auth' element={<ProtectedRoute isAllowed={canAccessAuth} redirectTo="/"/>}>
