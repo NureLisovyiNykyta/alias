@@ -4,6 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app.schemas.chat import ChatMessage
 from app.schemas.game_room import CurrentTurn, Player, RoomStateJSON, RoundCard, Team
 
 
@@ -28,6 +29,10 @@ class ServerEventType(StrEnum):
     ROUND_RESULTS = "round_results"
     SCORE_UPDATED = "score_updated"
     GAME_FINISHED = "game_finished"
+
+    # Chat events
+    CHAT_MESSAGE = "chat_message"
+    CHAT_HISTORY = "chat_history"
 
 
 # ---------------------------------------------------------------------------
@@ -119,6 +124,15 @@ class GameFinishedPayload(BaseModel):
     teams: dict[UUID, Team]
 
 
+class ChatMessagePayload(BaseModel):
+    message: ChatMessage
+
+
+class ChatHistoryPayload(BaseModel):
+    room_messages: list[ChatMessage]
+    team_messages: list[ChatMessage]
+
+
 # ---------------------------------------------------------------------------
 # ServerEvent
 # ---------------------------------------------------------------------------
@@ -145,6 +159,8 @@ class ServerEvent(BaseModel):
         | RoundResultsPayload
         | ScoreUpdatedPayload
         | GameFinishedPayload
+        | ChatMessagePayload
+        | ChatHistoryPayload
     )
 
     # --- Lobby ---
@@ -239,3 +255,14 @@ class ServerEvent(BaseModel):
     @classmethod
     def game_finished(cls, winner_team_id: UUID, teams: dict[UUID, Team]) -> "ServerEvent":
         return cls(type=ServerEventType.GAME_FINISHED, payload=GameFinishedPayload(winner_team_id=winner_team_id, teams=teams))
+
+    # --- Chat ---
+
+    @classmethod
+    def chat_message(cls, message: ChatMessage) -> "ServerEvent":
+        return cls(type=ServerEventType.CHAT_MESSAGE, payload=ChatMessagePayload(message=message))
+
+    @classmethod
+    def chat_history(cls, room_messages: list[ChatMessage], team_messages: list[ChatMessage]) -> "ServerEvent":
+        return cls(type=ServerEventType.CHAT_HISTORY, payload=ChatHistoryPayload(room_messages=room_messages, team_messages=team_messages))
+

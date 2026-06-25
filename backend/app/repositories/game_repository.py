@@ -1,13 +1,14 @@
 import redis.asyncio as aioredis
 
+from app.core.config import settings
 from app.schemas.game_room import RoomStateJSON, RoomStatus
 
 _KEY_PREFIX = "room:"
 
 _TTL_BY_STATUS: dict[RoomStatus, int] = {
-    RoomStatus.LOBBY: 7200,
-    RoomStatus.PLAYING: 14400,
-    RoomStatus.FINISHED: 900,
+    RoomStatus.LOBBY: settings.ROOM_TTL_LOBBY,
+    RoomStatus.PLAYING: settings.ROOM_TTL_PLAYING,
+    RoomStatus.FINISHED: settings.ROOM_TTL_FINISHED,
 }
 
 

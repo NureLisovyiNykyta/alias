@@ -26,6 +26,7 @@ class TestWsTeamCreated:
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 f"/api/rooms/{ROOM_CODE}/teams",
@@ -53,6 +54,7 @@ class TestWsTeamUpdated:
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.patch(
                 f"/api/rooms/{ROOM_CODE}/teams/{team.team_id}",
@@ -78,6 +80,7 @@ class TestWsTeamUpdated:
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.patch(
                 f"/api/rooms/{ROOM_CODE}/teams/{team.team_id}",
@@ -104,6 +107,7 @@ class TestWsTeamDeleted:
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.delete(
                 f"/api/rooms/{ROOM_CODE}/teams/{team.team_id}",
@@ -134,6 +138,7 @@ class TestWsTeamDeleted:
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.delete(
                 f"/api/rooms/{ROOM_CODE}/teams/{team.team_id}",
@@ -160,6 +165,7 @@ class TestWsPlayerTeamChanged:
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 f"/api/rooms/{ROOM_CODE}/teams/{team.team_id}/join",
@@ -194,6 +200,7 @@ class TestWsPlayerTeamChanged:
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 f"/api/rooms/{ROOM_CODE}/teams/{team_b.team_id}/join",
@@ -225,6 +232,7 @@ class TestWsPlayerTeamChanged:
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 f"/api/rooms/{ROOM_CODE}/teams/{team.team_id}/leave",
@@ -257,6 +265,7 @@ class TestWsPlayerTeamChanged:
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.delete(
                 f"/api/rooms/{ROOM_CODE}/teams/{team.team_id}/players/{second_user.id}",
@@ -287,6 +296,7 @@ class TestWsPlayerTeamChanged:
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 f"/api/rooms/{ROOM_CODE}/teams/{team.team_id}/join",

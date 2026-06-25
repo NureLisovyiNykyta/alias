@@ -37,7 +37,8 @@ class TestWsConnect:
         test_user: User,
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
-            await ws.receive_json()
+            await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             stored = await game_repo.get_room(ROOM_CODE)
             assert stored is not None
@@ -51,10 +52,12 @@ class TestWsConnect:
         second_user: User,
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, second_user.id), ws_client) as ws_second:
-            await ws_second.receive_json()  # consume room_state
+            await ws_second.receive_json()  # room_state
+            await ws_second.receive_json()  # chat_history
 
             async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws_host:
-                await ws_host.receive_json()  # consume room_state
+                await ws_host.receive_json()  # room_state
+                await ws_host.receive_json()  # chat_history
 
                 event = await ws_second.receive_json()
                 assert event["type"] == ServerEventType.PLAYER_CONNECTED
@@ -70,7 +73,8 @@ class TestWsDisconnect:
         test_user: User,
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
-            await ws.receive_json()
+            await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
         stored = await game_repo.get_room(ROOM_CODE)
         assert stored is not None
@@ -85,9 +89,11 @@ class TestWsDisconnect:
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, second_user.id), ws_client) as ws_second:
             await ws_second.receive_json()  # room_state
+            await ws_second.receive_json()  # chat_history
 
             async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws_host:
                 await ws_host.receive_json()  # room_state
+                await ws_host.receive_json()  # chat_history
                 await ws_second.receive_json()  # player_connected for host
             # host disconnects here
 
@@ -105,6 +111,7 @@ class TestWsMessages:
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await ws.send_text("not-json-at-all")
 
@@ -118,7 +125,8 @@ class TestWsMessages:
         test_user: User,
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
-            await ws.receive_json()
+            await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await ws.send_text('{"type": "unknown_event"}')
 
@@ -163,6 +171,7 @@ class TestWsRoomBroadcasts:
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 "/api/rooms/join",
@@ -185,6 +194,7 @@ class TestWsRoomBroadcasts:
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 f"/api/rooms/{ROOM_CODE}/leave",
@@ -206,6 +216,7 @@ class TestWsRoomBroadcasts:
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 f"/api/rooms/{ROOM_CODE}/close",
@@ -226,6 +237,7 @@ class TestWsRoomBroadcasts:
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 f"/api/rooms/{ROOM_CODE}/start",
@@ -249,6 +261,7 @@ class TestWsRoomBroadcasts:
         and broadcasts ROOM_STATE (not PLAYER_JOINED) to all."""
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             await room_client.post(
                 "/api/rooms/join",
@@ -273,10 +286,12 @@ class TestWsReconnect:
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
         # disconnected → is_online=False
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
-            await ws.receive_json()  # room_state again
+            await ws.receive_json()  # room_state
+            await ws.receive_json()  # chat_history
 
             stored = await game_repo.get_room(ROOM_CODE)
             assert stored is not None
@@ -290,6 +305,7 @@ class TestWsReconnect:
     ) -> None:
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()
+            await ws.receive_json()  # chat_history
 
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             msg = await ws.receive_json()
@@ -306,14 +322,17 @@ class TestWsReconnect:
         # first connect + disconnect host
         async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws:
             await ws.receive_json()
+            await ws.receive_json()  # chat_history
 
         # second_user connects and listens
         async with aconnect_ws(ws_url(ROOM_CODE, second_user.id), ws_client) as ws_second:
             await ws_second.receive_json()  # room_state
+            await ws_second.receive_json()  # chat_history
 
             # host reconnects
             async with aconnect_ws(ws_url(ROOM_CODE, test_user.id), ws_client) as ws_host:
                 await ws_host.receive_json()  # room_state
+                await ws_host.receive_json()  # chat_history
 
                 event = await ws_second.receive_json()
                 assert event["type"] == ServerEventType.PLAYER_CONNECTED
