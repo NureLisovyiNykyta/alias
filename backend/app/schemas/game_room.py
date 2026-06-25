@@ -5,6 +5,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from app.core.config import settings as app_settings
+
 if TYPE_CHECKING:
     from app.models.user import User
 
@@ -49,10 +51,10 @@ class TurnPhase(StrEnum):
 
 
 class Settings(BaseModel):
-    min_teams: int = Field(default=2)
-    max_teams: int = Field(default=4)
-    players_per_team_min: int = Field(default=2)
-    players_per_team_max: int = Field(default=4)
+    min_teams: int = Field(default_factory=lambda: app_settings.ROOM_MIN_TEAMS)
+    max_teams: int = Field(default_factory=lambda: app_settings.ROOM_MAX_TEAMS)
+    players_per_team_min: int = Field(default_factory=lambda: app_settings.ROOM_PLAYERS_PER_TEAM_MIN)
+    players_per_team_max: int = Field(default_factory=lambda: app_settings.ROOM_PLAYERS_PER_TEAM_MAX)
 
 
 class CardPackInfo(BaseModel):

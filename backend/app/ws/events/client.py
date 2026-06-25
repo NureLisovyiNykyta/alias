@@ -2,6 +2,7 @@ from enum import StrEnum
 from uuid import UUID
 from pydantic import BaseModel
 
+from app.schemas.chat import ChatTarget, MessageType
 from app.schemas.game_room import CardStatus
 
 
@@ -18,6 +19,9 @@ class ClientEventType(StrEnum):
     # Host actions
     ADJUST_SCORE = "adjust_score"
     RESTART_TURN = "restart_turn"
+
+    # Chat
+    CHAT_MESSAGE = "chat_message"
 
 
 # ---------------------------------------------------------------------------
@@ -39,6 +43,13 @@ class AdjustScorePayload(BaseModel):
     delta: int
 
 
+class ChatMessagePayload(BaseModel):
+    target: ChatTarget
+    content: str
+    message_type: MessageType = MessageType.TEXT
+    media_url: str | None = None
+
+
 # ---------------------------------------------------------------------------
 # ClientEvent
 # ---------------------------------------------------------------------------
@@ -46,4 +57,4 @@ class AdjustScorePayload(BaseModel):
 
 class ClientEvent(BaseModel):
     type: ClientEventType
-    payload: CardSwipePayload | EditCardStatusPayload | AdjustScorePayload | None = None
+    payload: CardSwipePayload | EditCardStatusPayload | AdjustScorePayload | ChatMessagePayload | None = None

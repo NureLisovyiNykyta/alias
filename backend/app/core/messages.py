@@ -93,6 +93,12 @@ class ErrorMessage(StrEnum):
     GAME_CARD_NOT_IN_ROUND = "Card not found in current round"
     GAME_INVALID_CARD_STATUS = "Card status can only be changed to GUESSED or FAILED"
 
+    CHAT_MESSAGE_EMPTY = "Message cannot be empty"
+    CHAT_MESSAGE_TOO_LONG = "Message too long. Maximum {max_length} characters"
+    CHAT_NOT_IN_TEAM = "You must be in a team to send team messages"
+    CHAT_TEAM_ONLY_IN_GAME = "Team chat is only available during the game"
+    CHAT_GIF_URL_REQUIRED = "GIF message must include media_url"
+    CHAT_GIF_URL_INVALID = "Only GIPHY URLs are allowed"
 
 @dataclass
 class EmailContent:

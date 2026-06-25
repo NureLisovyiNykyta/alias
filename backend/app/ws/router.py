@@ -5,12 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_connection_manager, get_db, get_game_repo
 from app.core.messages import ErrorMessage
+from app.repositories.chat_repository import ChatRepository
 from app.repositories.game_repository import GameRepository
+from app.services.chat import ChatService
 from app.services.game import GameService
 from app.ws.connection_manager import ConnectionManager
 from app.ws.dependencies import _WS_FORBIDDEN, _WS_NOT_FOUND, get_ws_player_id
 from app.ws.events import ClientEvent, ClientEventType, ServerEvent
-from app.ws.events.client import AdjustScorePayload, CardSwipePayload, EditCardStatusPayload
+from app.ws.events.client import AdjustScorePayload, CardSwipePayload, ChatMessagePayload, EditCardStatusPayload
 
 router = APIRouter(prefix="/ws", tags=["websocket"])
 
@@ -32,6 +34,8 @@ async def room_websocket(
         raise WebSocketException(code=_WS_FORBIDDEN)
 
     game_service = GameService(game_repo=game_repo, conn_manager=conn_manager, db=db)
+    chat_repo = ChatRepository(game_repo.redis)
+    chat_service = ChatService(chat_repo=chat_repo, game_repo=game_repo, conn_manager=conn_manager)
 
     # --- Connect ---
     await conn_manager.connect(room_code, player_id, ws)
@@ -45,6 +49,10 @@ async def room_websocket(
             room_code, player_id, ServerEvent.player_connected(room.players[player_id])
         )
 
+        # Send chat history
+        room_messages, team_messages = await chat_service.get_chat_history(room_code, player_id)
+        await conn_manager.send_personal(ws, ServerEvent.chat_history(room_messages, team_messages))
+
         # If the game was paused (all offline), try to resume
         await game_service.handle_player_reconnect(room_code, player_id)
 
@@ -53,7 +61,7 @@ async def room_websocket(
             data = await ws.receive_text()
             try:
                 event = ClientEvent.model_validate_json(data)
-                await _dispatch_event(event, room_code, player_id, game_service, conn_manager, ws)
+                await _dispatch_event(event, room_code, player_id, game_service, chat_service, conn_manager, ws)
             except Exception as exc:
                 msg = str(exc) if str(exc) else ErrorMessage.WS_INVALID_MESSAGE
                 await conn_manager.send_personal(ws, ServerEvent.error(msg))
@@ -80,6 +88,7 @@ async def _dispatch_event(
     room_code: str,
     player_id: uuid.UUID,
     game_service: GameService,
+    chat_service: ChatService,
     conn_manager: ConnectionManager,
     ws: WebSocket,
 ) -> None:
@@ -110,6 +119,17 @@ async def _dispatch_event(
 
         case ClientEventType.RESTART_TURN:
             await game_service.handle_restart_turn(room_code, player_id)
+
+        case ClientEventType.CHAT_MESSAGE:
+            payload = _expect_payload(event, ChatMessagePayload)
+            await chat_service.handle_chat_message(
+                room_code=room_code,
+                player_id=player_id,
+                content=payload.content,
+                target=payload.target,
+                message_type=payload.message_type,
+                media_url=payload.media_url,
+            )
 
 
 def _expect_payload[T](event: ClientEvent, cls: type[T]) -> T:

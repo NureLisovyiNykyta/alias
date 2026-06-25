@@ -32,6 +32,22 @@ class Settings(BaseSettings):
     R2_PUBLIC_URL: str
     DEFAULT_AVATARS_COUNT: int = 10
 
+    # Room rules
+    ROOM_MIN_TEAMS: int = 2
+    ROOM_MAX_TEAMS: int = 4
+    ROOM_PLAYERS_PER_TEAM_MIN: int = 2
+    ROOM_PLAYERS_PER_TEAM_MAX: int = 4
+
+    # Chat
+    CHAT_MAX_MESSAGE_LENGTH: int = 500
+    CHAT_MAX_MESSAGES_PER_CHANNEL: int = 100
+
+    # TTL (seconds)
+    ROOM_TTL_LOBBY: int = 7200       # 2 hours
+    ROOM_TTL_PLAYING: int = 14400    # 4 hours
+    ROOM_TTL_FINISHED: int = 900     # 15 minutes
+    CHAT_TTL_SECONDS: int = 14400    # 4 hours
+
     @property
     def default_avatar_urls(self) -> list[str]:
         return [
