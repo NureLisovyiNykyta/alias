@@ -114,11 +114,11 @@ const Piece = ({ modelUrl, textureUrl, position }) => {
   );
 };
 
-export default function ThemeCanvas({ mapUrl, pieceUrl, pieces, onAnchorsLoaded }) {
+export default function ThemeCanvas({ mapUrl, pieceUrl, hdrUrl, pieces, onAnchorsLoaded }) {
   return (
     <div className="absolute inset-0 overflow-hidden">
       <Canvas camera={{ position: [0, 15, 15], fov: 45 }}>
-        <Environment files='/citrus_2k.hdr' background backgroundIntensity={0.6} environmentIntensity={0.45} />
+        <Environment files={hdrUrl} background backgroundIntensity={0.6} environmentIntensity={0.45} blur={0.5} />
         <ambientLight />
         <directionalLight position={[10, 15, 1000]} intensity={1.2} castShadow />
         <pointLight position={[-10, -10, -10]} intensity={0.4} />

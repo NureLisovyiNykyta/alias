@@ -143,6 +143,7 @@ export default function Gameplay() {
       <ThemeCanvas
         mapUrl={themeInfo.scene_url}
         pieceUrl={themeInfo.piece_model_url}
+        hdrUrl={themeInfo.background_url}
         pieces={piecesData}
         onAnchorsLoaded={setAnchors}
       />
