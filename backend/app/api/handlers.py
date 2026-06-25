@@ -13,3 +13,4 @@ async def app_exception_handler(request: Request, exc: AppException) -> JSONResp
 
 def setup_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(AppException, app_exception_handler)  # type: ignore[arg-type]
+
