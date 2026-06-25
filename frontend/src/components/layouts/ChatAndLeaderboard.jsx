@@ -43,7 +43,7 @@ export default function ChatAndLeaderboard() {
     <aside className='w-[358px] fixed right-0 top-0 h-screen p-4 flex flex-col justify-end gap-4 bg-neutral-bg z-40 shadow-xl'>
       <button
         onClick={toggleBoard}
-        className="absolute top-2 -left-12 p-3 bg-white rounded-[12px] shadow-buttons hover:bg-surface transition-colors cursor-pointer z-1000"
+        className="absolute top-6 -left-12 p-3 bg-white rounded-[12px] shadow-buttons hover:bg-surface transition-colors cursor-pointer z-1000"
       >
         <img src={closeSideBar} alt="Close Board" className="size-4" />
       </button>

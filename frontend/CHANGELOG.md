@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Leaderboard List Animation**: Added `Motion li` animation for dynamic lists.
+- **Chat Animations**: Added similar to `Leaderboard` components animations.
 
 ## [0.21.1] - 2026-06-24
 

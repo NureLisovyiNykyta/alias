@@ -130,7 +130,6 @@ export default function Leaderboard({
                           <ul className="flex flex-col gap-1.5 pl-7">
                             {team.player_ids.map(playerId => {
                               const player = roomData?.players?.[playerId];
-                              const isPlayerExplainer = playerId === explainerId;
 
                               return (
                                 <li key={playerId} className="flex items-center gap-1.5">
