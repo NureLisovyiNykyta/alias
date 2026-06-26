@@ -38,10 +38,6 @@ const WaitingRoom = () => {
       });
 
       navigate(`/lobby/${roomCode}/game`);
-
-      setTimeout(() => {
-        closeNotification();
-      }, 1500);
     }
   }, [roomData?.status, roomCode, navigate]);
 

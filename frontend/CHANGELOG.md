@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2026-06-27
+
+### Added
+- **Real-time Chat Integration**: Full integration of the WebSocket-based chat system. Added support for both room-wide and team-specific channels within the `Chat` component.
+- **Guest Message Identification**: Implemented local `guest_id` tracking in the `Chat` component to ensure messages sent by guest users are correctly identified as "own" messages (visualized as right-aligned).
+
+### Changed
+- **WebSocket Chat Handling**: Updated `useGameSocket` to handle `chat_history` and `chat_message` events, providing a reactive message stream to the UI.
+
 ## [0.21.3] - 2026-06-26
 
 ### Fixed

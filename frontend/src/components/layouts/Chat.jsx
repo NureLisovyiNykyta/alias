@@ -1,25 +1,34 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import NeutralSwitch from "@/components/buttons/NeutralSwitch.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
+import { useLobby } from "@/contexts/LobbyContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import rightArrow from '@/assets/rightArrow.svg';
 
 export default function Chat({ types = null, activeType = null, onChangeType = null }) {
   const { user } = useAuth();
-  const [generalMsgs, setGeneralMsgs] = useState([
-    { id: 'g1', text: 'Hello everyone!', isMyMsg: false, senderName: 'Alice', avatar: null },
-    { id: 'g2', text: 'Ready to play?', isMyMsg: false, senderName: 'Alice', avatar: null }
-  ]);
-  const [teamMsgs, setTeamMsgs] = useState([
-    { id: 't1', text: 'Let us win this round!', isMyMsg: false, senderName: 'Bob', avatar: null }
-  ]);
+
+  const { chatMessages, sendMessage } = useLobby();
 
   const [inputValue, setInputValue] = useState('');
   const textareaRef = useRef(null);
-
-  const isGeneral = activeType === 'general';
-  const activeMessages = isGeneral ? generalMsgs : teamMsgs;
   const scrollRef = useRef(null);
+
+  const isGeneral = !types || activeType === 'general' || activeType === 'room';
+
+  const rawMessages = isGeneral ? (chatMessages?.room || []) : (chatMessages?.team || []);
+
+  const activeMessages = useMemo(() => {
+    const currentUserId = user?.id || user?.user_id || localStorage.getItem("guest_id");
+
+    return rawMessages.map(msg => ({
+      id: msg.message_id,
+      text: msg.content,
+      isMyMsg: msg.sender_id === currentUserId,
+      senderName: msg.sender_nickname,
+      avatar: msg.sender_avatar_url
+    }));
+  }, [rawMessages, user]);
 
   const groupedMessages = useMemo(() => {
     const groups = [];
@@ -28,7 +37,13 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
       if (lastGroup && lastGroup.isMyMsg === msg.isMyMsg && lastGroup.senderName === msg.senderName) {
         lastGroup.messages.push(msg);
       } else {
-        groups.push({ id: `group-${msg.id}`, isMyMsg: msg.isMyMsg, senderName: msg.senderName, avatar: msg.avatar, messages: [msg] });
+        groups.push({
+          id: `group-${msg.id}`,
+          isMyMsg: msg.isMyMsg,
+          senderName: msg.senderName,
+          avatar: msg.avatar,
+          messages: [msg]
+        });
       }
     });
     return groups;
@@ -42,10 +57,15 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
-    const newMsg = { id: Date.now().toString(), text: inputValue, isMyMsg: true, senderName: user?.nickname || 'Me', avatar: user?.avatar_url };
 
-    if (isGeneral) setGeneralMsgs(prev => [...prev, newMsg]);
-    else setTeamMsgs(prev => [...prev, newMsg]);
+    sendMessage({
+      type: 'chat_message',
+      payload: {
+        target: isGeneral ? 'room' : 'team',
+        content: inputValue.trim(),
+        message_type: 'text'
+      }
+    });
 
     setInputValue('');
     if (textareaRef.current) textareaRef.current.style.height = '44px';
@@ -66,18 +86,21 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
   return (
     <div className='w-full h-full min-h-0 bg-white rounded-[12px] flex p-3 flex-col pt-0 border border-surface'>
       <div className="shrink-0">
-        {types ? <NeutralSwitch options={types} activeId={activeType} onChange={onChangeType} layoutId="chatSwitchIndicator" /> :
-          (<div className='-mx-4 flex items-center py-4 px-8 shrink-0'>
+        {types ? (
+          <NeutralSwitch options={types} activeId={activeType} onChange={onChangeType} layoutId="chatSwitchIndicator" />
+        ) : (
+          <div className='-mx-4 flex items-center py-4 px-8 shrink-0'>
             <h2 className='text-h2'>Lobby Chat</h2>
-          </div>)}
+          </div>
+        )}
       </div>
 
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll overflow-x-hidden flex flex-col bg-white my-2 scrollbar-always-visible">
         <AnimatePresence mode="wait">
-          <motion.ul key={activeType} initial={{ opacity: 0 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="w-full flex flex-col gap-4">
+          <motion.ul key={activeType} initial={{ opacity: 0 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="w-full flex flex-col gap-4 py-2">
             {groupedMessages.map((group) => (
               <motion.li layout key={group.id} className={`w-full flex gap-4 ${group.isMyMsg ? 'justify-end' : ''}`}>
-                {!group.isMyMsg && <img src={group.avatar || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + group.senderName} className="size-8 rounded-full sticky top-0" />}
+                {!group.isMyMsg && <img src={group.avatar || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + group.senderName} className="size-8 rounded-full sticky top-0" alt="avatar" />}
                 <div className={`flex flex-col min-w-0 ${group.isMyMsg ? 'items-end' : 'items-start w-full'}`}>
                   {!group.isMyMsg && <span className='text-label font-noto text-text-label mb-1'>{group.senderName}</span>}
                   <div className={`flex flex-col w-full gap-1 ${group.isMyMsg ? 'items-end' : 'items-start'}`}>

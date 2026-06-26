@@ -8,12 +8,14 @@ export const useGameSocket = (roomCode) => {
   const [roomData, setRoomData] = useState(null);
   const [isRoomClosed, setIsRoomClosed] = useState(false);
 
+  const [chatMessages, setChatMessages] = useState({ room: [], team: [] });
+
   useEffect(() => {
     setIsRoomClosed(false);
     setRoomData(null);
+    setChatMessages({ room: [], team: [] });
   }, [roomCode]);
 
-  // 1. Мемоизируем URL. Защищает от сбросов сокета при ререндерах компонентов.
   const socketUrl = useMemo(() => {
     if (!roomCode) return null;
 
@@ -32,16 +34,13 @@ export const useGameSocket = (roomCode) => {
     {
       shouldReconnect: () => true,
       reconnectAttempts: 20,
-      // 2. Делаем агрессивный реконнект каждую 1 секунду вместо долгой экспоненциальной паузы
       reconnectInterval: 1000,
-      // Встроенный heartbeat убираем полностью!
       onOpen: () => console.log(`[WS] Connected to room: ${roomCode}`),
       onClose: () => console.log(`[WS] Disconnected from room: ${roomCode}`),
       onError: (event) => console.error("[WS] Error:", event),
     }
   );
 
-  // 3. Ручной, железобетонный Ping каждые 10 секунд
   useEffect(() => {
     if (readyState !== ReadyState.OPEN) return;
 
@@ -57,6 +56,25 @@ export const useGameSocket = (roomCode) => {
 
     const { type, payload } = lastJsonMessage;
     console.log(`[WS] Event received: ${type}`, payload);
+
+    if (type === "chat_history") {
+      setChatMessages({
+        room: payload.room_messages || [],
+        team: payload.team_messages || []
+      });
+      return;
+    }
+
+    if (type === "chat_message") {
+      setChatMessages((prev) => {
+        const target = payload.message.target;
+        return {
+          ...prev,
+          [target]: [...prev[target], payload.message]
+        };
+      });
+      return;
+    }
 
     setRoomData((prev) => {
       if (!prev && type !== "room_state") return prev;
@@ -210,6 +228,7 @@ export const useGameSocket = (roomCode) => {
 
   return {
     roomData,
+    chatMessages,
     isConnected: readyState === ReadyState.OPEN,
     sendMessage: sendJsonMessage,
     isRoomClosed,
