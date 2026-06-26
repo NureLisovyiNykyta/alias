@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.3] - 2026-06-26
+
+### Fixed
+- **SPA Routing on Vercel**: Added `vercel.json` configuration file with rewrite rules to redirect all unmatched paths to `index.html`. This fixes `404 NOT_FOUND` errors when directly accessing or refreshing deep links (like `/lobby/:code/join`) on the static hosting environment.
+- **Zombie Widget State**: Refactored the `ActiveLobbyWidget` lifecycle and `LobbyContext` state management. Added a TTL (Time-To-Live) tracking mechanism tied to the `activeRoom` state in `localStorage` to automatically clear the widget and prevent it from persisting indefinitely when a room is abandoned, closed, or the server connection fails.
+- **Lobby Chat Label Return**: returned `Lobby Chat` label.
+- **Landing Page Fill Up** : implemented real data filling for landing page (2 limit).
+- **Map Card Buttons**: fixed a condition to see `Save to my maps` button only for public type.
+- **Discord Channel Integration**: integrated discord link for `DiscordLink` and `Navigation` components for community usage.
+
 ## [0.21.2] - 2026-06-25
 
 ### Added

@@ -129,7 +129,7 @@ const MapsGallery = () => {
             </div>
           ) : currentData.items?.length > 0 ? (
             currentData.items.map((mapItem) => (
-              <MapListCard key={mapItem.id} map={mapItem}/>
+              <MapListCard key={mapItem.id} map={mapItem} type={activeTab.id}/>
             ))
           ) : (
             <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>

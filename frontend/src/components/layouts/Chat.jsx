@@ -66,7 +66,10 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
   return (
     <div className='w-full h-full min-h-0 bg-white rounded-[12px] flex p-3 flex-col pt-0 border border-surface'>
       <div className="shrink-0">
-        {types && <NeutralSwitch options={types} activeId={activeType} onChange={onChangeType} layoutId="chatSwitchIndicator" />}
+        {types ? <NeutralSwitch options={types} activeId={activeType} onChange={onChangeType} layoutId="chatSwitchIndicator" /> :
+          (<div className='-mx-4 flex items-center py-4 px-8 shrink-0'>
+            <h2 className='text-h2'>Lobby Chat</h2>
+          </div>)}
       </div>
 
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll overflow-x-hidden flex flex-col bg-white my-2 scrollbar-always-visible">

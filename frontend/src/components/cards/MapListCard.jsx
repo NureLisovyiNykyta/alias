@@ -7,7 +7,7 @@ import Spinner from "@/components/layouts/Spinner.jsx";
 import { useSaveMapMutation } from "@/api/maps.js";
 import { formatPackDate } from "@/utils/parseTime.js";
 
-const MapListCard = ({ map }) => {
+const MapListCard = ({ map, type = null }) => {
   const { mutate: saveMap, isPending } = useSaveMapMutation();
 
   const handleSave = () => {
@@ -25,13 +25,6 @@ const MapListCard = ({ map }) => {
       />
 
       <div className='flex flex-col justify-between w-full py-1'>
-        <div className='flex flex-col gap-4'>
-          <h2 className='text-h1'>{map?.name}</h2>
-          <p className='font-noto text-p text-text leading-relaxed line-clamp-3'>
-            {map?.description || 'No description provided.'}
-          </p>
-        </div>
-
         <div className='flex flex-col gap-6 pt-4'>
           <ul className='flex items-center gap-12'>
             <li className='flex flex-col gap-1'>
@@ -41,7 +34,7 @@ const MapListCard = ({ map }) => {
 
             <li className='flex flex-col gap-1'>
               <span className='text-label text-text-label font-noto'>Saved by</span>
-              <p className='font-noto text-p'>{map?.saves_count || 0} players</p>
+              <p className='font-noto text-p'>{map?.saves_count || 0} player{map?.saves_count === 1 ? '' : 's'}</p>
             </li>
 
             <li className='flex flex-col gap-1'>
@@ -58,7 +51,7 @@ const MapListCard = ({ map }) => {
               <span>Review {map?.name} map</span>
             </Button>
 
-            {map?.is_public && (
+            {type === 'community' && (
               <Button
                 variant='secondary'
                 onClick={handleSave}
