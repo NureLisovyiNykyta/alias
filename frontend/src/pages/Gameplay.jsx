@@ -34,6 +34,8 @@ export default function Gameplay() {
   const currentField = roomData?.map_info?.fields?.[currentPosition];
   const currentExplainer = roomData?.players?.[currentTurn?.explainer_id];
 
+  const timeLimit = currentField?.time_limit || 60;
+
   const explainerName = roomData?.players?.[currentTurn?.explainer_id]?.username || 'Explainer';
 
   const isGameFinished = roomData?.status === 'FINISHED';
@@ -98,6 +100,7 @@ export default function Gameplay() {
       <PhaseAndTimer
         phase={currentPhase}
         endsAt={currentTurn?.ends_at}
+        timeLimit={timeLimit}
         isExplainer={isExplainer}
         onTimerExpired={() => sendMessage({ type: 'timer_expired' })}
       />
