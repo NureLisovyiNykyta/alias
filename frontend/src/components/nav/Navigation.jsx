@@ -11,7 +11,7 @@ import Spinner from "@/components/layouts/Spinner.jsx";
 
 const PINNED_LINKS = [
   { id: 1, label: 'How to play Alias?', path: '/start', color: 'bg-decorative-500' },
-  { id: 2, label: 'Join our Discord', path: '/discord', color: 'bg-decorative-300' },
+  { id: 2, label: 'Join our Discord', path: 'https://discord.gg/2xsU4arUnX', color: 'bg-decorative-300' },
   { id: 3, label: 'Latest update', path: '/updates', color: 'bg-decorative-900' },
 ];
 
@@ -45,19 +45,38 @@ const Navigation = () => {
         </div>
 
         <ul className="flex flex-col px-2 gap-4">
-          {PINNED_LINKS.map((link) => (
-            <li key={link.id}>
-              <Link
-                to={link.path}
-                className="flex items-center gap-2 rounded-lg hover:text-brand-500"
-              >
-                <span className={`w-6 h-6 rounded-[8px] ${link.color} shrink-0`}/>
-                <span className="font-noto text-p">
-                  {link.label}
-                </span>
-              </Link>
-            </li>
-          ))}
+          {PINNED_LINKS.map((link) => {
+            const isDiscord = link.id === 2;
+            const className = "flex items-center gap-2 rounded-lg hover:text-brand-500";
+
+            return (
+              <li key={link.id}>
+                {isDiscord ? (
+                  <a
+                    href={link.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={className}
+                  >
+                    <span className={`w-6 h-6 rounded-[8px] ${link.color} shrink-0`}/>
+                    <span className="font-noto text-p">
+              {link.label}
+            </span>
+                  </a>
+                ) : (
+                  <Link
+                    to={link.path}
+                    className={className}
+                  >
+                    <span className={`w-6 h-6 rounded-[8px] ${link.color} shrink-0`}/>
+                    <span className="font-noto text-p">
+              {link.label}
+            </span>
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </nav>
 

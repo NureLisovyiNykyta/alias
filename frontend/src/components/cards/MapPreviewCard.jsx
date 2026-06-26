@@ -30,7 +30,7 @@ const MapPreviewCard = ({ map }) => {
 
           <div className='flex flex-col gap-2'>
             <span className='text-label text-text-label font-noto'>Saved by</span>
-            <p className='font-noto text-p'>{map?.saves_count} players</p>
+            <p className='font-noto text-p'>{map?.saves_count} player{map?.saves_count === 1 ? '' : 's'}</p>
           </div>
 
           <div className='flex flex-col gap-2'>
@@ -39,11 +39,6 @@ const MapPreviewCard = ({ map }) => {
               <img src={star} alt="Star rating"/>
               <p className='font-noto text-p'>{map?.rating_average}</p>
             </div>
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <span className='text-label text-text-label font-noto'>Map template</span>
-            <p className='font-noto text-p'>{map?.template?.name}</p>
           </div>
 
           <div className='flex flex-col gap-2'>

@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import bg from '@/assets/background-login.png';
 import { Button } from "@/components/buttons/Button.jsx";
 import Input from "@/components/inputs/Input.jsx";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
@@ -83,8 +82,7 @@ const SignIn = () => {
       <div className='grid grid-cols-2 shadow-buttons rounded-[12px]'>
         <div className='relative w-[400px] h-[695px] rounded-l-[12px] flex items-center justify-center overflow-hidden'>
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-[0.52]"
-            style={{ backgroundImage: `url(${bg})` }}
+            className="absolute inset-0 bg-gradient-to-br from-[#b4b897] via-[#e2ab7b] to-[#d3a39e]"
           />
           <div className='flex flex-col w-[296px] gap-[50px] relative z-10'>
             <span

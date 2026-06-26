@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/buttons/Button.jsx";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
 
-const ActiveLobbyWidget = () => {
+export default function ActiveLobbyWidget()  {
   const { activeRoom } = useLobby();
   const location = useLocation();
 
@@ -31,6 +31,4 @@ const ActiveLobbyWidget = () => {
       )}
     </AnimatePresence>
   );
-};
-
-export default ActiveLobbyWidget;
+}

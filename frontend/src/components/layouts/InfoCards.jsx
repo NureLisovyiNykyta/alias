@@ -1,57 +1,28 @@
-import book from '@/assets/book.png';
-import dogs from '@/assets/dogs.png';
-import pokemonGo from '@/assets/pokemonGo.png';
-import maps from '@/assets/maps.png';
-import map1 from '@/assets/map1.png';
-import map2 from '@/assets/map2.png';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from "react-router-dom";
+import book from '@/assets/book.png';
+import maps from '@/assets/maps.png';
 import CardPack from "@/components/cards/CardPack.jsx";
+import Spinner from "@/components/layouts/Spinner.jsx";
+import { getPublicPacks } from "@/api/card-packs";
+import { getPublicMaps } from "@/api/maps.js";
 import MapListCard from "@/components/cards/MapListCard.jsx";
-
-export const CARD_PACKS = [
-  {
-    id: 1,
-    title: 'Pokemon Go',
-    image: pokemonGo,
-    description: 'I decided to create 300+ cards for you Alias evenings about Pokemons. My deck doesn’t include Kanto region as I hate it. Have fun!',
-    savedBy: '144,789',
-    positions: '345',
-    rating: '4.89'
-  },
-  {
-    id: 2,
-    title: 'Dogs',
-    image: dogs,
-    description: 'Dogs are often called "man\'s best friend" for a reason. As the first species ever domesticated, they’ve evolved alongside humans for thousands of years, moving from wild hunters to beloved couch potatoes and loyal protectors.',
-    savedBy: '144,789',
-    positions: '345',
-    rating: '4.89'
-  }
-];
-
-const MAPS = [
-  {
-    id: 1,
-    title: 'Abstract map',
-    image: map1,
-    dimensions: "10x6",
-    basedOn: "Pokemon Go",
-    description: "This map is perfect for Alias-beginners."
-  },
-  {
-    id: 2,
-    title: 'Funny cartoons',
-    image: map2,
-    dimensions: "10x6",
-    basedOn: "Pokemon Go",
-    description: "This map is perfect for Alias-beginners."
-  },
-];
 
 const PACKS_LINK = '/gallery/packs';
 const MAPS_LINK = '/gallery/maps';
 
-const InfoCards = () => {
+export default function InfoCards() {
+  const { data: packsData, isLoading: isPacksLoading } = useQuery({
+    queryKey: ['publicPacksTop', { limit: 2 }],
+    queryFn: () => getPublicPacks({ limit: 2, offset: 0 }),
+  });
+
+  const { data: mapsData, isLoading: isMapsLoading } = useQuery({
+    queryKey: ['publicMapsTop', { limit: 2 }],
+    queryFn: () => getPublicMaps({ limit: 2, offset: 0 }),
+  });
+
   return (
     <div className='w-full flex flex-col gap-8'>
       <div className='flex items-center justify-between w-full'>
@@ -69,13 +40,32 @@ const InfoCards = () => {
         </Link>
       </div>
 
-      <ul className='flex flex-col gap-8 w-full'>
-        {CARD_PACKS.map((pack) => (
-          <CardPack key={pack.id} pack={pack}/>
-        ))}
+      <ul className='flex flex-col gap-8 w-full justify-center relative'>
+        {isPacksLoading ? (
+          <div className='flex justify-center py-4'>
+            <Spinner size='md'/>
+          </div>
+        ) : packsData?.items?.length > 0 ? (
+          packsData.items.map((item) => {
+            const mappedPack = {
+              id: item.id,
+              title: item.name,
+              description: item.description,
+              image: item.cover_url,
+              savedBy: item.saves_count,
+              positions: item.positions_count || 0,
+              rating: item.rating_average,
+              ...item,
+            };
+
+            return <CardPack key={item.id} pack={mappedPack} type="public" />;
+          })
+        ) : (
+          <p className="font-noto text-p text-text-label text-center py-4">No community packs found.</p>
+        )}
       </ul>
 
-      <div className='flex items-center justify-between w-full'>
+      <div className='flex items-center justify-between w-full mt-4'>
         <div className='flex items-center gap-4'>
           <img className='w-25 h-20 object-cover' src={maps} alt="Maps"/>
           <h1 className='text-h1'>Features public maps</h1>
@@ -90,13 +80,20 @@ const InfoCards = () => {
         </Link>
       </div>
 
-      <ul className='flex flex-col gap-5 w-full'>
-        {MAPS.map(map => (
-          <MapListCard key={map.id} map={map}/>
-        ))}
+      <ul className='flex flex-col gap-5 w-full min-h-[100px] justify-center relative'>
+        {isMapsLoading ? (
+          <div className='flex justify-center py-4'>
+            <Spinner size='md'/>
+          </div>
+        ) : mapsData?.items?.length > 0 ? (
+          mapsData.items.map((map) => (
+            <MapListCard key={map.id} map={map} type='community' />
+          ))
+        ) : (
+          <p className="font-noto text-p text-text-label text-center py-4">No public maps found.</p>
+        )}
       </ul>
+
     </div>
   );
-};
-
-export default InfoCards;
+}

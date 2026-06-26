@@ -30,12 +30,12 @@ const CardPack = ({ pack, type }) => {
           <ul className='flex items-center gap-8'>
             <li className='flex flex-col gap-2'>
               <span className='text-label text-text-label font-noto'>Saved by</span>
-              <p className='font-noto text-p'>{pack.savedBy} users</p>
+              <p className='font-noto text-p'>{pack.savedBy} user{pack.savedBy === 1 ? '' : 's'}</p>
             </li>
 
             <li className='flex flex-col gap-2'>
               <span className='text-label text-text-label font-noto'>Pack contains</span>
-              <p className='font-noto text-p'>{pack.positions} positions</p>
+              <p className='font-noto text-p'>{pack.positions} position{pack.positions === 1 ? '' : 's'}</p>
             </li>
 
             <li className='flex flex-col gap-2'>
