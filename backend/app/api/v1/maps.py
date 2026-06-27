@@ -9,7 +9,7 @@ from app.models.map import Map, MAP_SIZE_FIELDS
 from app.models.user import User
 from app.schemas.base import PaginatedResponse
 from app.schemas.card_pack import SortOrder
-from app.schemas.map import MapCreate, MapRatingInput, MapRead, MapReadDetailed, MapSizeRead, MapThemeRead, MapUpdate
+from app.schemas.map import MapCreate, MapRatingInput, MapRead, MapReadDetailed, MapSearchScope, MapSizeRead, MapThemeRead, MapUpdate
 from app.services import images as image_service
 from app.services.map import (
     activate_map,
@@ -23,6 +23,7 @@ from app.services.map import (
     get_saved_maps,
     publish_map,
     restore_map,
+    search_maps,
     set_map_rating,
     toggle_save_map,
     update_map,
@@ -152,8 +153,10 @@ async def list_public_maps(
     current_user: User | None = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedResponse[MapRead]:
-    exclude_user_id = current_user.id if current_user else None
-    items, total = await get_public_maps(db, limit, offset, q, size, sort_by, exclude_user_id)
+    items, total = await get_public_maps(
+        db, limit, offset, q, size, sort_by,
+        current_user.id if current_user else None,
+    )
     return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
 
 
@@ -190,6 +193,30 @@ async def list_trash_maps(
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedResponse[MapRead]:
     items, total = await get_deleted_maps(db, current_user.id, limit, offset)
+    return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
+
+
+@router.get("/search", response_model=PaginatedResponse[MapRead])
+async def search_maps_route(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    q: str | None = Query(default=None),
+    size: str | None = Query(default=None),
+    scope: MapSearchScope = Query(default=MapSearchScope.available),
+    sort_by: SortOrder = Query(default=SortOrder.newest),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> PaginatedResponse[MapRead]:
+    items, total = await search_maps(
+        db,
+        current_user.id,
+        limit,
+        offset,
+        q,
+        size,
+        scope,
+        sort_by,
+    )
     return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
 
 

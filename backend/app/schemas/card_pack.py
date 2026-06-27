@@ -13,6 +13,13 @@ class SortOrder(str, enum.Enum):
     most_saved = "most_saved"
 
 
+class CardPackSearchScope(str, enum.Enum):
+    my = "my"
+    public = "public"
+    saved = "saved"
+    available = "available"
+
+
 class CardPackCreate(BaseModel):
     name: str
     description: str
@@ -55,6 +62,8 @@ class CardPackRead(BaseModel):
     deleted_at: datetime.datetime | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    is_saved: bool = False
+    my_rating: int | None = None
 
 
 class CardTypeRead(BaseModel):

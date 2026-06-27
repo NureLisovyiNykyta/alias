@@ -1,0 +1,144 @@
+@startuml sequence_auth
+' ============================================================
+'   SEQUENCE DIAGRAM — Authentication & Registration
+' ============================================================
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 40
+
+skinparam sequence {
+    ArrowColor #37474F
+    ArrowFontSize 40
+    ArrowFontColor #37474F
+    LifeLineBorderColor #78909C
+    LifeLineBackgroundColor #ECEFF1
+    ParticipantBorderColor #1565C0
+    ParticipantBackgroundColor #E3F2FD
+    ParticipantFontColor #0D47A1
+    ParticipantFontSize 40
+    ParticipantFontStyle bold
+    ActorBorderColor #2E7D32
+    ActorBackgroundColor #E8F5E9
+    DividerBorderColor #90A4AE
+    DividerBackgroundColor #ECEFF1
+    DividerFontStyle bold
+}
+
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+    FontSize 30
+}
+
+' =================== Participants ===================
+actor       "Client"          as C      #E8F5E9
+participant "auth.py\n«Router»" as AR   #B3D9FF
+participant "UserService"     as US     #FFE0B2
+participant "AuthService"     as AS     #FFE0B2
+participant "EmailService"    as ES     #FFE0B2
+participant "Security\n«JWT/bcrypt»" as SEC #F8BBD0
+database    "PostgreSQL"      as PG     #E3F2FD
+collections "SMTP\n(background)" as SMTP #FFF3E0
+
+' =================== REGISTER ===================
+== Реєстрація (POST /api/auth/register) ==
+
+C -> AR ++ #B3D9FF : POST /register\n{email, username, password}
+    AR -> US ++ #FFE0B2 : create_user(db, email, username, password)
+        US -> SEC ++ #F8BBD0 : get_password_hash(password)
+            SEC -> SEC : bcrypt.hashpw(rounds=12)
+        return password_hash
+
+        US -> SEC ++ #F8BBD0 : generate_verification_code()
+        return 6-digit code
+
+        US -> PG ++ : INSERT INTO users\n(email, username, hash, code, ...)
+        return User
+    return User
+
+    AR ->> ES : BackgroundTask:\nsend_code_email(email, code)
+    note right of ES : Асинхронна задача\nне блокує відповідь
+
+    AR -> SEC ++ #F8BBD0 : generate_token_pair(user.id)
+        SEC -> SEC : create_access_token(sub=id)\nHS256, exp=30min
+        SEC -> SEC : create_refresh_token(sub=id)\nHS256, exp=30days
+    return Token{access, refresh}
+return 200 Token
+
+... background ...
+
+ES -> SMTP : send email\nwith verification code
+note right of SMTP : SMTP-лист\nз 6-значним кодом
+
+|||
+
+' =================== LOGIN ===================
+== Авторизація (POST /api/auth/login) ==
+
+C -> AR ++ #B3D9FF : POST /login\n{username, password}
+    AR -> AS ++ #FFE0B2 : authenticate_user(db, login, password)
+        AS -> PG ++ : SELECT * FROM users\nWHERE email=? OR username=?
+        return User | None
+
+        alt user not found
+            AS --> C : 401 INVALID_CREDENTIALS
+        end
+
+        AS -> SEC ++ #F8BBD0 : verify_password(plain, hash)
+            SEC -> SEC : bcrypt.checkpw()
+        return bool
+
+        alt password mismatch
+            AS --> C : 401 INVALID_CREDENTIALS
+        end
+    return User
+
+    AR -> SEC ++ #F8BBD0 : generate_token_pair(user.id)
+    return Token{access, refresh}
+return 200 Token
+
+|||
+
+' =================== VERIFY EMAIL ===================
+== Верифікація email (POST /api/auth/verify-email) ==
+
+C -> AR ++ #B3D9FF : POST /verify-email\n{code}\nAuthorization: Bearer <access>
+    AR -> AR : Depends(get_current_user)\n→ decode JWT → get User from DB
+    AR -> AS ++ #FFE0B2 : verify_user_code(db, user, code)
+        AS -> AS : validate: !already_verified
+        AS -> AS : validate: code matches
+        AS -> AS : validate: not expired (15 min)
+        AS -> PG ++ : UPDATE users SET\nis_email_verified=true,\ncode=NULL
+        return
+    return
+return 200 StatusResponse
+
+|||
+
+' =================== GOOGLE LOGIN ===================
+== Google OAuth 2.0 (POST /api/auth/google/login) ==
+
+C -> AR ++ #B3D9FF : POST /google/login\n{google_token}
+    AR -> AS ++ #FFE0B2 : verify_google_token(token)
+        AS -> AS : id_token.verify_oauth2_token()\nvia Google API (in thread)
+        AS -> AS : check email_verified
+    return {email, sub}
+
+    AR -> US ++ #FFE0B2 : get_user_by_email(db, email)
+        US -> PG ++ : SELECT * FROM users\nWHERE email=?
+        return User
+    return User
+
+    opt user.google_id is None
+        AR -> AS ++ #FFE0B2 : link_google_account(db, user, sub)
+            AS -> PG ++ : UPDATE users SET\ngoogle_id=?, is_email_verified=true
+            return
+        return
+    end
+
+    AR -> SEC ++ #F8BBD0 : generate_token_pair(user.id)
+    return Token{access, refresh}
+return 200 Token
+
+@enduml

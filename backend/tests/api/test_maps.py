@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.messages import ErrorMessage
 from app.models.card import CardPack, CardType
 from app.models.enums import StatusEnum
-from app.models.map import Map, MapField
+from app.models.map import Map, MapField, MapRating, SavedMap
 from app.models.user import User
 from tests.conftest import MAP_FIELD_0, MAP_FIELD_1
 
@@ -642,3 +642,282 @@ class TestDetailedMapView:
         response = await client.get(f"/api/maps/{map_obj.id}", headers=auth_headers)
         assert response.status_code == 404
         assert response.json()["detail"] == ErrorMessage.MAP_NOT_FOUND
+
+
+class TestMapsSearch:
+    def _make_map(self, name: str, author_id: uuid.UUID, is_public: bool = False, status: str = StatusEnum.DRAFT.value) -> Map:
+        return Map(
+            id=uuid.uuid4(),
+            name=name,
+            is_public=is_public,
+            size="LARGE",
+            max_fields_count=64,
+            author_id=author_id,
+            status=status,
+        )
+
+    async def test_search_available_returns_my_public_and_saved(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=available returns own maps, public maps from others, and saved maps."""
+        my_map = self._make_map("My Draft Map Search", test_user.id)
+        public_map = self._make_map("Shared Public Map Search", second_user.id, is_public=True, status=StatusEnum.ACTIVE.value)
+        saved_private = self._make_map("Saved Private Map Search", second_user.id)
+        test_db.add_all([my_map, public_map, saved_private])
+        test_db.add(SavedMap(user_id=test_user.id, map_id=saved_private.id))
+        await test_db.flush()
+
+        response = await client.get("/api/maps/search?scope=available", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(my_map.id) in ids
+        assert str(public_map.id) in ids
+        assert str(saved_private.id) in ids
+
+    async def test_search_available_excludes_others_private_maps(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=available does NOT return other users' private maps that are not saved."""
+        other_private = self._make_map("Other Private Map", second_user.id)
+        test_db.add(other_private)
+        await test_db.flush()
+
+        response = await client.get("/api/maps/search?scope=available", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(other_private.id) not in ids
+
+    async def test_search_my_returns_only_own_maps(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=my returns only maps authored by the current user."""
+        own_map = self._make_map("Own Map My Scope", test_user.id)
+        other_map = self._make_map("Other Map My Scope", second_user.id, is_public=True, status=StatusEnum.ACTIVE.value)
+        test_db.add_all([own_map, other_map])
+        await test_db.flush()
+
+        response = await client.get("/api/maps/search?scope=my", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(own_map.id) in ids
+        assert str(other_map.id) not in ids
+
+    async def test_search_saved_returns_only_saved_maps(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=saved returns only maps the user explicitly saved."""
+        saved_map = self._make_map("Saved Map Scope", second_user.id, is_public=True, status=StatusEnum.ACTIVE.value)
+        unsaved_map = self._make_map("Unsaved Map Scope", second_user.id, is_public=True, status=StatusEnum.ACTIVE.value)
+        test_db.add_all([saved_map, unsaved_map])
+        test_db.add(SavedMap(user_id=test_user.id, map_id=saved_map.id))
+        await test_db.flush()
+
+        response = await client.get("/api/maps/search?scope=saved", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(saved_map.id) in ids
+        assert str(unsaved_map.id) not in ids
+
+    async def test_search_public_includes_own_published_map(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=public includes the user's own public/active maps."""
+        own_public = self._make_map("Own Public Search Map", test_user.id, is_public=True, status=StatusEnum.ACTIVE.value)
+        test_db.add(own_public)
+        await test_db.flush()
+
+        response = await client.get("/api/maps/search?scope=public", headers=auth_headers)
+        assert response.status_code == 200
+        ids = [item["id"] for item in response.json()["items"]]
+        assert str(own_public.id) in ids
+
+    async def test_search_public_excludes_draft_maps(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=public does NOT return non-active maps."""
+        draft_map = self._make_map("Public Draft Excluded Map", test_user.id, is_public=True)
+        test_db.add(draft_map)
+        await test_db.flush()
+
+        response = await client.get("/api/maps/search?scope=public", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(draft_map.id) not in ids
+
+    async def test_search_filters_by_q(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """q parameter filters results by name substring (case-insensitive)."""
+        matched = self._make_map("Arctic Tundra Map", test_user.id)
+        not_matched = self._make_map("Desert Sands Map", test_user.id)
+        test_db.add_all([matched, not_matched])
+        await test_db.flush()
+
+        response = await client.get("/api/maps/search?scope=my&q=arctic", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(matched.id) in ids
+        assert str(not_matched.id) not in ids
+
+    async def test_search_filters_by_size(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """size parameter filters maps by board size."""
+        large_map = self._make_map("Large Map Filter", test_user.id)
+        small_map = Map(
+            id=uuid.uuid4(),
+            name="Small Map Filter",
+            is_public=False,
+            size="SMALL",
+            max_fields_count=32,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add_all([large_map, small_map])
+        await test_db.flush()
+
+        response = await client.get("/api/maps/search?scope=my&size=LARGE", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(large_map.id) in ids
+        assert str(small_map.id) not in ids
+
+    async def test_search_returns_user_meta_saved_and_rated(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """is_saved=True and my_rating are populated when user saved and rated the map."""
+        map_obj = self._make_map("Rated Saved Meta Map", second_user.id, is_public=True, status=StatusEnum.ACTIVE.value)
+        test_db.add(map_obj)
+        test_db.add(SavedMap(user_id=test_user.id, map_id=map_obj.id))
+        test_db.add(MapRating(user_id=test_user.id, map_id=map_obj.id, score=3))
+        await test_db.flush()
+
+        response = await client.get(
+            "/api/maps/search?scope=public&q=Rated+Saved+Meta", headers=auth_headers
+        )
+        assert response.status_code == 200
+        item = next(i for i in response.json()["items"] if i["id"] == str(map_obj.id))
+        assert item["is_saved"] is True
+        assert item["my_rating"] == 3
+
+    async def test_search_returns_user_meta_defaults(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """is_saved=False and my_rating=None when user has not interacted with the map."""
+        map_obj = self._make_map("Uninteracted Meta Map", second_user.id, is_public=True, status=StatusEnum.ACTIVE.value)
+        test_db.add(map_obj)
+        await test_db.flush()
+
+        response = await client.get(
+            "/api/maps/search?scope=public&q=Uninteracted+Meta", headers=auth_headers
+        )
+        assert response.status_code == 200
+        item = next(i for i in response.json()["items"] if i["id"] == str(map_obj.id))
+        assert item["is_saved"] is False
+        assert item["my_rating"] is None
+
+
+class TestMapsUserMeta:
+    async def test_saved_list_always_has_is_saved_true(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """All items returned by /saved always have is_saved=True."""
+        map_obj = Map(
+            id=uuid.uuid4(),
+            name="Saved Meta List Map",
+            is_public=True,
+            size="LARGE",
+            max_fields_count=64,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(map_obj)
+        test_db.add(SavedMap(user_id=test_user.id, map_id=map_obj.id))
+        await test_db.flush()
+
+        response = await client.get("/api/maps/saved", headers=auth_headers)
+        assert response.status_code == 200
+        items = response.json()["items"]
+        assert all(item["is_saved"] is True for item in items)
+
+    async def test_public_list_returns_is_saved_and_rating_for_auth_user(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """Authenticated users get is_saved and my_rating in /public responses."""
+        map_obj = Map(
+            id=uuid.uuid4(),
+            name="Public Meta List Map",
+            is_public=True,
+            size="LARGE",
+            max_fields_count=64,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(map_obj)
+        test_db.add(SavedMap(user_id=test_user.id, map_id=map_obj.id))
+        test_db.add(MapRating(user_id=test_user.id, map_id=map_obj.id, score=5))
+        await test_db.flush()
+
+        response = await client.get(
+            "/api/maps/public?q=Public+Meta+List", headers=auth_headers
+        )
+        assert response.status_code == 200
+        item = next(i for i in response.json()["items"] if i["id"] == str(map_obj.id))
+        assert item["is_saved"] is True
+        assert item["my_rating"] == 5
+

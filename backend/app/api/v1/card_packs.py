@@ -8,7 +8,7 @@ from app.models.card import CardPack
 from app.models.enums import StatusEnum
 from app.models.user import User
 from app.schemas.base import PaginatedResponse
-from app.schemas.card_pack import CardPackCreate, CardPackRatingInput, CardPackRead, CardPackReadDetailed, CardPackUpdate, CardTypeRead, SortOrder
+from app.schemas.card_pack import CardPackCreate, CardPackRatingInput, CardPackRead, CardPackReadDetailed, CardPackSearchScope, CardPackUpdate, CardTypeRead, SortOrder
 from app.services import images as image_service
 from app.services.card_pack import (
     activate_card_pack,
@@ -19,6 +19,7 @@ from app.services.card_pack import (
     get_my_packs,
     get_pack_by_id,
     get_public_packs,
+    search_card_packs,
     get_saved_packs,
     publish_pack,
     restore_pack,
@@ -146,8 +147,15 @@ async def list_public_packs(
     current_user: User | None = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedResponse[CardPackRead]:
-    exclude_user_id = current_user.id if current_user else None
-    items, total = await get_public_packs(db, limit, offset, q, type_id, sort_by, exclude_user_id)
+    items, total = await get_public_packs(
+        db,
+        limit,
+        offset,
+        q,
+        type_id,
+        sort_by,
+        current_user.id if current_user else None,
+    )
     return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
 
 
@@ -184,6 +192,30 @@ async def list_trash_packs(
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedResponse[CardPackRead]:
     items, total = await get_deleted_packs(db, current_user.id, limit, offset)
+    return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
+
+
+@router.get("/search", response_model=PaginatedResponse[CardPackRead])
+async def search_packs(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    q: str | None = Query(default=None),
+    type_id: uuid.UUID | None = Query(default=None),
+    scope: CardPackSearchScope = Query(default=CardPackSearchScope.available),
+    sort_by: SortOrder = Query(default=SortOrder.newest),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> PaginatedResponse[CardPackRead]:
+    items, total = await search_card_packs(
+        db,
+        current_user.id,
+        limit,
+        offset,
+        q,
+        type_id,
+        scope,
+        sort_by,
+    )
     return PaginatedResponse(items=items, total=total, limit=limit, offset=offset)
 
 

@@ -1,9 +1,17 @@
 import datetime
+import enum
 import uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.user import UserPublicRead
+
+
+class MapSearchScope(str, enum.Enum):
+    my = "my"
+    public = "public"
+    saved = "saved"
+    available = "available"
 
 
 class MapCreate(BaseModel):
@@ -56,6 +64,8 @@ class MapRead(BaseModel):
     deleted_at: datetime.datetime | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    is_saved: bool = False
+    my_rating: int | None = None
 
 
 class MapReadDetailed(MapRead):

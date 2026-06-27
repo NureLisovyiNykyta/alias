@@ -1,0 +1,153 @@
+﻿@startuml AliasUseCaseGameplay
+
+title Alias — Use Case Diagram (Частина 2: Лобі, гра, real-time)
+
+' ===========================================================================
+' Styling
+' ===========================================================================
+skinparam backgroundColor #FFFFFF
+skinparam DefaultFontName "Segoe UI"
+skinparam DefaultFontSize 12
+skinparam shadowing false
+skinparam Nodesep 18
+skinparam Ranksep 32
+skinparam roundCorner 6
+skinparam linetype ortho
+
+skinparam actor {
+    BorderColor #34495E
+    BackgroundColor #FDFEFE
+    FontStyle bold
+}
+
+skinparam usecase {
+    BorderColor #2E7D32
+    BackgroundColor #E8F5E9
+    FontColor #1B1B1B
+}
+
+skinparam package {
+    BorderColor #2E7D32
+    BackgroundColor #F7FBF7
+    FontStyle bold
+    FontColor #1B5E20
+}
+
+skinparam ArrowColor #2C3E50
+skinparam ArrowFontColor #2C3E50
+skinparam ArrowThickness 1.1
+
+left to right direction
+
+' ===========================================================================
+' Actors — порядок зверху вниз підібрано так, щоб стрілки йшли коротко:
+'   Guest, User   → потрапляють у Lobby (вхід у гру)
+'   Host          → керує Lobby та Game
+'   Explainer     → працює тільки у Game (фаза GUESSING)
+'   Player        → працює у Game + Realtime
+' ===========================================================================
+actor "Гість"      as Guest
+actor "Користувач" as User
+actor "Хост"       as Host
+actor "Ведучий"    as Explainer
+actor "Гравець"    as Player
+
+Host       --|> User
+Host       --|> Player
+Explainer  --|> Player
+
+
+' ===========================================================================
+' 5. Лобі та команди
+' ===========================================================================
+rectangle "Лобі та команди" as PKG_Lobby {
+    usecase "Створити лобі"           as UC_CreateLobby
+    usecase "Зайти як гість"          as UC_JoinAsGuest
+    usecase "Зайти як користувач"     as UC_JoinAsUser
+    usecase "Створити команду"        as UC_CreateTeam
+    usecase "Редагувати команду"      as UC_EditTeam
+    usecase "Видалити команду"        as UC_DeleteTeam
+    usecase "Join / leave команди"    as UC_TeamJoinLeave
+    usecase "Виганяти гравців"        as UC_Kick
+    usecase "Закрити лобі"            as UC_CloseLobby
+    usecase "Покинути лобі"           as UC_LeaveLobby
+}
+
+Host   --> UC_CreateLobby
+Guest  --> UC_JoinAsGuest
+User   --> UC_JoinAsUser
+Host   --> UC_CreateTeam
+Host   --> UC_EditTeam
+Host   --> UC_DeleteTeam
+Player --> UC_TeamJoinLeave
+Host   --> UC_Kick
+Host   --> UC_CloseLobby
+Player --> UC_LeaveLobby
+
+
+' ===========================================================================
+' 6. Ігровий процес
+' ===========================================================================
+rectangle "Ігровий процес" as PKG_Game {
+    usecase "Розпочати гру"      as UC_StartGame
+    together {
+        usecase "Перезапустити хід"  as UC_RestartTurn
+        usecase "Розпочати хід"      as UC_StartTurn
+    }
+    usecase "Відмічати картки"   as UC_GuessCards
+    together {
+        usecase "Підтвердити хід"    as UC_ReviewTurn
+        usecase "Фінальний рахунок"  as UC_FinishGame
+    }
+    usecase "Змінити рахунок"    as UC_AdjustScore
+}
+
+Host      --> UC_StartGame
+Explainer --> UC_StartTurn
+Explainer --> UC_GuessCards
+Explainer --> UC_ReviewTurn
+Host      --> UC_ReviewTurn
+Host      --> UC_AdjustScore
+Host      --> UC_RestartTurn
+Player    --> UC_FinishGame
+
+UC_ReviewTurn  .right.> UC_FinishGame : <<extend>>
+UC_RestartTurn .right.> UC_StartTurn  : <<extend>>
+
+
+' ===========================================================================
+' 7. Зв'язок у реальному часі
+' ===========================================================================
+rectangle "Real-time зв'язок" as PKG_Realtime {
+    usecase "Sync стану (WS)"  as UC_RealtimeSync
+    usecase "Перепідключення"  as UC_Reconnect
+    usecase "Командний чат"    as UC_TeamChat
+    usecase "Глобальний чат"   as UC_GlobalChat
+}
+
+Player --> UC_RealtimeSync
+Player --> UC_Reconnect
+Player --> UC_TeamChat
+Player --> UC_GlobalChat
+
+
+' ===========================================================================
+' Layout: 3 пакети в стовпчик праворуч від акторів.
+'   Lobby     ← Guest, User, Host  (входять у лобі тут)
+'   Game      ← Host, Explainer    (керування грою)
+'   Realtime  ← Player             (підписка на події)
+' ===========================================================================
+PKG_Lobby -[hidden]down- PKG_Game
+PKG_Game  -[hidden]down- PKG_Realtime
+
+
+legend bottom
+|= Актор       |= Роль |
+| Гість        | Може зайти у лобі без реєстрації |
+| Користувач   | Авторизований, заходить як іменований гравець |
+| Хост         | Творець лобі, керує грою та командами |
+| Ведучий      | Гравець, що зараз пояснює слова (фаза GUESSING) |
+| Гравець      | Будь-який учасник лобі, бере участь у грі та чатах |
+endlegend
+
+@enduml
