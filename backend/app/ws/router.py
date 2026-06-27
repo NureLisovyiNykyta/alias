@@ -103,8 +103,6 @@ async def _dispatch_event(
             payload = _expect_payload(event, CardSwipePayload)
             await game_service.handle_card_swipe(room_code, player_id, payload.status)
 
-        case ClientEventType.TIMER_EXPIRED:
-            await game_service.handle_timer_expired(room_code, player_id)
 
         case ClientEventType.EDIT_CARD_STATUS:
             payload = _expect_payload(event, EditCardStatusPayload)

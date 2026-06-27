@@ -128,9 +128,9 @@ class GameService:
             task.cancel()
 
     async def _timer_guard(self, room_code: str, delay: float) -> None:
-        """Background coroutine: sleep, then check if still in GUESSING and force REVIEW."""
+        """Background coroutine: sleep, then force transition to REVIEW."""
         try:
-            await asyncio.sleep(delay + 1)  # +1 sec grace for client latency
+            await asyncio.sleep(delay)
         except asyncio.CancelledError:
             return
 
@@ -141,10 +141,8 @@ class GameService:
             turn = room.current_turn
             if turn is None or turn.phase != TurnPhase.GUESSING:
                 return
-            if time.time() <= turn.ends_at:
-                return  # timer hasn't actually expired yet
 
-            logger.info("Server timer guard: forcing REVIEW for room %s", room_code)
+            logger.info("Server timer: forcing REVIEW for room %s", room_code)
             await self._transition_to_review(room, room_code)
         except Exception:
             logger.exception("Timer guard error for room %s", room_code)
@@ -174,10 +172,10 @@ class GameService:
         turn.round_cards.append(RoundCard(card_id=card_id, content=content, status=CardStatus.UNPLAYED))
 
         await self.game_repo.save_room(room)
-        await self.conn_manager.broadcast(room_code, ServerEvent.phase_changed(turn))
+        await self.conn_manager.broadcast(room_code, ServerEvent.phase_changed(turn, remaining_seconds=field.time_limit))
         await self.conn_manager.send_to_player(room_code, player_id, ServerEvent.card_dealt(card_id, content))
 
-        # Start server-side timer guard
+        # Start server-side timer
         self._schedule_timer(room_code, field.time_limit)
 
     # ------------------------------------------------------------------
@@ -191,10 +189,9 @@ class GameService:
         turn = self._assert_explainer(room, player_id)
         self._assert_phase(turn, TurnPhase.GUESSING)
 
+        # Check if server timer has already expired
         if time.time() > turn.ends_at:
-            # Timer expired — force transition to REVIEW
-            await self._transition_to_review(room, room_code)
-            return
+            return  # Timer guard will handle transition
 
         # Update current card status
         if turn.round_cards:
@@ -217,16 +214,6 @@ class GameService:
 
         await self.game_repo.save_room(room)
 
-    # ------------------------------------------------------------------
-    # TIMER_EXPIRED — client notifies that timer ran out
-    # ------------------------------------------------------------------
-
-    async def handle_timer_expired(self, room_code: str, player_id: uuid.UUID) -> None:
-        room = await self._get_playing_room(room_code)
-        turn = self._assert_explainer(room, player_id)
-        self._assert_phase(turn, TurnPhase.GUESSING)
-
-        await self._transition_to_review(room, room_code)
 
     # ------------------------------------------------------------------
     # EDIT_CARD_STATUS — during REVIEW, explainer corrects card statuses
