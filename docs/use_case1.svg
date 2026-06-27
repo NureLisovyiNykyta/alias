@@ -1,0 +1,3281 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?plantuml 1.2026.2?><svg
+   contentStyleType="text/css"
+   data-diagram-type="DESCRIPTION"
+   height="2491px"
+   preserveAspectRatio="none"
+   style="width:941px;height:2491px;background:#FFFFFF;"
+   version="1.1"
+   viewBox="0 0 941 2491"
+   width="941px"
+   zoomAndPan="magnify"
+   id="svg155"
+   sodipodi:docname="use_case1.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <sodipodi:namedview
+     id="namedview155"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.66"
+     inkscape:cx="668.93939"
+     inkscape:cy="1715.9091"
+     inkscape:window-width="2560"
+     inkscape:window-height="1369"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg155" />
+  <title
+     id="title1">Alias — Use Case Diagram</title>
+  <defs
+     id="defs1" />
+  <g
+     class="title"
+     data-source-line="2"
+     id="g1"
+     transform="translate(-6.4035988,27.748929)">
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="171.2334"
+       x="377.8833"
+       y="27.107401"
+       id="text1">Alias — Use Case Diagram</text>
+  </g>
+  <g
+     class="cluster"
+     data-qualified-name="PKG_Auth"
+     data-source-line="59"
+     id="ent0011"
+     transform="translate(-6.4035988,27.748929)">
+    <rect
+       fill="#f7fbf7"
+       height="408"
+       rx="3"
+       ry="3"
+       style="stroke:#2e7d32;stroke-width:1"
+       width="193"
+       x="509"
+       y="50.621101"
+       id="rect1" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="173.481"
+       x="518.75952"
+       y="66.491203"
+       id="text2">Обліковий запис та авторизація</text>
+  </g>
+  <g
+     class="cluster"
+     data-qualified-name="PKG_Profile"
+     data-source-line="86"
+     id="ent0030"
+     transform="translate(-6.4035988,27.748929)">
+    <rect
+       fill="#f7fbf7"
+       height="251"
+       rx="3"
+       ry="3"
+       style="stroke:#2e7d32;stroke-width:1"
+       width="184"
+       x="751"
+       y="421.62109"
+       id="rect2" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="117.1489"
+       x="784.42548"
+       y="437.49121"
+       id="text3">Профіль користувача</text>
+  </g>
+  <g
+     class="cluster"
+     data-qualified-name="PKG_Packs"
+     data-source-line="104"
+     id="ent0040"
+     transform="translate(-6.4035988,27.748929)">
+    <rect
+       fill="#f7fbf7"
+       height="508"
+       rx="3"
+       ry="3"
+       style="stroke:#2e7d32;stroke-width:1"
+       width="180"
+       x="229"
+       y="484.62109"
+       id="rect3" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="81.291496"
+       x="278.35419"
+       y="500.49121"
+       id="text4">Набори карток</text>
+  </g>
+  <g
+     class="cluster"
+     data-qualified-name="PKG_Maps"
+     data-source-line="135"
+     id="ent0063"
+     transform="translate(-3.7354326,26.948479)">
+    <rect
+       fill="#f7fbf7"
+       height="504"
+       rx="3"
+       ry="3"
+       style="stroke:#2e7d32;stroke-width:1"
+       width="180"
+       x="515.5"
+       y="942.62109"
+       id="rect4" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="30.0781"
+       x="590.46088"
+       y="958.49121"
+       id="text5">Мапи</text>
+  </g>
+  <g
+     class="cluster"
+     data-qualified-name="PKG_Lobby"
+     data-source-line="168"
+     id="ent0088"
+     transform="translate(-6.4035988,27.748929)">
+    <rect
+       fill="#f7fbf7"
+       height="468"
+       rx="3"
+       ry="3"
+       style="stroke:#2e7d32;stroke-width:1"
+       width="180"
+       x="229"
+       y="1307.6211"
+       id="rect5" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="89.3535"
+       x="274.32321"
+       y="1323.4912"
+       id="text6">Лобі та команди</text>
+  </g>
+  <g
+     class="cluster"
+     data-qualified-name="PKG_Game"
+     data-source-line="196"
+     id="ent0109"
+     transform="translate(-6.4035988,27.748929)">
+    <rect
+       fill="#f7fbf7"
+       height="342"
+       rx="3"
+       ry="3"
+       style="stroke:#2e7d32;stroke-width:1"
+       width="175"
+       x="231.5"
+       y="1901.6211"
+       id="rect6" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="83.429199"
+       x="277.2854"
+       y="1917.4912"
+       id="text7">Ігровий процес</text>
+  </g>
+  <g
+     class="cluster"
+     data-qualified-name="PKG_Realtime"
+     data-source-line="222"
+     id="ent0127"
+     transform="translate(-6.4035988,27.748929)">
+    <rect
+       fill="#f7fbf7"
+       height="224"
+       rx="3"
+       ry="3"
+       style="stroke:#2e7d32;stroke-width:1"
+       width="171"
+       x="520"
+       y="1728.6211"
+       id="rect7" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="92.388199"
+       x="559.30591"
+       y="1744.4912"
+       id="text8">Real-time зв'язок</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Auth.UC_Register"
+     data-source-line="60"
+     id="ent0012"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.35339"
+       cy="270.63239"
+       fill="#e8f5e9"
+       rx="56.853401"
+       ry="14.5113"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse8" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="83.160599"
+       x="563.77307"
+       y="274.44791"
+       id="text9">Зареєструватися</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Auth.UC_Login"
+     data-source-line="61"
+     id="ent0013"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.35168"
+       cy="190.69141"
+       fill="#e8f5e9"
+       rx="68.3517"
+       ry="16.070299"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse9" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="108.3135"
+       x="551.19489"
+       y="194.5069"
+       id="text10">Увійти (email/пароль)</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Auth.UC_GoogleLogin"
+     data-source-line="62"
+     id="ent0014"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.45367"
+       cy="330.71179"
+       fill="#e8f5e9"
+       rx="65.953697"
+       ry="15.5907"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse10" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="102.4751"
+       x="554.21619"
+       y="334.52731"
+       id="text11">Увійти через Google</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Auth.UC_VerifyEmail"
+     data-source-line="63"
+     id="ent0015"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.59613"
+       cy="370.8403"
+       fill="#e8f5e9"
+       rx="61.5961"
+       ry="14.7192"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse11" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="91.555702"
+       x="559.81818"
+       y="374.6557"
+       id="text12">Підтвердити email</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Auth.UC_ResetPwd"
+     data-source-line="64"
+     id="ent0016"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.53339"
+       cy="231.7278"
+       fill="#e8f5e9"
+       rx="61.033401"
+       ry="14.6067"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse12" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="90.110802"
+       x="560.47803"
+       y="235.5432"
+       id="text13">Відновити пароль</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Auth.UC_ChangePwd"
+     data-source-line="65"
+     id="ent0017"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.32379"
+       cy="149.61659"
+       fill="#e8f5e9"
+       rx="54.323799"
+       ry="14.4955"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse13" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="79.180702"
+       x="565.73352"
+       y="153.4321"
+       id="text14">Змінити пароль</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Auth.UC_DeleteAcc"
+     data-source-line="66"
+     id="ent0018"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.56311"
+       cy="410.7337"
+       fill="#e8f5e9"
+       rx="66.063103"
+       ry="15.6126"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse14" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="102.7437"
+       x="554.19128"
+       y="414.5491"
+       id="text15">Видалити обл. запис</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Auth.UC_RefreshToken"
+     data-source-line="67"
+     id="ent0019"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.70477"
+       cy="110.6285"
+       fill="#e8f5e9"
+       rx="56.2048"
+       ry="14.5074"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse15" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="82.140099"
+       x="564.6347"
+       y="114.4439"
+       id="text16">Оновити токени</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Profile.UC_EditProfile"
+     data-source-line="87"
+     id="ent0031"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="843.13208"
+       cy="551.44751"
+       fill="#e8f5e9"
+       rx="64.632103"
+       ry="15.3264"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse16" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="99.209503"
+       x="793.5274"
+       y="555.26288"
+       id="text17">Редагувати профіль</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Profile.UC_UploadAvatar"
+     data-source-line="88"
+     id="ent0032"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="843.0697"
+       cy="490.63501"
+       fill="#e8f5e9"
+       rx="65.569702"
+       ry="15.5139"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse17" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="101.5298"
+       x="792.30481"
+       y="494.4505"
+       id="text18">Завантажити аватар</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Profile.UC_DeleteAvatar"
+     data-source-line="89"
+     id="ent0033"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="842.89282"
+       cy="591.63562"
+       fill="#e8f5e9"
+       rx="57.392799"
+       ry="14.5145"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse18" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="84.0093"
+       x="800.88812"
+       y="595.45099"
+       id="text19">Видалити аватар</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Profile.UC_ViewProfile"
+     data-source-line="90"
+     id="ent0034"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="843.11823"
+       cy="632.64471"
+       fill="#e8f5e9"
+       rx="68.118202"
+       ry="16.0236"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse19" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="107.7495"
+       x="789.24341"
+       y="636.46021"
+       id="text20">Переглянути профіль</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_CreatePack"
+     data-source-line="105"
+     id="ent0041"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.95679"
+       cy="863.6109"
+       fill="#e8f5e9"
+       rx="53.456799"
+       ry="14.4898"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse20" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="77.816399"
+       x="280.04849"
+       y="867.42627"
+       id="text21">Створити набір</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_ManageCards"
+     data-source-line="106"
+     id="ent0042"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.14621"
+       cy="903.75031"
+       fill="#e8f5e9"
+       rx="66.146202"
+       ry="15.6292"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse21" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="102.9478"
+       x="267.67239"
+       y="907.5658"
+       id="text22">Управляти картками</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_EditPack"
+     data-source-line="107"
+     id="ent0043"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.00839"
+       cy="823.72278"
+       fill="#e8f5e9"
+       rx="66.0084"
+       ry="15.6017"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse22" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="102.6094"
+       x="267.7037"
+       y="827.53821"
+       id="text23">Редагувати метадані</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_PackCover"
+     data-source-line="108"
+     id="ent0044"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.8172"
+       cy="762.58447"
+       fill="#e8f5e9"
+       rx="65.3172"
+       ry="15.4634"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse23" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="100.9067"
+       x="268.3638"
+       y="766.40002"
+       id="text24">Обкладинка набору</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_ActivatePack"
+     data-source-line="109"
+     id="ent0045"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.05029"
+       cy="722.64783"
+       fill="#e8f5e9"
+       rx="59.550301"
+       ry="14.5267"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse24" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="87.403801"
+       x="275.34839"
+       y="726.4632"
+       id="text25">Активувати набір</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_PublishPack"
+     data-source-line="110"
+     id="ent0046"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.79541"
+       cy="662.38019"
+       fill="#e8f5e9"
+       rx="64.295403"
+       ry="15.2591"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse25" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="98.371597"
+       x="269.60959"
+       y="666.19562"
+       id="text26">Опублікувати набір</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_TrashPack"
+     data-source-line="111"
+     id="ent0047"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.80521"
+       cy="944.68213"
+       fill="#e8f5e9"
+       rx="65.805199"
+       ry="15.561"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse26" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="102.1099"
+       x="267.75031"
+       y="948.49762"
+       id="text27">Видалити/відновити</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_RatePack"
+     data-source-line="112"
+     id="ent0048"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.0448"
+       cy="583.58228"
+       fill="#e8f5e9"
+       rx="49.5448"
+       ry="14.4612"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse27" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="71.661102"
+       x="283.21429"
+       y="587.39783"
+       id="text28">Оцінити набір</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_SavePack"
+     data-source-line="113"
+     id="ent0049"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.05661"
+       cy="622.44983"
+       fill="#e8f5e9"
+       rx="37.056599"
+       ry="14.3287"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse28" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="52.008301"
+       x="293.0524"
+       y="626.26532"
+       id="text29">У вибране</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Packs.UC_BrowsePacks"
+     data-source-line="114"
+     id="ent0050"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.1517"
+       cy="544.62512"
+       fill="#e8f5e9"
+       rx="55.651699"
+       ry="14.504"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse29" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="81.269997"
+       x="278.51669"
+       y="548.44049"
+       id="text30">Каталог наборів</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_CreateMap"
+     data-source-line="136"
+     id="ent0064"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.39673"
+       cy="1348.6"
+       fill="#e8f5e9"
+       rx="51.896702"
+       ry="14.4789"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse30" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="75.361801"
+       x="567.71582"
+       y="1352.4154"
+       id="text31">Створити мапу</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_ConfigFields"
+     data-source-line="137"
+     id="ent0065"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.61987"
+       cy="1407.4451"
+       fill="#e8f5e9"
+       rx="62.1199"
+       ry="14.824"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse31" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="92.893097"
+       x="559.1734"
+       y="1411.2605"
+       id="text32">Налаштувати поля</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_EditMap"
+     data-source-line="138"
+     id="ent0066"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.50842"
+       cy="1148.7228"
+       fill="#e8f5e9"
+       rx="66.0084"
+       ry="15.6017"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse32" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="102.6094"
+       x="554.20367"
+       y="1152.5382"
+       id="text33">Редагувати метадані</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_MapCover"
+     data-source-line="139"
+     id="ent0067"
+     transform="translate(-5.3363323,29.083012)">
+    <ellipse
+       cx="605.6524"
+       cy="1088.7516"
+       fill="#e8f5e9"
+       rx="61.152401"
+       ry="14.6305"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse33" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="90.417"
+       x="560.44391"
+       y="1092.567"
+       id="text34">Обкладинка мапи</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_ActivateMap"
+     data-source-line="140"
+     id="ent0068"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.49017"
+       cy="1049.6392"
+       fill="#e8f5e9"
+       rx="57.9902"
+       ry="14.518"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse34" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="84.949203"
+       x="563.01562"
+       y="1053.4545"
+       id="text35">Активувати мапу</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_PublishMap"
+     data-source-line="141"
+     id="ent0069"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.315"
+       cy="1230.6841"
+       fill="#e8f5e9"
+       rx="63.314999"
+       ry="15.063"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse35" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="95.917"
+       x="557.35663"
+       y="1234.4995"
+       id="text36">Опублікувати мапу</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_TrashMap"
+     data-source-line="142"
+     id="ent0070"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.30518"
+       cy="1189.6821"
+       fill="#e8f5e9"
+       rx="65.805199"
+       ry="15.561"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse36" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="102.1099"
+       x="554.25031"
+       y="1193.4976"
+       id="text37">Видалити/відновити</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_RateMap"
+     data-source-line="143"
+     id="ent0071"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.48492"
+       cy="1270.5696"
+       fill="#e8f5e9"
+       rx="47.984901"
+       ry="14.4485"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse37" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="69.206497"
+       x="570.88159"
+       y="1274.3851"
+       id="text38">Оцінити мапу</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_SaveMap"
+     data-source-line="144"
+     id="ent0072"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.55658"
+       cy="1309.4498"
+       fill="#e8f5e9"
+       rx="37.056599"
+       ry="14.3287"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse38" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="52.008301"
+       x="579.55243"
+       y="1313.2653"
+       id="text39">У вибране</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Maps.UC_BrowseMaps"
+     data-source-line="145"
+     id="ent0073"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.40948"
+       cy="1010.5217"
+       fill="#e8f5e9"
+       rx="42.9095"
+       ry="14.4007"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse39" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="61.2197"
+       x="574.79962"
+       y="1014.3372"
+       id="text40">Каталог мап</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_CreateLobby"
+     data-source-line="169"
+     id="ent0089"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.03461"
+       cy="1576.5822"
+       fill="#e8f5e9"
+       rx="49.534599"
+       ry="14.4612"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse40" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="71.644997"
+       x="283.2121"
+       y="1580.3977"
+       id="text41">Створити лобі</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_JoinAsGuest"
+     data-source-line="170"
+     id="ent0090"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.13501"
+       cy="1375.5623"
+       fill="#e8f5e9"
+       rx="47.134998"
+       ry="14.4412"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse41" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="67.869102"
+       x="285.20041"
+       y="1379.3778"
+       id="text42">Зайти як гість</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_JoinAsUser"
+     data-source-line="171"
+     id="ent0091"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.24261"
+       cy="1415.7697"
+       fill="#e8f5e9"
+       rx="66.242599"
+       ry="15.6485"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse42" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="103.1841"
+       x="267.6506"
+       y="1419.585"
+       id="text43">Зайти як користувач</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_CreateTeam"
+     data-source-line="172"
+     id="ent0092"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.77621"
+       cy="1497.4763"
+       fill="#e8f5e9"
+       rx="62.276199"
+       ry="14.8552"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse43" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="93.290497"
+       x="272.13089"
+       y="1501.2917"
+       id="text44">Створити команду</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_EditTeam"
+     data-source-line="173"
+     id="ent0093"
+     transform="translate(-0.34299274,32.294384)">
+    <ellipse
+       cx="318.98471"
+       cy="1456.618"
+       fill="#e8f5e9"
+       rx="65.484703"
+       ry="15.4969"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse44" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="101.3203"
+       x="268.32458"
+       y="1460.4335"
+       id="text45">Редагувати команду</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_DeleteTeam"
+     data-source-line="174"
+     id="ent0094"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.79309"
+       cy="1616.4797"
+       fill="#e8f5e9"
+       rx="62.293098"
+       ry="14.8586"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse45" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="93.333504"
+       x="272.1264"
+       y="1620.295"
+       id="text46">Видалити команду</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_TeamJoinLeave"
+     data-source-line="175"
+     id="ent0095"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.10229"
+       cy="1735.6416"
+       fill="#e8f5e9"
+       rx="65.602303"
+       ry="15.5205"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse46" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="101.6104"
+       x="268.29721"
+       y="1739.457"
+       id="text47">Join / leave команди</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_Kick"
+     data-source-line="176"
+     id="ent0096"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.83841"
+       cy="1656.641"
+       fill="#e8f5e9"
+       rx="58.338402"
+       ry="14.5199"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse47" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="85.497101"
+       x="276.08981"
+       y="1660.4565"
+       id="text48">Виганяти гравців</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_CloseLobby"
+     data-source-line="177"
+     id="ent0097"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.84641"
+       cy="1537.5461"
+       fill="#e8f5e9"
+       rx="45.346401"
+       ry="14.425"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse48" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="65.054703"
+       x="286.31909"
+       y="1541.3615"
+       id="text49">Закрити лобі</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Lobby.UC_LeaveLobby"
+     data-source-line="178"
+     id="ent0098"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.90161"
+       cy="1695.589"
+       fill="#e8f5e9"
+       rx="50.4016"
+       ry="14.4679"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse49" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="73.0093"
+       x="282.397"
+       y="1699.4044"
+       id="text50">Покинути лобі</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Game.UC_StartGame"
+     data-source-line="197"
+     id="ent0110"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.7804"
+       cy="2040.5842"
+       fill="#e8f5e9"
+       rx="49.780399"
+       ry="14.4631"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse50" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="72.0317"
+       x="282.7645"
+       y="2044.3997"
+       id="text51">Розпочати гру</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Game.UC_StartTurn"
+     data-source-line="198"
+     id="ent0111"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.83649"
+       cy="2157.5725"
+       fill="#e8f5e9"
+       rx="48.336498"
+       ry="14.4515"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse51" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="69.759804"
+       x="283.9566"
+       y="2161.3879"
+       id="text52">Розпочати хід</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Game.UC_GuessCards"
+     data-source-line="199"
+     id="ent0112"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.02429"
+       cy="2196.6394"
+       fill="#e8f5e9"
+       rx="58.0243"
+       ry="14.5182"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse52" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="85.002899"
+       x="276.5228"
+       y="2200.4546"
+       id="text53">Відмічати картки</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Game.UC_ReviewTurn"
+     data-source-line="200"
+     id="ent0113"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="318.79309"
+       cy="2118.6165"
+       fill="#e8f5e9"
+       rx="54.293098"
+       ry="14.4953"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse53" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="79.132301"
+       x="279.2269"
+       y="2122.4319"
+       id="text54">Підтвердити хід</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Game.UC_AdjustScore"
+     data-source-line="201"
+     id="ent0114"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.18451"
+       cy="2079.6345"
+       fill="#e8f5e9"
+       rx="57.184502"
+       ry="14.5133"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse54" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="83.681602"
+       x="277.34369"
+       y="2083.4497"
+       id="text55">Змінити рахунок</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Game.UC_RestartTurn"
+     data-source-line="202"
+     id="ent0115"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.11911"
+       cy="2001.8448"
+       fill="#e8f5e9"
+       rx="61.619099"
+       ry="14.7238"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse55" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="91.6147"
+       x="273.3118"
+       y="2005.6604"
+       id="text56">Перезапустити хід</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Game.UC_FinishGame"
+     data-source-line="203"
+     id="ent0116"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="319.15939"
+       cy="1961.7531"
+       fill="#e8f5e9"
+       rx="63.659401"
+       ry="15.1319"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse56" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="96.7817"
+       x="270.76849"
+       y="1965.5684"
+       id="text57">Фінальний рахунок</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Realtime.UC_RealtimeSync"
+     data-source-line="223"
+     id="ent0128"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.64789"
+       cy="1788.6122"
+       fill="#e8f5e9"
+       rx="53.6479"
+       ry="14.4911"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse57" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="78.117203"
+       x="566.58929"
+       y="1792.4276"
+       id="text58">Sync стану (WS)</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Realtime.UC_Reconnect"
+     data-source-line="224"
+     id="ent0129"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.47443"
+       cy="1827.816"
+       fill="#e8f5e9"
+       rx="61.4744"
+       ry="14.6949"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse58" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="91.244102"
+       x="559.85242"
+       y="1831.6313"
+       id="text59">Перепідключення</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Realtime.UC_TeamChat"
+     data-source-line="225"
+     id="ent0130"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.42419"
+       cy="1866.6072"
+       fill="#e8f5e9"
+       rx="52.924198"
+       ry="14.4861"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse59" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="76.9785"
+       x="566.935"
+       y="1870.4227"
+       id="text60">Командний чат</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="PKG_Realtime.UC_GlobalChat"
+     data-source-line="226"
+     id="ent0131"
+     transform="translate(-6.4035988,27.748929)">
+    <ellipse
+       cx="605.33752"
+       cy="1905.6167"
+       fill="#e8f5e9"
+       rx="54.337502"
+       ry="14.4956"
+       style="stroke:#2e7d32;stroke-width:0.5"
+       id="ellipse60" />
+    <text
+       fill="#1b1b1b"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="79.202103"
+       x="565.73639"
+       y="1909.4323"
+       id="text61">Глобальний чат</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="Guest"
+     data-source-line="44"
+     id="ent0002"
+     transform="translate(-6.4035988,27.748929)">
+    <circle
+       cx="319.0925"
+       cy="289.62109"
+       fill="#fdfefe"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="ellipse61"
+       r="8" />
+    <path
+       d="m 319.0925,297.6211 v 27 m -13,-19 h 26 m -13,19 -13,15 m 13,-15 13,15"
+       fill="none"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="path61" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="25.185101"
+       x="306.5"
+       y="354.99121"
+       id="text62">Гість</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="User"
+     data-source-line="45"
+     id="ent0003"
+     transform="translate(-6.4035988,27.748929)">
+    <circle
+       cx="110.343"
+       cy="872.62109"
+       fill="#fdfefe"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="ellipse62"
+       r="8" />
+    <path
+       d="m 110.343,880.6211 v 27 m -13,-19 h 26 m -13,19 -13,15 m 13,-15 13,15"
+       fill="none"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="path62" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="62.686001"
+       x="79"
+       y="937.99121"
+       id="text63">Користувач</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="Player"
+     data-source-line="46"
+     id="ent0004"
+     transform="translate(-6.4035988,27.748929)">
+    <circle
+       cx="110.5054"
+       cy="2052.6211"
+       fill="#fdfefe"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="ellipse63"
+       r="8" />
+    <path
+       d="m 110.5054,2060.6211 v 27 m -13,-19 h 26 m -13,19 -13,15 m 13,-15 13,15"
+       fill="none"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="path63" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="44.0107"
+       x="88.5"
+       y="2117.9912"
+       id="text64">Гравець</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="Host"
+     data-source-line="47"
+     id="ent0005"
+     transform="translate(-6.4035988,27.748929)">
+    <circle
+       cx="29.1064"
+       cy="1606.6211"
+       fill="#fdfefe"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="ellipse64"
+       r="8" />
+    <path
+       d="m 29.1064,1614.6211 v 27 m -13,-19 h 26 m -13,19 -13,15 m 13,-15 13,15"
+       fill="none"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="path64" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="24.2129"
+       x="17"
+       y="1671.9912"
+       id="text65">Хост</text>
+  </g>
+  <g
+     class="entity"
+     data-qualified-name="Explainer"
+     data-source-line="48"
+     id="ent0006"
+     transform="translate(-6.4035988,27.748929)">
+    <circle
+       cx="29.0742"
+       cy="2209.6211"
+       fill="#fdfefe"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="ellipse65"
+       r="8" />
+    <path
+       d="m 29.0742,2217.6211 v 27 m -13,-19 h 26 m -13,19 -13,15 m 13,-15 13,15"
+       fill="none"
+       style="stroke:#34495e;stroke-width:0.5"
+       id="path65" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="46.148399"
+       x="6"
+       y="2274.9912"
+       id="text66">Ведучий</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0002"
+     data-link-type="extension"
+     data-source-line="50"
+     id="lnk7"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 112.18,863.8011 c 2.34,-117.52 11.77,-456.99 42.82,-495.18 37.6,-46.23 99.3547,-49.8009 131.3247,-49.0709"
+       fill="none"
+       id="User-to-Guest"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="none"
+       points="286.4617,313.5518 286.1877,325.5486 304.32,319.9611 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon66" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0003"
+     data-link-type="extension"
+     data-source-line="51"
+     id="lnk8"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 34.3,1597.9011 c 13.84,-127.74 55.1517,-509.1747 68.9717,-636.7647"
+       fill="none"
+       id="Host-to-User"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="none"
+       points="97.3065,960.4903 109.2368,961.7825 105.21,943.2411 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon67" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0004"
+     data-link-type="extension"
+     data-source-line="52"
+     id="lnk9"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 37.06,1677.2011 c 15.06,84.53 47.0819,264.1592 62.1819,348.8892"
+       fill="none"
+       id="Host-to-Player"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="none"
+       points="105.1489,2025.0376 93.335,2027.143 102.4,2043.8111 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon68" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0006"
+     data-entity-2="ent0004"
+     data-link-type="extension"
+     data-source-line="53"
+     id="lnk10"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 50.06,2201.0111 c 12.05,-23.8 19.1939,-37.9237 31.2539,-61.7237"
+       fill="none"
+       id="Explainer-to-Player"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="none"
+       points="75.9618,2136.5753 86.666,2141.9994 89.45,2123.2311 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon69" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0002"
+     data-entity-2="ent0012"
+     data-link-type="dependency"
+     data-source-line="70"
+     id="lnk20"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 333.72,318.2111 c 40.07,-7.04 152.3406,-26.7713 218.5606,-38.4113"
+       fill="none"
+       id="Guest-to-UC_Register"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="558.19,278.7611 548.6334,276.3796 553.2655,279.6267 550.0184,284.2588 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon70" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0002"
+     data-entity-2="ent0013"
+     data-link-type="dependency"
+     data-source-line="71"
+     id="lnk21"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 333.81,309.3211 c 28.11,-22.4 94.76,-72.39 159.19,-97.7 16.04,-6.3 28.2507,-9.6455 45.1207,-12.7755"
+       fill="none"
+       id="Guest-to-UC_Login"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="544.02,197.7511 534.4413,195.46 539.1039,198.6632 535.9007,203.3258 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon71" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0002"
+     data-entity-2="ent0014"
+     data-link-type="dependency"
+     data-source-line="72"
+     id="lnk22"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 333.72,321.1111 c 36.63,1.28 132.5337,4.6487 200.3437,7.0387"
+       fill="none"
+       id="Guest-to-UC_GoogleLogin"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="540.06,328.3611 531.2065,324.0466 535.0631,328.185 530.9247,332.0416 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon72" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0002"
+     data-entity-2="ent0016"
+     data-link-type="dependency"
+     data-source-line="73"
+     id="lnk23"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 333.55,313.9611 c 28.7,-13.85 98.05,-45.9 159.45,-63.34 18.7,-5.31 33.6844,-8.408 52.3044,-11.368"
+       fill="none"
+       id="Guest-to-UC_ResetPwd"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="551.23,238.3111 541.7136,235.7737 546.292,239.0961 542.9696,243.6745 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon73" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0015"
+     data-link-type="dependency"
+     data-source-line="74"
+     id="lnk24"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 112.46,863.8011 c 3.04,-111.8 14.01,-422.79 42.54,-458.18 23.92,-29.67 265.5801,-34.4198 382.7301,-35.0098"
+       fill="none"
+       id="User-to-UC_VerifyEmail"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="543.73,370.5811 534.71,366.6265 538.7301,370.6063 534.7503,374.6264 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon74" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0017"
+     data-link-type="dependency"
+     data-source-line="75"
+     id="lnk25"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 111.46,863.9411 c 0.39,-111.41 4.98,-425.06 43.54,-519.32 62.89,-153.72 285.3328,-185.999 390.2128,-192.849"
+       fill="none"
+       id="User-to-UC_ChangePwd"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="551.2,151.3811 541.9584,147.9762 546.2106,151.707 542.4798,155.9592 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon75" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0018"
+     data-link-type="dependency"
+     data-source-line="76"
+     id="lnk26"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 112.16,863.7511 c 2.21,-109.6 11.12,-409.24 42.84,-439.13 54.91,-51.73 277.0971,-34.0063 385.6571,-21.8763"
+       fill="none"
+       id="User-to-UC_DeleteAcc"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="546.62,403.4111 538.1198,398.4364 541.6509,402.8559 537.2315,406.387 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon76" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0019"
+     data-link-type="dependency"
+     data-source-line="77"
+     id="lnk27"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 111.93,864.1211 c 1.66,-116.53 9.33,-457.22 43.07,-562.5 15.1,-47.11 18.48,-65.24 58,-95 101.18,-76.2 248.9943,-92.4125 330.4343,-95.5025"
+       fill="none"
+       id="User-to-UC_RefreshToken"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="549.43,110.8911 540.2848,107.2352 544.4336,111.0807 540.5881,115.2295 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon77" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0012"
+     data-entity-2="ent0015"
+     data-link-type="dependency"
+     data-source-line="79"
+     id="lnk28"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 559.25,279.2111 c -55.05,12.16 -135.5,37.25 -101.25,75.41 24.51,27.32 61.477,29.8455 94.717,26.1355"
+       fill="none"
+       id="UC_Register-to-UC_VerifyEmail"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="558.68,380.0911 549.2918,377.1141 553.7109,380.6457 550.1792,385.0647 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon78" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="44.112801"
+       x="437"
+       y="349.49121"
+       id="text78">«extend»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0014"
+     data-entity-2="ent0012"
+     data-link-type="dependency"
+     data-source-line="80"
+     id="lnk29"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 605.5,314.8611 c 0,-9.17 0,-14.64 0,-23.61"
+       fill="none"
+       id="UC_GoogleLogin-to-UC_Register"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="605.5,285.2511 601.5,294.2511 605.5,290.2511 609.5,294.2511 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon79" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="44.112801"
+       x="570.5"
+       y="304.99121"
+       id="text79">«extend»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0031"
+     data-link-type="dependency"
+     data-source-line="93"
+     id="lnk35"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 113.94,864.1211 c 4.18,-53.6 14.94,-151.8 41.06,-231.5 17.58,-53.64 9.82,-83.57 58,-113 96.46,-58.91 441.4788,-2.8742 572.9288,21.2758"
+       fill="none"
+       id="User-to-UC_EditProfile"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="791.83,541.9811 783.7009,536.4207 786.9123,541.0776 782.2554,544.289 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon80" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0032"
+     data-link-type="dependency"
+     data-source-line="94"
+     id="lnk36"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 114,864.0511 c 5.24,-76.23 18.8,-240.52 41,-292.43 16.16,-37.78 21.35,-53.42 58,-72 98.15,-49.74 425.5029,-27.2735 562.9829,-15.2335"
+       fill="none"
+       id="User-to-UC_UploadAvatar"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="781.96,484.9111 773.3433,480.1412 776.9791,484.4749 772.6453,488.1107 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon81" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0033"
+     data-link-type="dependency"
+     data-source-line="95"
+     id="lnk37"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 143.21,943.3611 c 18.11,19.45 42.6,40.86 69.79,51.26 88,33.68 126.96,40.58 212,0 12.35,-5.89 298.24,-375.99 310,-383 15.42,-9.19 28.2064,-13.3556 45.6464,-16.1656"
+       fill="none"
+       id="User-to-UC_DeleteAvatar"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="786.57,594.5011 777.0483,591.9837 781.6337,595.2965 778.3209,599.8818 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon82" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0034"
+     data-link-type="dependency"
+     data-source-line="96"
+     id="lnk38"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 113.4,943.1611 c 3.73,29.42 14.01,67.75 41.6,87.46 59.75,42.69 282.59,39.07 330,-17 21.07,-24.92 -14.28,-49.14 8,-73 72.11,-77.22 151.19,23.63 234,-42 83,-65.78 106.4967,-197.2788 112.4967,-244.0588"
+       fill="none"
+       id="User-to-UC_ViewProfile"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="840.26,648.6111 835.1475,657.0291 839.6239,653.5705 843.0825,658.0468 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon83" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0032"
+     data-entity-2="ent0031"
+     data-link-type="dependency"
+     data-source-line="98"
+     id="lnk39"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 843,506.4911 c 0,9.06 0,14.39 0,23.42"
+       fill="none"
+       id="UC_UploadAvatar-to-UC_EditProfile"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="843,535.9111 847,526.9111 843,530.9111 839,526.9111 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon84" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="44.112801"
+       x="808"
+       y="525.99121"
+       id="text84">«extend»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0041"
+     data-link-type="dependency"
+     data-source-line="117"
+     id="lnk51"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 144.37,896.6111 c 19.85,-4.19 45.66,-9.53 68.63,-13.99 19.91,-3.86 36.094,-6.8322 54.854,-10.1922"
+       fill="none"
+       id="User-to-UC_CreatePack"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="273.76,871.3711 264.1958,869.0204 268.8383,872.2526 265.6062,876.8951 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon85" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0042"
+     data-link-type="dependency"
+     data-source-line="118"
+     id="lnk52"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 144.22,903.6211 c 29.11,0 66.56,0 102.73,0"
+       fill="none"
+       id="User-to-UC_ManageCards"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="252.95,903.6211 243.95,899.6211 247.95,903.6211 243.95,907.6211 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon86" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0043"
+     data-link-type="dependency"
+     data-source-line="119"
+     id="lnk53"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 144.32,880.2711 c 19.19,-12.63 44.36,-27.46 68.68,-36.65 15.02,-5.67 25.974,-8.6775 41.714,-11.6475"
+       fill="none"
+       id="User-to-UC_EditPack"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="260.61,830.8611 251.0244,828.5992 255.6967,831.7882 252.5077,836.4605 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon87" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0044"
+     data-link-type="dependency"
+     data-source-line="120"
+     id="lnk54"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 144.16,864.0911 c 3.57,-3.95 7.23,-7.84 10.84,-11.47 24,-24.13 28.77,-32.57 58,-50 19.85,-11.84 38.1427,-19.3782 58.1627,-26.1082"
+       fill="none"
+       id="User-to-UC_PackCover"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="276.85,774.6011 267.0446,773.6774 272.1106,776.1943 269.5937,781.2604 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon88" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0045"
+     data-link-type="dependency"
+     data-source-line="121"
+     id="lnk55"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 124.83,863.9911 c 15.04,-38.14 43.44,-94.06 88.17,-122.37 14.01,-8.86 25.1435,-12.8524 41.3935,-15.5924"
+       fill="none"
+       id="User-to-UC_ActivatePack"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="260.31,725.0311 250.7702,722.5832 255.3796,725.8624 252.1003,730.4718 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon89" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0046"
+     data-link-type="dependency"
+     data-source-line="122"
+     id="lnk56"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 119.33,863.9911 c 6.72,-28.4 18.13,-66.86 35.67,-97.37 19.14,-33.27 26.3,-42.35 58,-64 18.69,-12.76 36.294,-20.3148 56.194,-26.7848"
+       fill="none"
+       id="User-to-UC_PublishPack"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="274.9,673.9811 265.1042,672.9598 270.145,675.5271 267.5778,680.5678 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon90" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0047"
+     data-link-type="dependency"
+     data-source-line="123"
+     id="lnk57"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 144.22,910.1211 c 33.32,6.62 79.5349,15.7912 118.0049,23.4312"
+       fill="none"
+       id="User-to-UC_TrashPack"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="268.11,934.7211 260.0616,929.0446 263.2058,933.7471 258.5032,936.8913 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon91" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0048"
+     data-link-type="dependency"
+     data-source-line="124"
+     id="lnk58"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 112.84,863.9911 c 2.95,-47.76 12.35,-129.4 42.16,-192.37 17.14,-36.21 23.34,-48.9 58,-69 17.07,-9.89 32.159,-14.0751 50.909,-16.4851"
+       fill="none"
+       id="User-to-UC_RatePack"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="269.86,585.3711 260.4235,582.5511 264.9008,586.0085 261.4434,590.4858 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon92" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0049"
+     data-link-type="dependency"
+     data-source-line="125"
+     id="lnk59"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 113.41,863.9111 c 5.31,-60.24 25.22,-172.91 99.59,-222.29 20.22,-13.42 41.2517,-17.7052 62.8217,-19.0552"
+       fill="none"
+       id="User-to-UC_SavePack"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="281.81,622.1911 272.5777,618.7611 276.8198,622.5034 273.0774,626.7455 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon93" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0002"
+     data-entity-2="ent0050"
+     data-link-type="dependency"
+     data-source-line="126"
+     id="lnk60"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 319,360.2411 c 0,56.5 0,107.01 0,163.51"
+       fill="none"
+       id="Guest-to-UC_BrowsePacks"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="319,529.7511 323,520.7511 319,524.7511 315,520.7511 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon94" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0046"
+     data-entity-2="ent0045"
+     data-link-type="dependency"
+     data-source-line="128"
+     id="lnk61"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 319,678.2711 c 0,9.23 0,14.81 0,23.83"
+       fill="none"
+       id="UC_PublishPack-to-UC_ActivatePack"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="319,708.1011 323,699.1011 319,703.1011 315,699.1011 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon95" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="46.2183"
+       x="283"
+       y="697.99121"
+       id="text95">«include»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0044"
+     data-entity-2="ent0043"
+     data-link-type="dependency"
+     data-source-line="129"
+     id="lnk62"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 319,778.4911 c 0,9.06 0,14.39 0,23.42"
+       fill="none"
+       id="UC_PackCover-to-UC_EditPack"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="319,807.9111 323,798.9111 319,802.9111 315,798.9111 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon96" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="44.112801"
+       x="284"
+       y="797.99121"
+       id="text96">«extend»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0064"
+     data-link-type="dependency"
+     data-source-line="148"
+     id="lnk74"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 111.86,943.2911 c 1.48,74.01 8.74,229.19 43.14,268.33 49.15,55.93 277.84,4.87 330,58 18.54,18.89 -10.31,39.9 8,59 15.72,16.4 33.9603,21.7293 55.8203,23.0093"
+       fill="none"
+       id="User-to-UC_CreateMap"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="554.81,1351.9811 546.0592,1347.4618 549.8185,1351.6888 545.5916,1355.4482 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon97" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0065"
+     data-link-type="dependency"
+     data-source-line="149"
+     id="lnk75"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 111.3,943.1811 c 0.45,78.64 5.85,250.74 43.7,293.44 82.16,92.69 160.99,10.2 270,69 35.99,19.42 32.96,40.91 68,62 21.41,12.89 41.8714,20.7982 63.4914,27.3982"
+       fill="none"
+       id="User-to-UC_ConfigFields"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="562.23,1396.7711 554.79,1390.3176 557.4479,1395.3112 552.4543,1397.9691 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon98" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0066"
+     data-link-type="dependency"
+     data-source-line="150"
+     id="lnk76"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 115.68,943.5011 c 5.9,48.15 18.37,125.08 39.32,144.12 19.25,17.51 32.15,5.03 58,8 120.61,13.86 152.17,5.55 272,25 25.56,4.15 47.9522,9.2027 70.5522,14.9027"
+       fill="none"
+       id="User-to-UC_EditMap"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="561.37,1136.9911 553.6215,1130.9116 556.5218,1135.7683 551.6651,1138.6686 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon99" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0067"
+     data-link-type="dependency"
+     data-source-line="151"
+     id="lnk77"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 116.44,943.1211 c 6.42,44.5 19.16,112.8 38.56,129.5 28.84,24.84 268.5523,21.2957 384.0123,18.1057"
+       fill="none"
+       id="User-to-UC_MapCover"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="545.01,1090.5611 535.903,1086.8112 540.0119,1090.6992 536.1239,1094.8081 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon100" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0068"
+     data-link-type="dependency"
+     data-source-line="152"
+     id="lnk78"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 117.66,943.4811 c 7.02,39.51 19.82,96.01 37.34,109.14 61.89,46.41 291.5597,19.9842 394.7097,5.3242"
+       fill="none"
+       id="User-to-UC_ActivateMap"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="555.65,1057.1011 546.1767,1054.4073 550.6997,1057.8046 547.3024,1062.3277 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon101" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0069"
+     data-link-type="dependency"
+     data-source-line="153"
+     id="lnk79"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 115.43,943.3311 c 6.02,53.72 19.02,145.91 39.57,172.29 17.59,22.59 30.97,18.59 58,28 117,40.76 157.39,13.95 272,61 3.88,1.6 4.09,3.48 8,5 17.34,6.78 31.1598,10.3757 49.1598,13.5257"
+       fill="none"
+       id="User-to-UC_PublishMap"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="548.07,1224.1811 539.8942,1218.6895 543.1448,1223.3192 538.5152,1226.5698 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon102" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0070"
+     data-link-type="dependency"
+     data-source-line="154"
+     id="lnk80"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 115.45,943.4811 c 5.81,50.67 18.36,134.21 39.55,156.14 18.5,19.15 31.98,9.35 58,15 119.96,26.06 159.37,-0.83 272,48 4.08,1.77 3.93,4.21 8,6 16.04,7.07 28.5065,10.6882 45.6365,13.7982"
+       fill="none"
+       id="User-to-UC_TrashMap"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="544.54,1183.4911 536.3993,1177.9477 539.6204,1182.5979 534.9702,1185.8191 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon103" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0071"
+     data-link-type="dependency"
+     data-source-line="155"
+     id="lnk81"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 115.15,943.5011 c 6.03,59.31 19.45,167.3 39.85,200.12 16.94,27.26 28.32,30.8 58,43 56.47,23.23 225.37,-0.42 272,39 8.91,7.53 -0.78,17.32 8,25 17.61,15.42 36.9515,20.4583 59.0215,21.8283"
+       fill="none"
+       id="User-to-UC_RateMap"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="558.01,1272.8211 549.2751,1268.2712 553.0196,1272.5113 548.7795,1276.2558 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon104" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0072"
+     data-link-type="dependency"
+     data-source-line="156"
+     id="lnk82"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 112.79,943.1711 c 3,68.62 12.63,205.93 42.21,242.45 46.96,57.99 276.14,10.37 330,62 13.72,13.15 -5.51,28.64 8,42 19.78,19.57 45.7604,23.693 70.4104,23.393"
+       fill="none"
+       id="User-to-UC_SaveMap"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="569.41,1312.9411 560.362,1309.0509 564.4104,1313.0019 560.4593,1317.0503 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon105" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0002"
+     data-entity-2="ent0073"
+     data-link-type="dependency"
+     data-source-line="157"
+     id="lnk83"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 333.67,340.7811 c 22.89,34.81 68.69,109.19 91.33,178.84 32.76,100.78 -5.96,396.11 68,472 18.09,18.57 41.17,23.0475 65.1,23.0175"
+       fill="none"
+       id="Guest-to-UC_BrowseMaps"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="564.1,1014.6311 555.095,1010.6424 559.1,1014.6374 555.105,1018.6424 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon106" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0064"
+     data-entity-2="ent0065"
+     data-link-type="dependency"
+     data-source-line="159"
+     id="lnk84"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 605.5,1363.1611 c 0,8.89 0,14.26 0,23.27"
+       fill="none"
+       id="UC_CreateMap-to-UC_ConfigFields"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="605.5,1392.4311 609.5,1383.4311 605.5,1387.4311 601.5,1383.4311 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon107" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="46.2183"
+       x="569.5"
+       y="1382.7412"
+       id="text107">«include»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0068"
+     data-entity-2="ent0065"
+     data-link-type="dependency"
+     data-source-line="160"
+     id="lnk85"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 547.55,1048.2511 c -19.14,2.26 -39.4,7.92 -54.55,20.37 -34.88,28.67 -27.87,50.59 -36,95 -16.58,90.56 -24.1,134.25 36,204 14.75,17.12 31.5311,25.3695 52.6111,30.9695"
+       fill="none"
+       id="UC_ActivateMap-to-UC_ConfigFields"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="551.41,1400.1311 543.7387,1393.9544 546.5776,1398.8473 541.6847,1401.6863 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon108" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="46.2183"
+       x="436"
+       y="1178.4912"
+       id="text108">«include»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0069"
+     data-entity-2="ent0068"
+     data-link-type="dependency"
+     data-source-line="161"
+     id="lnk86"
+     transform="matrix(0.8899138,0,0,1.0121129,53.954151,15.027819)">
+    <path
+       d="m 542.23,1228.8011 c -17.25,-3.03 -35.07,-8.76 -49.23,-19.18 -34.04,-25.04 -48.42,-47.61 -36,-88 8.37,-27.21 12.04,-37.61 36,-53 16,-10.27 29.8756,-14.6952 48.4056,-17.2352"
+       fill="none"
+       id="UC_PublishMap-to-UC_ActivateMap"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="542.3963,1051.2501 538.9766,1055.7563 547.35,1050.5711 537.8902,1047.8304 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon109" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="46.2183"
+       x="436"
+       y="1136.4912"
+       id="text109">«include»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0067"
+     data-entity-2="ent0066"
+     data-link-type="dependency"
+     data-source-line="162"
+     id="lnk87"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 605.5,1103.2511 c 0,8.97 0,14.44 0,23.61"
+       fill="none"
+       id="UC_MapCover-to-UC_EditMap"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="605.5,1132.8611 609.5,1123.8611 605.5,1127.8611 601.5,1123.8611 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon110" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="44.112801"
+       x="570.5"
+       y="1122.9912"
+       id="text110">«extend»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0089"
+     data-link-type="dependency"
+     data-source-line="181"
+     id="lnk99"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 43.31,1631.3611 c 9.27,-4.14 22.01,-9.4 33.69,-12.74 66.77,-19.08 140.5955,-30.1828 189.5455,-36.2428"
+       fill="none"
+       id="Host-to-UC_CreateLobby"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="272.5,1581.6411 263.0767,1578.7772 267.5379,1582.2554 264.0596,1586.7165 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon111" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0002"
+     data-entity-2="ent0090"
+     data-link-type="dependency"
+     data-source-line="182"
+     id="lnk100"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 304.25,321.0711 c -29.77,1.79 -96.69,10.53 -125.75,52.55 -30.9,44.69 -35.04,936.47 0,978 23.14,27.43 59.1478,31.7964 91.2178,30.1564"
+       fill="none"
+       id="Guest-to-UC_JoinAsGuest"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="275.71,1381.4711 266.5175,1377.936 270.7165,1381.7265 266.926,1385.9255 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon112" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0003"
+     data-entity-2="ent0091"
+     data-link-type="dependency"
+     data-source-line="183"
+     id="lnk101"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 111.19,943.3911 c 0.49,70.56 6.34,221.6 43.81,342.23 16.28,52.41 13.97,76.25 58,109 12.01,8.94 20.9865,13.0576 35.6865,16.2476"
+       fill="none"
+       id="User-to-UC_JoinAsUser"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="254.55,1412.1411 246.603,1406.3234 249.6637,1411.0807 244.9064,1414.1415 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon113" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0092"
+     data-link-type="dependency"
+     data-source-line="184"
+     id="lnk102"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 43.16,1617.4711 c 8.55,-11.89 20.54,-26.58 33.84,-36.85 52.73,-40.71 72.58,-42.61 136,-63 16.52,-5.31 29.0773,-8.3336 45.8573,-11.3936"
+       fill="none"
+       id="Host-to-UC_CreateTeam"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="264.76,1505.1511 255.1884,1502.8306 259.8411,1506.0481 256.6236,1510.7008 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon114" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0093"
+     data-link-type="dependency"
+     data-source-line="185"
+     id="lnk103"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 43.08,1603.6611 c 7.87,-17.15 19.23,-37.37 33.92,-52.04 48.7,-48.61 71.31,-50.54 136,-74 15.64,-5.67 27.291,-8.7913 43.491,-11.9513"
+       fill="none"
+       id="Host-to-UC_EditTeam"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="262.38,1464.5211 252.7807,1462.3182 257.4725,1465.4784 254.3123,1470.1702 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon115" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0094"
+     data-link-type="dependency"
+     data-source-line="186"
+     id="lnk104"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 43.25,1635.0011 c 6.52,-1.21 14.52,-2.55 21.75,-3.38 65.24,-7.5 134.4041,-11.1269 185.7441,-13.0369"
+       fill="none"
+       id="Host-to-UC_DeleteTeam"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="256.74,1618.3611 247.5975,1614.6985 251.7435,1618.547 247.8949,1622.6929 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon116" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0004"
+     data-entity-2="ent0095"
+     data-link-type="dependency"
+     data-source-line="187"
+     id="lnk105"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 134.7,2070.1311 c 6.49,-3.58 13.6,-7.33 20.3,-10.51 21.63,-10.24 36.26,-0.4 50,-20 15.45,-22.02 -5.72,-218.86 8,-242 14.41,-24.31 36.7955,-37.8513 60.2255,-47.4213"
+       fill="none"
+       id="Player-to-UC_TeamJoinLeave"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="278.78,1747.9311 268.9357,1747.6312 274.1512,1749.8217 271.9607,1755.0372 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon117" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0096"
+     data-link-type="dependency"
+     data-source-line="188"
+     id="lnk106"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 43.12,1638.4911 c 38.13,2.51 144.563,9.5352 213.253,14.0652"
+       fill="none"
+       id="Host-to-UC_Kick"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="262.36,1652.9511 253.6427,1648.3675 257.3708,1652.6221 253.1163,1656.3502 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon118" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0097"
+     data-link-type="dependency"
+     data-source-line="189"
+     id="lnk107"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 43.21,1625.9711 c 9.02,-7.48 21.52,-16.96 33.79,-23.35 65.35,-34 144.255,-50.5645 193.885,-58.4845"
+       fill="none"
+       id="Host-to-UC_CloseLobby"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="276.81,1543.1911 267.2921,1540.6594 271.8725,1543.979 268.5528,1548.5594 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon119" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0004"
+     data-entity-2="ent0098"
+     data-link-type="dependency"
+     data-source-line="190"
+     id="lnk108"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 132.16,2043.8011 c 6.34,-9.51 14.01,-18.98 22.84,-26.18 18.55,-15.13 36.3,-0.37 50,-20 17.94,-25.7 -12.32,-258.13 8,-282 13.72,-16.1 30.0539,-21.422 50.5939,-22.822"
+       fill="none"
+       id="Player-to-UC_LeaveLobby"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="269.58,1692.3911 260.3288,1689.0124 264.5916,1692.7311 260.8728,1696.9939 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon120" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0110"
+     data-link-type="dependency"
+     data-source-line="206"
+     id="lnk117"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 30.42,1677.5111 c 1.65,115.11 9.58,441.47 46.58,470.11 44.99,34.82 85.99,39.37 128,1 14.5,-13.24 -5.19,-73.45 8,-88 14.15,-15.6 30.4064,-20.8567 50.7864,-22.3667"
+       fill="none"
+       id="Host-to-UC_StartGame"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="269.77,2037.8111 260.499,2034.487 264.7837,2038.1805 261.0902,2042.4652 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon121" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0006"
+     data-entity-2="ent0111"
+     data-link-type="dependency"
+     data-source-line="207"
+     id="lnk118"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 54.14,2248.9611 c 37.36,11.21 109.22,25.75 150.86,-11.34 20.09,-17.89 -10.49,-40.45 8,-60 14.73,-15.57 31.5548,-20.7387 52.1548,-22.1887"
+       fill="none"
+       id="Explainer-to-UC_StartTurn"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="271.14,2155.0111 261.8814,2151.6529 266.1523,2155.3622 262.4431,2159.6332 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon122" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0006"
+     data-entity-2="ent0112"
+     data-link-type="dependency"
+     data-source-line="208"
+     id="lnk119"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 54.23,2255.7311 c 3.5,1.6 7.15,2.97 10.77,3.89 60.31,15.32 92.23,39.87 140,0 15.26,-12.73 -6.06,-29.95 8,-44 12.65,-12.63 24.7326,-17.6475 42.2926,-19.9875"
+       fill="none"
+       id="Explainer-to-UC_GuessCards"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="261.24,2194.8411 251.7905,2192.065 256.2838,2195.5015 252.8472,2199.9949 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon123" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0006"
+     data-entity-2="ent0113"
+     data-link-type="dependency"
+     data-source-line="209"
+     id="lnk120"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 54.19,2240.6911 c 43.07,-0.43 130.49,-3.95 150.81,-25.07 11.93,-12.39 -3.64,-64.33 8,-77 13.12,-14.28 27.0547,-19.5854 46.0247,-21.6354"
+       fill="none"
+       id="Explainer-to-UC_ReviewTurn"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="264.99,2116.3411 255.6123,2113.3312 260.0189,2116.8783 256.4719,2121.2849 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon124" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0113"
+     data-link-type="dependency"
+     data-source-line="210"
+     id="lnk121"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 29.99,1677.5411 c 0.42,122 5.22,483.52 47.01,513.08 46.44,32.86 84.82,37.05 128,0 17.75,-15.22 -8.24,-35.17 8,-52 13.34,-13.82 27.0887,-19.05 45.8487,-21.19"
+       fill="none"
+       id="Host-to-UC_ReviewTurn"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="264.81,2116.7511 255.4146,2113.7969 259.8422,2117.3178 256.3213,2121.7454 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon125" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0114"
+     data-link-type="dependency"
+     data-source-line="211"
+     id="lnk122"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 30.2,1677.1511 c 1.05,119.07 7.48,468.09 46.8,498.47 22.51,17.39 106.86,19.03 128,0 12.62,-11.36 -3.5,-63.5 8,-76 12.5,-13.59 25.1986,-18.868 43.3186,-21.188"
+       fill="none"
+       id="Host-to-UC_AdjustScore"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="262.27,2077.6711 252.8349,2074.8465 257.3105,2078.3061 253.8509,2082.7817 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon126" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0005"
+     data-entity-2="ent0115"
+     data-link-type="dependency"
+     data-source-line="212"
+     id="lnk123"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 30.92,1677.2311 c 2.98,111.15 14.07,419.98 46.08,451.39 20.32,19.95 107.17,25.41 128,6 18.42,-17.16 -8.72,-94.18 8,-113 11.28,-12.69 21.9867,-17.9035 38.7067,-20.6035"
+       fill="none"
+       id="Host-to-UC_RestartTurn"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="257.63,2000.0611 248.1074,1997.547 252.6939,2000.8582 249.3828,2005.4447 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon127" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0004"
+     data-entity-2="ent0116"
+     data-link-type="dependency"
+     data-source-line="213"
+     id="lnk124"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 134.9,2111.6111 c 5.96,5.31 12.77,10.1 20.1,13.01 20.65,8.2 33.85,15.27 50,0 11.48,-10.85 -2.36,-130.06 8,-142 10.72,-12.35 20.5826,-17.5854 36.6526,-20.5954"
+       fill="none"
+       id="Player-to-UC_FinishGame"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="255.55,1960.9211 245.9674,1958.6464 250.6355,1961.8416 247.4403,1966.5097 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon128" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0113"
+     data-entity-2="ent0116"
+     data-link-type="dependency"
+     data-source-line="215"
+     id="lnk125"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 264.4,2119.6011 c -18.14,-2.28 -37.3,-7.85 -51.4,-19.98 -43.09,-37.06 -73,-80.74 -35,-123 22.39,-24.89 54.807,-28.1389 85.887,-25.1789"
+       fill="none"
+       id="UC_ReviewTurn-to-UC_FinishGame"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="269.86,1952.0111 261.2798,1947.1758 264.8825,1951.537 260.5213,1955.1398 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon129" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="44.112801"
+       x="158"
+       y="1991.4912"
+       id="text129">«extend»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0115"
+     data-entity-2="ent0111"
+     data-link-type="dependency"
+     data-source-line="216"
+     id="lnk126"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 270.11,1992.8211 c -31.18,-2.54 -69.78,0.62 -92.11,25.8 -36.86,41.57 -7.29,83.97 35,120 15.8,13.46 31.8434,18.2911 51.7334,20.0511"
+       fill="none"
+       id="UC_RestartTurn-to-UC_StartTurn"
+       style="stroke:#555555;stroke-width:1;stroke-dasharray:7, 7" />
+    <polygon
+       fill="#555555"
+       points="270.71,2159.2011 262.0976,2154.4234 265.7295,2158.7604 261.3925,2162.3922 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon130" />
+    <text
+       fill="#555555"
+       font-family="'Segoe UI'"
+       font-size="11px"
+       lengthAdjust="spacing"
+       textLength="44.112801"
+       x="158"
+       y="2033.4912"
+       id="text130">«extend»</text>
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0004"
+     data-entity-2="ent0128"
+     data-link-type="dependency"
+     data-source-line="229"
+     id="lnk132"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 134.84,2080.0511 c 24.77,-4.31 61.52,-12.38 70.16,-23.43 14.52,-18.57 -7.78,-194.48 8,-212 89.49,-99.35 263.5,-81.0409 344.46,-66.0709"
+       fill="none"
+       id="Player-to-UC_RealtimeSync"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="563.36,1779.6411 555.2373,1774.0714 558.4433,1778.732 553.7827,1781.938 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon131" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0004"
+     data-entity-2="ent0129"
+     data-link-type="dependency"
+     data-source-line="230"
+     id="lnk133"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 134.77,2088.6911 c 21.51,3.16 52.71,3.64 70.23,-15.07 14.9,-15.91 -6.73,-179.94 8,-196 43.31,-47.21 226.2402,-52.1774 324.9502,-51.3974"
+       fill="none"
+       id="Player-to-UC_Reconnect"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="543.95,1826.2711 534.9819,1822.2001 538.9502,1826.2316 534.9187,1830.1999 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon132" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0004"
+     data-entity-2="ent0130"
+     data-link-type="dependency"
+     data-source-line="231"
+     id="lnk134"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 134.76,2094.0311 c 21.19,7.71 51.89,14.15 70.24,-3.41 14.62,-13.99 -5.86,-167.24 8,-182 45.1,-48.02 238.2333,-47.7388 333.8733,-44.5688"
+       fill="none"
+       id="Player-to-UC_TeamChat"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="552.87,1864.2511 544.0074,1859.9551 547.8727,1864.0855 543.7424,1867.9508 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon133" />
+  </g>
+  <g
+     class="link"
+     data-entity-1="ent0004"
+     data-entity-2="ent0131"
+     data-link-type="dependency"
+     data-source-line="232"
+     id="lnk135"
+     transform="translate(-6.4035988,27.748929)">
+    <path
+       d="m 134.9,2100.2611 c 21,12.72 51.31,25.3 70.1,7.36 13.76,-13.13 -5.23,-157.33 8,-171 45.71,-47.2 238.5418,-41.2764 333.9918,-35.2764"
+       fill="none"
+       id="Player-to-UC_GlobalChat"
+       style="stroke:#555555;stroke-width:1" />
+    <polygon
+       fill="#555555"
+       points="552.98,1901.7211 544.2487,1897.1643 547.9898,1901.4074 543.7468,1905.1486 "
+       style="stroke:#555555;stroke-width:1"
+       id="polygon134" />
+  </g>
+  <g
+     class="legend"
+     data-source-line="254"
+     id="g154"
+     transform="translate(-6.4035988,27.748929)">
+    <rect
+       fill="none"
+       height="153.72659"
+       rx="3"
+       ry="3"
+       style="stroke:#000000;stroke-width:1"
+       width="358.5264"
+       x="284.23679"
+       y="2317.4912"
+       id="rect134" />
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="41.275398"
+       x="297.09909"
+       y="2343.5984"
+       id="text134">Актор</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       font-weight="bold"
+       lengthAdjust="spacing"
+       textLength="33.4277"
+       x="402.06589"
+       y="2343.5984"
+       id="text135">Роль</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="29.257799"
+       x="297.07181"
+       y="2366.2195"
+       id="text136">Гість</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="190.16209"
+       x="402.0386"
+       y="2366.2195"
+       id="text137">Незареєстрований відвідувач</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="74.122101"
+       x="297.07181"
+       y="2388.8408"
+       id="text138">Користувач</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="215.58501"
+       x="402.0386"
+       y="2388.8408"
+       id="text139">Авторизований власник профілю</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="52.151402"
+       x="297.07181"
+       y="2411.4619"
+       id="text140">Гравець</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="227.8896"
+       x="402.0386"
+       y="2411.4619"
+       id="text141">Учасник лобі (гість або користувач)</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="28.669901"
+       x="297.07181"
+       y="2434.083"
+       id="text142">Хост</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="170.4268"
+       x="402.0386"
+       y="2434.083"
+       id="text143">Творець лобі, модерує гру</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="53.9561"
+       x="297.07181"
+       y="2456.7041"
+       id="text144">Ведучий</text>
+    <text
+       fill="#000000"
+       font-family="'Segoe UI'"
+       font-size="14px"
+       lengthAdjust="spacing"
+       textLength="178.7393"
+       x="402.0386"
+       y="2456.7041"
+       id="text145">Гравець, що пояснює слова</text>
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="291.23679"
+       x2="635.76318"
+       y1="2326.4912"
+       y2="2326.4912"
+       id="line145" />
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="291.23679"
+       x2="635.76318"
+       y1="2349.1123"
+       y2="2349.1123"
+       id="line146" />
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="291.23679"
+       x2="635.76318"
+       y1="2371.7334"
+       y2="2371.7334"
+       id="line147" />
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="291.23679"
+       x2="635.76318"
+       y1="2394.3545"
+       y2="2394.3545"
+       id="line148" />
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="291.23679"
+       x2="635.76318"
+       y1="2416.9756"
+       y2="2416.9756"
+       id="line149" />
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="291.23679"
+       x2="635.76318"
+       y1="2439.5967"
+       y2="2439.5967"
+       id="line150" />
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="291.23679"
+       x2="635.76318"
+       y1="2462.2178"
+       y2="2462.2178"
+       id="line151" />
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="291.23679"
+       x2="291.23679"
+       y1="2326.4912"
+       y2="2462.2178"
+       id="line152" />
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="396.20361"
+       x2="396.20361"
+       y1="2326.4912"
+       y2="2462.2178"
+       id="line153" />
+    <line
+       style="stroke:#000000;stroke-width:1"
+       x1="635.76318"
+       x2="635.76318"
+       y1="2326.4912"
+       y2="2462.2178"
+       id="line154" />
+  </g>
+  <metadata
+     id="metadata155">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Alias — Use Case Diagram</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>

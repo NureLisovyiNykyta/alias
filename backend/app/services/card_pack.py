@@ -3,14 +3,21 @@ from datetime import datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
 from app.models.card import CardPack, CardPackRating, CardType, SavedCardPack
-from app.services.card import validate_pack_for_activation
 from app.models.enums import StatusEnum
-from app.schemas.card_pack import CardPackCreate, CardPackUpdate, SortOrder
+from app.repositories.card_pack_repository import CardPackRepository
+from app.schemas.card_pack import CardPackCreate, CardPackSearchScope, CardPackUpdate, SortOrder
+from app.services.card import validate_pack_for_activation
+
+
+async def _get_pack_or_404(db: AsyncSession, pack_id: uuid.UUID) -> CardPack:
+    pack = await CardPackRepository(db).get_by_id(pack_id)
+    if pack is None:
+        raise NotFoundError(ErrorMessage.CARD_PACK_NOT_FOUND)
+    return pack
 
 
 async def update_card_pack_cover(
@@ -28,25 +35,13 @@ async def update_card_pack_cover(
     return pack
 
 
-async def _get_pack_or_404(db: AsyncSession, pack_id: uuid.UUID) -> CardPack:
-    result = await db.execute(select(CardPack).where(CardPack.id == pack_id))
-    pack: CardPack | None = result.scalar_one_or_none()
-    if pack is None:
-        raise NotFoundError(ErrorMessage.CARD_PACK_NOT_FOUND)
-    return pack
-
-
 async def get_pack_by_id(
     db: AsyncSession,
     pack_id: uuid.UUID,
     user_id: uuid.UUID | None = None,
 ) -> CardPack:
-    result = await db.execute(
-        select(CardPack)
-        .options(joinedload(CardPack.author), joinedload(CardPack.type))
-        .where(CardPack.id == pack_id)
-    )
-    pack: CardPack | None = result.scalar_one_or_none()
+    repo = CardPackRepository(db)
+    pack = await repo.get_by_id_with_relations(pack_id)
 
     if pack is None or pack.deleted_at is not None:
         raise NotFoundError(ErrorMessage.CARD_PACK_NOT_FOUND)
@@ -57,6 +52,9 @@ async def get_pack_by_id(
     if not is_public_active and not is_author:
         raise ForbiddenError()
 
+    if user_id is not None:
+        pack.is_saved, pack.my_rating = await repo.get_user_meta(pack_id, user_id)
+
     return pack
 
 
@@ -65,8 +63,7 @@ async def create_card_pack(
     author_id: uuid.UUID,
     data: CardPackCreate,
 ) -> CardPack:
-    result = await db.execute(select(CardType).where(CardType.id == data.type_id))
-    if result.scalar_one_or_none() is None:
+    if (await db.execute(select(CardType).where(CardType.id == data.type_id))).scalar_one_or_none() is None:
         raise NotFoundError(ErrorMessage.CARD_TYPE_NOT_FOUND)
 
     pack = CardPack(
@@ -95,8 +92,7 @@ async def update_card_pack(
     if pack.author_id != user_id:
         raise ForbiddenError()
 
-    update_data = data.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
+    for field, value in data.model_dump(exclude_unset=True).items():
         setattr(pack, field, value)
 
     await db.commit()
@@ -113,25 +109,17 @@ async def publish_pack(
 
     if pack.author_id != user_id:
         raise ForbiddenError()
-
     if pack.deleted_at is not None:
         raise NotFoundError(ErrorMessage.CARD_PACK_NOT_FOUND)
-
     if pack.is_public:
         raise BadRequestError(ErrorMessage.CARD_PACK_ALREADY_PUBLISHED)
-
     if pack.status != StatusEnum.ACTIVE.value:
         raise BadRequestError(ErrorMessage.CARD_PACK_NOT_ACTIVE_FOR_PUBLISH)
 
     pack.is_public = True
     await db.commit()
 
-    result = await db.execute(
-        select(CardPack)
-        .options(joinedload(CardPack.author), joinedload(CardPack.type))
-        .where(CardPack.id == pack_id)
-    )
-    return result.scalar_one()
+    return await CardPackRepository(db).get_by_id_with_relations(pack_id)
 
 
 async def activate_card_pack(
@@ -143,7 +131,6 @@ async def activate_card_pack(
 
     if pack.author_id != user_id:
         raise ForbiddenError()
-
     if pack.status == StatusEnum.ACTIVE.value:
         return pack
 
@@ -165,13 +152,14 @@ async def toggle_save_card_pack(
     if pack.author_id == user_id:
         raise BadRequestError(ErrorMessage.CARD_PACK_SAVE_OWN)
 
-    result = await db.execute(
-        select(SavedCardPack).where(
-            SavedCardPack.user_id == user_id,
-            SavedCardPack.card_pack_id == pack_id,
+    existing = (
+        await db.execute(
+            select(SavedCardPack).where(
+                SavedCardPack.user_id == user_id,
+                SavedCardPack.card_pack_id == pack_id,
+            )
         )
-    )
-    existing = result.scalar_one_or_none()
+    ).scalar_one_or_none()
 
     if existing is not None:
         await db.delete(existing)
@@ -179,8 +167,7 @@ async def toggle_save_card_pack(
         await db.commit()
         return False
 
-    saved = SavedCardPack(user_id=user_id, card_pack_id=pack_id)
-    db.add(saved)
+    db.add(SavedCardPack(user_id=user_id, card_pack_id=pack_id))
     pack.saves_count = CardPack.saves_count + 1
     await db.commit()
     return True
@@ -197,37 +184,33 @@ async def set_card_pack_rating(
     if pack.author_id == user_id:
         raise BadRequestError(ErrorMessage.CARD_PACK_RATE_OWN)
 
-    result = await db.execute(
-        select(CardPackRating).where(
-            CardPackRating.user_id == user_id,
-            CardPackRating.card_pack_id == pack_id,
+    existing_rating = (
+        await db.execute(
+            select(CardPackRating).where(
+                CardPackRating.user_id == user_id,
+                CardPackRating.card_pack_id == pack_id,
+            )
         )
-    )
-    existing_rating = result.scalar_one_or_none()
+    ).scalar_one_or_none()
 
     if existing_rating is not None:
         existing_rating.score = score
     else:
-        new_rating = CardPackRating(user_id=user_id, card_pack_id=pack_id, score=score)
-        db.add(new_rating)
+        db.add(CardPackRating(user_id=user_id, card_pack_id=pack_id, score=score))
         pack.rating_count = CardPack.rating_count + 1
 
     await db.flush()
 
-    stmt = select(func.avg(CardPackRating.score)).where(CardPackRating.card_pack_id == pack_id)
-    avg_score = (await db.execute(stmt)).scalar()
+    avg_score = (
+        await db.execute(
+            select(func.avg(CardPackRating.score)).where(CardPackRating.card_pack_id == pack_id)
+        )
+    ).scalar()
     pack.rating_average = float(avg_score) if avg_score else 0.0
 
     await db.commit()
     await db.refresh(pack)
     return pack
-
-
-_SORT_COLUMNS = {
-    SortOrder.newest: CardPack.created_at.desc(),
-    SortOrder.top_rated: CardPack.rating_average.desc(),
-    SortOrder.most_saved: CardPack.saves_count.desc(),
-}
 
 
 async def delete_pack(
@@ -239,7 +222,6 @@ async def delete_pack(
 
     if pack.author_id != user_id:
         raise ForbiddenError()
-
     if pack.deleted_at is not None:
         raise BadRequestError(ErrorMessage.CARD_PACK_ALREADY_DELETED)
 
@@ -258,7 +240,6 @@ async def restore_pack(
 
     if pack.author_id != user_id:
         raise ForbiddenError()
-
     if pack.deleted_at is None:
         raise BadRequestError(ErrorMessage.CARD_PACK_NOT_IN_TRASH)
 
@@ -268,28 +249,12 @@ async def restore_pack(
     return pack
 
 
+# --- thin delegators to repository ---
+
 async def get_deleted_packs(
-    db: AsyncSession,
-    user_id: uuid.UUID,
-    limit: int,
-    offset: int,
+    db: AsyncSession, user_id: uuid.UUID, limit: int, offset: int
 ) -> tuple[list[CardPack], int]:
-    base_where = [
-        CardPack.author_id == user_id,
-        CardPack.deleted_at.is_not(None),
-    ]
-
-    total: int = (
-        await db.execute(select(func.count(CardPack.id)).select_from(CardPack).where(*base_where))
-    ).scalar_one()
-
-    items = (
-        await db.execute(
-            select(CardPack).where(*base_where).order_by(CardPack.deleted_at.desc()).limit(limit).offset(offset)
-        )
-    ).scalars().all()
-
-    return list(items), total
+    return await CardPackRepository(db).list_deleted(user_id, limit, offset)
 
 
 async def get_public_packs(
@@ -299,29 +264,9 @@ async def get_public_packs(
     q: str | None = None,
     type_id: uuid.UUID | None = None,
     sort_by: SortOrder = SortOrder.newest,
-    exclude_user_id: uuid.UUID | None = None,
+    user_id: uuid.UUID | None = None,
 ) -> tuple[list[CardPack], int]:
-    base_where = [
-        CardPack.is_public.is_(True),
-        CardPack.deleted_at.is_(None),
-        CardPack.status == StatusEnum.ACTIVE.value,
-    ]
-    if q:
-        base_where.append(CardPack.name.ilike(f"%{q}%"))
-    if type_id:
-        base_where.append(CardPack.type_id == type_id)
-    if exclude_user_id:
-        base_where.append(CardPack.author_id != exclude_user_id)
-
-    total: int = (await db.execute(select(func.count(CardPack.id)).select_from(CardPack).where(*base_where))).scalar_one()
-
-    items = (
-        await db.execute(
-            select(CardPack).where(*base_where).order_by(_SORT_COLUMNS[sort_by]).limit(limit).offset(offset)
-        )
-    ).scalars().all()
-
-    return list(items), total
+    return await CardPackRepository(db).list_public(limit, offset, q, type_id, sort_by, user_id)
 
 
 async def get_my_packs(
@@ -332,24 +277,7 @@ async def get_my_packs(
     q: str | None = None,
     status: StatusEnum | None = None,
 ) -> tuple[list[CardPack], int]:
-    base_where = [
-        CardPack.author_id == user_id,
-        CardPack.deleted_at.is_(None),
-    ]
-    if q:
-        base_where.append(CardPack.name.ilike(f"%{q}%"))
-    if status:
-        base_where.append(CardPack.status == status.value)
-
-    total: int = (await db.execute(select(func.count(CardPack.id)).select_from(CardPack).where(*base_where))).scalar_one()
-
-    items = (
-        await db.execute(
-            select(CardPack).where(*base_where).order_by(CardPack.created_at.desc()).limit(limit).offset(offset)
-        )
-    ).scalars().all()
-
-    return list(items), total
+    return await CardPackRepository(db).list_my(user_id, limit, offset, q, status)
 
 
 async def get_saved_packs(
@@ -359,36 +287,21 @@ async def get_saved_packs(
     offset: int,
     q: str | None = None,
 ) -> tuple[list[CardPack], int]:
-    base_where = [
-        SavedCardPack.user_id == user_id,
-        CardPack.deleted_at.is_(None),
-    ]
-    if q:
-        base_where.append(CardPack.name.ilike(f"%{q}%"))
+    return await CardPackRepository(db).list_saved(user_id, limit, offset, q)
 
-    total: int = (
-        await db.execute(
-            select(func.count(CardPack.id))
-            .select_from(CardPack)
-            .join(SavedCardPack, SavedCardPack.card_pack_id == CardPack.id)
-            .where(*base_where)
-        )
-    ).scalar_one()
 
-    items = (
-        await db.execute(
-            select(CardPack)
-            .join(SavedCardPack, SavedCardPack.card_pack_id == CardPack.id)
-            .where(*base_where)
-            .order_by(SavedCardPack.created_at.desc())
-            .limit(limit)
-            .offset(offset)
-        )
-    ).scalars().all()
-
-    return list(items), total
+async def search_card_packs(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    limit: int,
+    offset: int,
+    q: str | None = None,
+    type_id: uuid.UUID | None = None,
+    scope: CardPackSearchScope = CardPackSearchScope.available,
+    sort_by: SortOrder = SortOrder.newest,
+) -> tuple[list[CardPack], int]:
+    return await CardPackRepository(db).search(user_id, limit, offset, q, type_id, scope, sort_by)
 
 
 async def get_all_card_types(db: AsyncSession) -> list[CardType]:
-    result = await db.execute(select(CardType).order_by(CardType.name))
-    return list(result.scalars().all())
+    return await CardPackRepository(db).get_all_types()

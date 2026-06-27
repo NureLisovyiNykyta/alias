@@ -3,16 +3,23 @@ from datetime import datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
-from app.models.enums import StatusEnum
 from app.models.card import CardPack
+from app.models.enums import StatusEnum
 from app.models.map import MAP_SIZE_FIELDS, Map, MapField, MapRating, MapTheme, SavedMap
+from app.repositories.map_repository import MapRepository
 from app.schemas.card_pack import SortOrder
-from app.schemas.map import MapCreate, MapUpdate
+from app.schemas.map import MapCreate, MapSearchScope, MapUpdate
 from app.services.map_field import validate_map_for_activation
+
+
+async def _get_map_or_404(db: AsyncSession, map_id: uuid.UUID) -> Map:
+    map_obj = await MapRepository(db).get_by_id(map_id)
+    if map_obj is None:
+        raise NotFoundError(ErrorMessage.MAP_NOT_FOUND)
+    return map_obj
 
 
 async def update_map_cover(
@@ -30,25 +37,13 @@ async def update_map_cover(
     return map_obj
 
 
-async def _get_map_or_404(db: AsyncSession, map_id: uuid.UUID) -> Map:
-    result = await db.execute(select(Map).where(Map.id == map_id))
-    map_obj: Map | None = result.scalar_one_or_none()
-    if map_obj is None:
-        raise NotFoundError(ErrorMessage.MAP_NOT_FOUND)
-    return map_obj
-
-
 async def get_map_by_id(
     db: AsyncSession,
     map_id: uuid.UUID,
     user_id: uuid.UUID | None = None,
 ) -> Map:
-    result = await db.execute(
-        select(Map)
-        .options(joinedload(Map.author))
-        .where(Map.id == map_id)
-    )
-    map_obj: Map | None = result.scalar_one_or_none()
+    repo = MapRepository(db)
+    map_obj = await repo.get_by_id_with_author(map_id)
 
     if map_obj is None or map_obj.deleted_at is not None:
         raise NotFoundError(ErrorMessage.MAP_NOT_FOUND)
@@ -58,6 +53,9 @@ async def get_map_by_id(
 
     if not is_public_active and not is_author:
         raise ForbiddenError()
+
+    if user_id is not None:
+        map_obj.is_saved, map_obj.my_rating = await repo.get_user_meta(map_id, user_id)
 
     return map_obj
 
@@ -71,14 +69,12 @@ async def create_map(
     if size not in MAP_SIZE_FIELDS:
         raise BadRequestError(ErrorMessage.MAP_INVALID_SIZE)
 
-    max_fields_count = MAP_SIZE_FIELDS[size]
-
     map_obj = Map(
         id=uuid.uuid4(),
         name=data.name,
         is_public=False,
         size=size,
-        max_fields_count=max_fields_count,
+        max_fields_count=MAP_SIZE_FIELDS[size],
         author_id=author_id,
         status=StatusEnum.DRAFT.value,
     )
@@ -116,13 +112,10 @@ async def publish_map(
 
     if map_obj.author_id != user_id:
         raise ForbiddenError()
-
     if map_obj.deleted_at is not None:
         raise NotFoundError(ErrorMessage.MAP_NOT_FOUND)
-
     if map_obj.is_public:
         raise BadRequestError(ErrorMessage.MAP_ALREADY_PUBLISHED)
-
     if map_obj.status != StatusEnum.ACTIVE.value:
         raise BadRequestError(ErrorMessage.MAP_NOT_ACTIVE_FOR_PUBLISH)
 
@@ -145,12 +138,7 @@ async def publish_map(
     map_obj.is_public = True
     await db.commit()
 
-    result = await db.execute(
-        select(Map)
-        .options(joinedload(Map.author))
-        .where(Map.id == map_id)
-    )
-    return result.scalar_one()
+    return await MapRepository(db).get_by_id_with_author(map_id)
 
 
 async def activate_map(
@@ -162,7 +150,6 @@ async def activate_map(
 
     if map_obj.author_id != user_id:
         raise ForbiddenError()
-
     if map_obj.status == StatusEnum.ACTIVE.value:
         return map_obj
 
@@ -184,13 +171,11 @@ async def toggle_save_map(
     if map_obj.author_id == user_id:
         raise BadRequestError(ErrorMessage.MAP_SAVE_OWN)
 
-    result = await db.execute(
-        select(SavedMap).where(
-            SavedMap.user_id == user_id,
-            SavedMap.map_id == map_id,
+    existing = (
+        await db.execute(
+            select(SavedMap).where(SavedMap.user_id == user_id, SavedMap.map_id == map_id)
         )
-    )
-    existing = result.scalar_one_or_none()
+    ).scalar_one_or_none()
 
     if existing is not None:
         await db.delete(existing)
@@ -215,13 +200,11 @@ async def set_map_rating(
     if map_obj.author_id == user_id:
         raise BadRequestError(ErrorMessage.MAP_RATE_OWN)
 
-    result = await db.execute(
-        select(MapRating).where(
-            MapRating.user_id == user_id,
-            MapRating.map_id == map_id,
+    existing_rating = (
+        await db.execute(
+            select(MapRating).where(MapRating.user_id == user_id, MapRating.map_id == map_id)
         )
-    )
-    existing_rating = result.scalar_one_or_none()
+    ).scalar_one_or_none()
 
     if existing_rating is not None:
         existing_rating.score = score
@@ -241,13 +224,6 @@ async def set_map_rating(
     return map_obj
 
 
-_SORT_COLUMNS = {
-    SortOrder.newest: Map.created_at.desc(),
-    SortOrder.top_rated: Map.rating_average.desc(),
-    SortOrder.most_saved: Map.saves_count.desc(),
-}
-
-
 async def delete_map(
     db: AsyncSession,
     user_id: uuid.UUID,
@@ -257,7 +233,6 @@ async def delete_map(
 
     if map_obj.author_id != user_id:
         raise ForbiddenError()
-
     if map_obj.deleted_at is not None:
         raise BadRequestError(ErrorMessage.MAP_ALREADY_DELETED)
 
@@ -276,7 +251,6 @@ async def restore_map(
 
     if map_obj.author_id != user_id:
         raise ForbiddenError()
-
     if map_obj.deleted_at is None:
         raise BadRequestError(ErrorMessage.MAP_NOT_IN_TRASH)
 
@@ -286,28 +260,12 @@ async def restore_map(
     return map_obj
 
 
+# --- thin delegators to repository ---
+
 async def get_deleted_maps(
-    db: AsyncSession,
-    user_id: uuid.UUID,
-    limit: int,
-    offset: int,
+    db: AsyncSession, user_id: uuid.UUID, limit: int, offset: int
 ) -> tuple[list[Map], int]:
-    base_where = [
-        Map.author_id == user_id,
-        Map.deleted_at.is_not(None),
-    ]
-
-    total: int = (
-        await db.execute(select(func.count(Map.id)).select_from(Map).where(*base_where))
-    ).scalar_one()
-
-    items = (
-        await db.execute(
-            select(Map).where(*base_where).order_by(Map.deleted_at.desc()).limit(limit).offset(offset)
-        )
-    ).scalars().all()
-
-    return list(items), total
+    return await MapRepository(db).list_deleted(user_id, limit, offset)
 
 
 async def get_public_maps(
@@ -317,31 +275,9 @@ async def get_public_maps(
     q: str | None = None,
     size: str | None = None,
     sort_by: SortOrder = SortOrder.newest,
-    exclude_user_id: uuid.UUID | None = None,
+    user_id: uuid.UUID | None = None,
 ) -> tuple[list[Map], int]:
-    base_where = [
-        Map.is_public.is_(True),
-        Map.deleted_at.is_(None),
-        Map.status == StatusEnum.ACTIVE.value,
-    ]
-    if q:
-        base_where.append(Map.name.ilike(f"%{q}%"))
-    if size:
-        base_where.append(Map.size == size.upper())
-    if exclude_user_id:
-        base_where.append(Map.author_id != exclude_user_id)
-
-    total: int = (
-        await db.execute(select(func.count(Map.id)).select_from(Map).where(*base_where))
-    ).scalar_one()
-
-    items = (
-        await db.execute(
-            select(Map).where(*base_where).order_by(_SORT_COLUMNS[sort_by]).limit(limit).offset(offset)
-        )
-    ).scalars().all()
-
-    return list(items), total
+    return await MapRepository(db).list_public(limit, offset, q, size, sort_by, user_id)
 
 
 async def get_my_maps(
@@ -352,26 +288,7 @@ async def get_my_maps(
     q: str | None = None,
     status: StatusEnum | None = None,
 ) -> tuple[list[Map], int]:
-    base_where = [
-        Map.author_id == user_id,
-        Map.deleted_at.is_(None),
-    ]
-    if q:
-        base_where.append(Map.name.ilike(f"%{q}%"))
-    if status:
-        base_where.append(Map.status == status.value)
-
-    total: int = (
-        await db.execute(select(func.count(Map.id)).select_from(Map).where(*base_where))
-    ).scalar_one()
-
-    items = (
-        await db.execute(
-            select(Map).where(*base_where).order_by(Map.created_at.desc()).limit(limit).offset(offset)
-        )
-    ).scalars().all()
-
-    return list(items), total
+    return await MapRepository(db).list_my(user_id, limit, offset, q, status)
 
 
 async def get_saved_maps(
@@ -381,36 +298,21 @@ async def get_saved_maps(
     offset: int,
     q: str | None = None,
 ) -> tuple[list[Map], int]:
-    base_where = [
-        SavedMap.user_id == user_id,
-        Map.deleted_at.is_(None),
-    ]
-    if q:
-        base_where.append(Map.name.ilike(f"%{q}%"))
+    return await MapRepository(db).list_saved(user_id, limit, offset, q)
 
-    total: int = (
-        await db.execute(
-            select(func.count(Map.id))
-            .select_from(Map)
-            .join(SavedMap, SavedMap.map_id == Map.id)
-            .where(*base_where)
-        )
-    ).scalar_one()
 
-    items = (
-        await db.execute(
-            select(Map)
-            .join(SavedMap, SavedMap.map_id == Map.id)
-            .where(*base_where)
-            .order_by(SavedMap.created_at.desc())
-            .limit(limit)
-            .offset(offset)
-        )
-    ).scalars().all()
-
-    return list(items), total
+async def search_maps(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    limit: int,
+    offset: int,
+    q: str | None = None,
+    size: str | None = None,
+    scope: MapSearchScope = MapSearchScope.available,
+    sort_by: SortOrder = SortOrder.newest,
+) -> tuple[list[Map], int]:
+    return await MapRepository(db).search(user_id, limit, offset, q, size, scope, sort_by)
 
 
 async def get_all_map_themes(db: AsyncSession) -> list[MapTheme]:
-    result = await db.execute(select(MapTheme).order_by(MapTheme.name))
-    return list(result.scalars().all())
+    return await MapRepository(db).get_all_themes()
