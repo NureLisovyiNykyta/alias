@@ -18,6 +18,7 @@ class ClientEventType(StrEnum):
     # Host actions
     ADJUST_SCORE = "adjust_score"
     RESTART_TURN = "restart_turn"
+    END_GAME = "end_game"
 
     # Chat
     CHAT_MESSAGE = "chat_message"
