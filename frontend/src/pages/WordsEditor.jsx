@@ -15,6 +15,7 @@ import {
 } from "@/api/card-packs";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useQueryClient } from '@tanstack/react-query';
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const WordsEditor = () => {
   const { id: packId } = useParams();
@@ -43,7 +44,7 @@ const WordsEditor = () => {
     }
   }, [serverCards]);
 
-  const { mutate: syncCards, isPending: isSaving } = useBulkSyncCardsMutation({
+  const { mutate: syncCards, mutateAsync: syncCardsAsync, isPending: isSaving } = useBulkSyncCardsMutation({
     onSuccess: () => {
       setOriginalWords(words);
       showNotification({
@@ -53,10 +54,10 @@ const WordsEditor = () => {
       });
       queryClient.invalidateQueries(['packCards', packId]);
     },
-    onError: () => {
+    onError: (error) => {
       showNotification({
         title: "Error",
-        message: "Failed to save the vocabulary.",
+        message: `Failed to save the vocabulary. ${parseErrors(error.response?.data)}`,
         isSuccess: false,
       });
     }
@@ -71,10 +72,10 @@ const WordsEditor = () => {
       });
       queryClient.invalidateQueries(['pack', packId]);
     },
-    onError: () => {
+    onError: (error) => {
       showNotification({
         title: "Error",
-        message: "Failed to activate the pack.",
+        message: `Failed to activate the pack. ${parseErrors(error.response?.data)}`,
         isSuccess: false,
       });
     }
@@ -89,10 +90,10 @@ const WordsEditor = () => {
       });
       queryClient.invalidateQueries(['pack', packId]);
     },
-    onError: () => {
+    onError: (error) => {
       showNotification({
         title: "Error",
-        message: "Failed to publish the pack.",
+        message: `Failed to publish the pack. ${parseErrors(error.response?.data)}`,
         isSuccess: false,
       });
     }
@@ -126,16 +127,33 @@ const WordsEditor = () => {
     });
   };
 
-  const handleSave = () => {
-    const payloadCards = words.map(w => {
+  const getCardsPayload = () => {
+    return words.map(w => {
       const cardPayload = { content: { text: w.text } };
       if (w.id) {
         cardPayload.id = w.id;
       }
       return cardPayload;
     });
+  };
 
-    syncCards({ packId, cards: payloadCards });
+  const handleSave = () => {
+    syncCards({ packId, cards: getCardsPayload() });
+  };
+
+  const handleActivateClick = async () => {
+    if (hasChanges) {
+      try {
+        // Ждем завершения сохранения
+        await syncCardsAsync({ packId, cards: getCardsPayload() });
+      } catch (error) {
+        // Если сохранение упадет, onError из хука покажет уведомление,
+        // а мы просто прерываем процесс активации
+        return;
+      }
+    }
+    // Если сохранение прошло успешно (или изменений не было), активируем
+    activatePack(packId);
   };
 
   const navLinks = [
@@ -263,8 +281,14 @@ const WordsEditor = () => {
         </div>
 
         {isDraft && (
-          <Button onClick={() => activatePack(packId)} disabled={isActivating}>
-            {isActivating ? <Spinner size="sm" /> : 'Activate'}
+          <Button
+            onClick={handleActivateClick}
+            disabled={isActivating || isSaving || (hasChanges && words.length < 2)}
+          >
+            {(isActivating || (hasChanges && isSaving))
+              ? <Spinner size="sm" />
+              : (hasChanges ? 'Save and Activate' : 'Activate')
+            }
           </Button>
         )}
 

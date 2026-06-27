@@ -18,6 +18,7 @@ import {
 } from "@/api/maps.js";
 import { usePublicPacksQuery } from "@/api/card-packs.js";
 import { getCellGridStyle } from "@/utils/getCellGridStyle.js";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const DEFAULT_TIME = '60';
 const DEFAULT_REWARD = '1';
@@ -66,14 +67,14 @@ const MapFieldEditor = () => {
     }
   }, [serverFields, totalFields]);
 
-  const { mutate: syncFields, isPending: isSaving } = useBulkSyncFieldsMutation({
+  const { mutate: syncFields, mutateAsync: syncFieldsAsync, isPending: isSaving } = useBulkSyncFieldsMutation({
     onSuccess: () => {
       setOriginalFields([...gridFields]);
       showNotification({ title: "Success", message: "Map fields have been updated.", isSuccess: true });
       queryClient.invalidateQueries(['mapFields', mapId]);
     },
-    onError: () => {
-      showNotification({ title: "Error", message: "Failed to save map fields.", isSuccess: false });
+    onError: (error) => {
+      showNotification({ title: "Error", message: `Failed to save map fields. ${parseErrors(error.response?.data)}`, isSuccess: false });
     }
   });
 
@@ -82,8 +83,8 @@ const MapFieldEditor = () => {
       showNotification({ title: "Map Activated", message: "Your map is now active.", isSuccess: true });
       queryClient.invalidateQueries(['map', mapId]);
     },
-    onError: () => {
-      showNotification({ title: "Error", message: "Failed to activate the map.", isSuccess: false });
+    onError: (error) => {
+      showNotification({ title: "Error", message: `Failed to activate the map. ${parseErrors(error.response?.data)}`, isSuccess: false });
     }
   });
 
@@ -92,8 +93,8 @@ const MapFieldEditor = () => {
       showNotification({ title: "Map Published", message: "Your map is now public.", isSuccess: true });
       queryClient.invalidateQueries(['map', mapId]);
     },
-    onError: () => {
-      showNotification({ title: "Error", message: "Failed to publish the map.", isSuccess: false });
+    onError: (error) => {
+      showNotification({ title: "Error", message: `Failed to publish the map. ${parseErrors(error.response?.data)}`, isSuccess: false });
     }
   });
 
@@ -149,7 +150,7 @@ const MapFieldEditor = () => {
     setPenalty(DEFAULT_PENALTY);
   };
 
-  const handleSave = () => {
+  const getFieldsPayload = () => {
     const payloadFields = [];
     gridFields.forEach((field, index) => {
       if (field) {
@@ -166,7 +167,22 @@ const MapFieldEditor = () => {
         payloadFields.push(fieldPayload);
       }
     });
-    syncFields({ mapId, fields: payloadFields });
+    return payloadFields;
+  };
+
+  const handleSave = () => {
+    syncFields({ mapId, fields: getFieldsPayload() });
+  };
+
+  const handleActivateClick = async () => {
+    if (hasChanges) {
+      try {
+        await syncFieldsAsync({ mapId, fields: getFieldsPayload() });
+      } catch (error) {
+        return;
+      }
+    }
+    activateMap(mapId);
   };
 
   const navLinks = [
@@ -324,8 +340,14 @@ const MapFieldEditor = () => {
         </div>
 
         {isDraft && (
-          <Button onClick={() => activateMap(mapId)} disabled={isActivating || !isAllCellsFilled}>
-            {isActivating ? <Spinner size="sm" /> : 'Activate'}
+          <Button
+            onClick={handleActivateClick}
+            disabled={isActivating || isSaving || !isAllCellsFilled}
+          >
+            {(isActivating || (hasChanges && isSaving))
+              ? <Spinner size="sm" />
+              : (hasChanges ? 'Save and Activate' : 'Activate')
+            }
           </Button>
         )}
 

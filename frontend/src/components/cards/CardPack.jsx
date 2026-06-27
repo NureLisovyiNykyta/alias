@@ -4,6 +4,9 @@ import { Button } from "@/components/buttons/Button.jsx";
 import { useSavePackMutation } from "@/api/card-packs.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { Link } from 'react-router-dom'
+import mapPreview from "@/assets/mapPreview.svg";
+import done from '@/assets/doneMark.svg';
+import { formatPackDate } from "@/utils/parseTime.js";
 
 const CardPack = ({ pack, type }) => {
   const { mutate: savePack, isPending } = useSavePackMutation();
@@ -14,11 +17,18 @@ const CardPack = ({ pack, type }) => {
 
   return (
     <li className='flex gap-8 p-6 rounded-[12px] w-full min-h-[250px] bg-surface'>
-      <img
+      {pack.image ? (<img
         className='w-[420px] h-[246px] rounded-[12px] border border-text-label object-cover shrink-0'
         src={pack.image}
         alt={pack.title}
-      />
+      />) : (
+        <div
+          className='w-[420px] h-[246px] rounded-[12px] border border-text-label shrink-0 flex flex-col items-center justify-center gap-2'>
+          <img src={mapPreview} alt="Map Template"/>
+          <span className='text-label text-text-label'>No Image Selected</span>
+        </div>
+      )}
+
 
       <div className='flex flex-col justify-between w-full'>
         <div className='flex flex-col gap-4'>
@@ -34,8 +44,8 @@ const CardPack = ({ pack, type }) => {
             </li>
 
             <li className='flex flex-col gap-2'>
-              <span className='text-label text-text-label font-noto'>Pack contains</span>
-              <p className='font-noto text-p'>{pack.positions} position{pack.positions === 1 ? '' : 's'}</p>
+              <span className='text-label text-text-label font-noto'>Created</span>
+              <p className='font-noto text-p'>{formatPackDate(pack.created_at)}</p>
             </li>
 
             <li className='flex flex-col gap-2'>
@@ -56,12 +66,12 @@ const CardPack = ({ pack, type }) => {
               <Button
                 variant='secondary'
                 onClick={handleSave}
-                disabled={isPending}
+                disabled={isPending || pack.is_saved}
               >
                 {isPending ? <Spinner size='sm'/> :
                   <div className='flex items-center justify-center gap-2'>
-                    <img src={plus} alt="Plus"/>
-                    <span>Save to My packs</span>
+                    <img src={pack.is_saved ? done : plus} alt="Plus"/>
+                    <span>{pack.is_saved ? 'Saved to my packs' : 'Save to My packs'}</span>
                   </div>
                 }
               </Button>

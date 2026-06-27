@@ -32,8 +32,8 @@ const PublicProfile = () => {
 
       <div className='flex gap-8 w-full'>
         <div
-          style={{ backgroundImage: `url(${user?.avatar_url})` }}
-          className='w-[310px] h-[310px] flex flex-col justify-end rounded-[16px] bg-cover bg-center'
+          style={{ backgroundImage: `url(${user?.avatar_url ?? profile})` }}
+          className='size-[310px] flex flex-col justify-end rounded-[16px] bg-cover bg-center'
         />
 
         <ul className='flex flex-col gap-[22px]'>

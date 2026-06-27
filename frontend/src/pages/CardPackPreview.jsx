@@ -109,19 +109,29 @@ const CardPackPreview = () => {
 
             <div className='flex flex-col gap-2'>
               <span className='text-label text-text-label font-noto'>Author</span>
-              <Link
-                to={`/user/${pack?.author?.username}`}
-                className="flex items-center gap-2 hover:text-brand-500 transition-colors"
-              >
-                <div className="w-6 h-6 rounded-full bg-brand-500 overflow-hidden flex items-center justify-center shrink-0">
-                  {pack?.author?.avatar_url ? (
-                    <img src={pack.author.avatar_url} alt="author" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-[10px] text-white font-bold">{pack?.author?.nickname?.[0]?.toUpperCase()}</span>
-                  )}
+              {!pack?.author?.username.startsWith('deleted') ?
+                <Link
+                  to={`/user/${pack?.author?.username}`}
+                  className="flex items-center gap-2 hover:text-brand-500 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-full bg-brand-500 overflow-hidden flex items-center justify-center">
+                    {pack?.author?.avatar_url ? (
+                      <img src={pack.author.avatar_url} alt="author" className="w-full h-full object-cover shrink-0" />
+                    ) : (
+                      <span className="text-[10px] text-white font-bold shrink-0">{pack?.author?.nickname?.[0]?.toUpperCase()}</span>
+                    )}
+                  </div>
+                  <p className='font-noto text-p'>{pack?.author?.nickname || 'System'}</p>
+                </Link> :
+                <div
+                  className="flex items-center gap-2"
+                >
+                  <div className="w-6 h-6 rounded-full bg-brand-500 overflow-hidden flex items-center justify-center">
+                    <span className="text-[10px] text-white font-bold shrink-0">{pack?.author?.nickname?.[0]?.toUpperCase()}</span>
+                  </div>
+                  <p className='font-noto text-p'>{pack?.author?.nickname || 'System'}</p>
                 </div>
-                <p className='font-noto text-p'>{pack?.author?.nickname || 'System'}</p>
-              </Link>
+              }
             </div>
           </div>
         </div>

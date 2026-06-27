@@ -22,15 +22,17 @@ export const NotificationProvider = ({ children }) => {
     if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
 
-  const showNotification = useCallback(({ title, message, isSuccess = true, type = 'default', autoClose = false }) => {
-    closeNotification();
+  const showNotification = useCallback(({ title, message, isSuccess = true, type = 'default', autoClose = true }) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
 
-    setNotification({ title, message, isSuccess, type });
+    const id = Date.now() + Math.random().toString(36).substr(2, 9);
+
+    setNotification({ id, title, message, isSuccess, type });
 
     if (autoClose) {
       timerRef.current = setTimeout(() => {
         closeNotification();
-      }, 10000);
+      }, 5000);
     }
   }, [closeNotification]);
 
@@ -38,9 +40,10 @@ export const NotificationProvider = ({ children }) => {
     <NotificationContext.Provider value={{ showNotification, closeNotification }}>
       {children}
 
-      <AnimatePresence>
+      <AnimatePresence mode="popLayout">
         {notification && (
           <motion.div
+            key={notification.id}
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 100, opacity: 0 }}

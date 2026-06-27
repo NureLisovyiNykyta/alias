@@ -14,12 +14,12 @@ const MAPS_LINK = '/gallery/maps';
 
 export default function InfoCards() {
   const { data: packsData, isLoading: isPacksLoading } = useQuery({
-    queryKey: ['publicPacksTop', { limit: 2 }],
+    queryKey: ['publicPacks', { limit: 2 }],
     queryFn: () => getPublicPacks({ limit: 2, offset: 0 }),
   });
 
   const { data: mapsData, isLoading: isMapsLoading } = useQuery({
-    queryKey: ['publicMapsTop', { limit: 2 }],
+    queryKey: ['publicMaps', { limit: 2 }],
     queryFn: () => getPublicMaps({ limit: 2, offset: 0 }),
   });
 

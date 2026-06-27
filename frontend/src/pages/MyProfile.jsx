@@ -27,6 +27,7 @@ import Spinner from "@/components/layouts/Spinner.jsx";
 import ConfirmWindow from "@/components/modals/ConfirmWindow.jsx";
 import { useState } from "react";
 import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
@@ -144,10 +145,10 @@ const MyProfile = () => {
         setIsCropperOpen(false);
         setImageSrc(null);
       },
-      onError: () => {
+      onError: (error) => {
         showNotification({
           title: "Error",
-          message: "Failed to upload avatar. Please try again.",
+          message: `Failed to upload avatar. ${parseErrors(error.response?.data)}`,
           isSuccess: false
         });
       }

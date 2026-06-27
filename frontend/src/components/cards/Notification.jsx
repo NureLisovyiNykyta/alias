@@ -2,7 +2,7 @@ import cross from '@/assets/cross.svg';
 
 const Notification = ({ isSuccess = true, title, message, onClose }) => {
   return (
-    <div className='bg-white'>
+    <div className='bg-white rounded-[12px]'>
       <div className={`w-[450px] rounded-[12px] py-2 px-[38px] gap-[38px] flex items-center shadow-buttons transition-colors
     ${isSuccess ? 'bg-decorative-500/22' : 'bg-white/90 border-2 border-text-warning'}`}>
 

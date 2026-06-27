@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const getUserByUsername = async (username) => {
   const response = await api.get(`/users/${username}`);
@@ -16,10 +16,19 @@ export const useUserByUsernameQuery = (username, options) => {
 };
 
 export const useUpdateMeMutation = (options) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data) => {
       const response = await api.patch('/users/me', data);
       return response.data;
+    },
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+
+      if (options?.onSuccess) {
+        options.onSuccess(data, variables, context);
+      }
     },
     ...options,
   });

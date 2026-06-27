@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import pin from '@/assets/pin.svg';
 import grayPlus from '@/assets/grayPlus.svg';
-import greenGlove from '@/assets/greenGlobe.svg';
+import greenGlobe from '@/assets/greenGlobe.svg';
 import redGlove from '@/assets/redGlobe.svg';
+import mapPreview from "@/assets/mapPreview.svg";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useMyPacksQuery } from "@/api/card-packs.js";
 import { useMyMapsQuery } from "@/api/maps.js";
@@ -35,7 +36,7 @@ const Navigation = () => {
   const myMaps = mapsData?.items || [];
 
   return (
-    <aside className="w-50 shrink-0 sticky top-20 py-8 flex flex-col gap-8 self-start border-r border-surface">
+    <aside className="sticky top-20 h-[calc(100vh-80px)] overflow-y-auto w-55 shrink-0 py-2 flex flex-col justify-between gap-12 border-r border-surface">
       <nav aria-label="Pinned Navigation">
         <div className="flex items-center gap-2 mb-4 px-2">
           <div className="w-6 h-6 flex items-center justify-center">
@@ -100,6 +101,11 @@ const Navigation = () => {
                     to={`/card-pack/${pack.id}`}
                     className="flex items-center gap-2 rounded-lg hover:text-brand-500"
                   >
+                    {pack.cover_url ? (
+                      <img src={pack?.cover_url} alt={pack?.name} className='size-6 rounded-[8px] shrink-0 border border-surface'/>
+                    ) : (
+                      <span className='size-6 rounded-[8px] bg-decorative-300 shrink-0'/>
+                    )}
                     <span className="font-noto text-p truncate">
                       {pack.name}
                     </span>
@@ -124,7 +130,7 @@ const Navigation = () => {
                 to="/gallery/packs"
                 className="flex items-center gap-2 rounded-lg text-decorative-700 hover:text-decorative-900 transition-colors"
               >
-                <img src={greenGlove} alt="" className="w-6 h-6 shrink-0"/>
+                <img src={greenGlobe} alt="" className="w-6 h-6 shrink-0"/>
                 <span className="font-noto text-p">Browse the gallery</span>
               </Link>
             </li>
@@ -150,6 +156,11 @@ const Navigation = () => {
                     to={`/map/${map.id}`}
                     className="flex items-center gap-2 rounded-lg hover:text-brand-500"
                   >
+                    {map.cover_url ? (
+                      <img src={map?.cover_url} alt={map?.name} className='size-6 rounded-[8px] shrink-0 border border-surface'/>
+                    ) : (
+                      <span className='size-6 rounded-[8px] bg-decorative-500 shrink-0'/>
+                    )}
                     <span className="font-noto text-p truncate">
                       {map.name}
                     </span>

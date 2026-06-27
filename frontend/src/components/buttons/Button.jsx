@@ -14,7 +14,7 @@ const variants = {
     bg-brand-100 text-text
     hover:bg-brand-300
     active:bg-brand-500
-    disabled:bg-neutral-100 disabled:text-text-label  
+    disabled:opacity-80
     h-[48px]    
     min-w-[144px]
   `,

@@ -150,9 +150,18 @@ export const useGameSocket = (roomCode) => {
             }
           }
 
+          const newPlayers = { ...prev.players };
+          if (newPlayers[player_id]) {
+            newPlayers[player_id] = {
+              ...newPlayers[player_id],
+              team_id: new_team_id
+            };
+          }
+
           return {
             ...prev,
-            teams: newTeams
+            teams: newTeams,
+            players: newPlayers,
           };
         }
 
@@ -189,6 +198,22 @@ export const useGameSocket = (roomCode) => {
             current_turn: {
               ...prev.current_turn,
               round_cards: [...(prev.current_turn.round_cards || []), newCard]
+            }
+          };
+        }
+
+        case "card_swiped": {
+          if (!prev.current_turn || !prev.current_turn.round_cards) return prev;
+
+          const updatedCards = prev.current_turn.round_cards.map(c =>
+            c.card_id === payload.card_id ? { ...c, status: payload.status } : c
+          );
+
+          return {
+            ...prev,
+            current_turn: {
+              ...prev.current_turn,
+              round_cards: updatedCards
             }
           };
         }
@@ -232,5 +257,6 @@ export const useGameSocket = (roomCode) => {
     isConnected: readyState === ReadyState.OPEN,
     sendMessage: sendJsonMessage,
     isRoomClosed,
+    lastJsonMessage,
   };
 };

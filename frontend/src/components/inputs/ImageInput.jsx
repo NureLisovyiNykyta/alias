@@ -11,7 +11,7 @@ const ImageInput = forwardRef(({
                                  successText = "File attached",
                                  wide = false,
                                  onChange,
-                                 value, // <--- Добавили value сюда, чтобы исключить его из ...props
+                                 value,
                                  ...props
                                }, ref) => {
   const [fileName, setFileName] = useState('');
@@ -62,7 +62,7 @@ const ImageInput = forwardRef(({
         <input
           id={id || "image-upload"}
           type="file"
-          accept=".png, .jpg, .jpeg"
+          accept=".png, .jpg, .jpeg, .webp"
           ref={ref}
           className="hidden"
           onChange={handleFileChange}

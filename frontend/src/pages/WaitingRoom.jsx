@@ -19,6 +19,12 @@ import { useEffect, useMemo } from "react";
 import TeamCard from "../components/cards/TeamCard.jsx";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
 import Chat from "@/components/layouts/Chat.jsx";
+import { parseErrors } from "@/utils/parseErrors.js";
+
+const MIN_TEAMS = Number(import.meta.env.VITE_ROOM_MIN_TEAMS) || 2;
+const MAX_TEAMS = Number(import.meta.env.VITE_ROOM_MAX_TEAMS) || 4;
+const MIN_PLAYERS_PER_TEAM = Number(import.meta.env.VITE_ROOM_PLAYERS_PER_TEAM_MIN) || 1;
+const MAX_PLAYERS_PER_TEAM = Number(import.meta.env.VITE_ROOM_PLAYERS_PER_TEAM_MAX) || 4;
 
 const WaitingRoom = () => {
   const { code: roomCode } = useParams();
@@ -59,10 +65,10 @@ const WaitingRoom = () => {
   }, [isRoomClosed, navigate, showNotification, setRoom]);
 
   const { mutate: startGame, isPending: isStartingGame } = useStartGameMutation({
-    onError: () => {
+    onError: (error) => {
       showNotification({
         title: "Error",
-        message: "Failed to start the game. Try again",
+        message: `Failed to start the game. ${parseErrors(error.response?.data)}`,
         isSuccess: false,
       });
     },
@@ -70,10 +76,10 @@ const WaitingRoom = () => {
 
   const { mutate: createTeam, isPending: isCreatingTeam } = useCreateTeamMutation();
   const { mutate: closeRoom, isPending: isClosingRoom } = useCloseRoomMutation({
-    onError: () => {
+    onError: (error) => {
       showNotification({
         title: "Error",
-        message: "Failed to close the lobby.",
+        message: `Failed to close the lobby. ${parseErrors(error.response?.data)}`,
         isSuccess: false,
       });
     },
@@ -87,10 +93,10 @@ const WaitingRoom = () => {
         isSuccess: true,
       });
     },
-    onError: () => {
+    onError: (error) => {
       showNotification({
         title: "Error",
-        message: "Failed to delete the team. Try again.",
+        message: `Failed to delete the team. ${parseErrors(error.response?.data)}`,
         isSuccess: false,
       });
     },
@@ -98,7 +104,8 @@ const WaitingRoom = () => {
 
   const isHost = roomData?.host_id === user?.id;
   const teamsList = roomData?.teams ? Object.values(roomData.teams) : [];
-  const maxTeams = roomData?.settings?.max_teams || 4;
+
+  const maxTeams = MAX_TEAMS;
   const canCreateTeam = teamsList.length < maxTeams && isHost;
 
   const nextTeamColor = useMemo(() => {
@@ -133,10 +140,10 @@ const WaitingRoom = () => {
         closeNotification();
       }, 1500);
     },
-    onError: () => {
+    onError: (error) => {
       showNotification({
         title: "Error",
-        message: "Failed to leave the lobby. Try again.",
+        message: `Failed to leave the lobby. ${parseErrors(error.response?.data)}`,
         isSuccess: false,
       });
     },
@@ -176,6 +183,21 @@ const WaitingRoom = () => {
     leaveRoom({ roomCode: roomCode, playerId: playerId });
   };
 
+  const canStartGame = useMemo(() => {
+    const teams = roomData?.teams ? Object.values(roomData.teams) : [];
+
+    const minTeamsLimit = roomData?.settings?.min_teams || MIN_TEAMS;
+    const minPlayersLimit = roomData?.settings?.players_per_team_min || MIN_PLAYERS_PER_TEAM;
+    const maxPlayersLimit = roomData?.settings?.players_per_team_max || MAX_PLAYERS_PER_TEAM;
+
+    if (teams.length < minTeamsLimit) return false;
+
+    return teams.every(team => {
+      const teamPlayersCount = team.player_ids?.length || 0;
+      return teamPlayersCount >= minPlayersLimit && teamPlayersCount <= maxPlayersLimit;
+    });
+  }, [roomData]);
+
   if (!roomData) {
     return <div className="flex w-full h-full justify-center items-center"><Spinner/></div>;
   }
@@ -186,14 +208,14 @@ const WaitingRoom = () => {
         <div className="flex flex-col w-full gap-4">
           <h1 className="text-h1">Game <b>{roomData.name}</b> lobby — Waiting for players</h1>
           <span className="text-label text-text-label font-noto">
-            Need at least {roomData.settings?.min_teams || 2} teams to start.
+            Need at least <b>{MIN_TEAMS}</b> teams to start. Each team requires from <b>{MIN_PLAYERS_PER_TEAM}</b> to <b>{MAX_PLAYERS_PER_TEAM}</b> players.
           </span>
         </div>
 
         <div className='flex flex-col w-full gap-4'>
           <div className='flex items-center w-full justify-between gap-2'>
             <h2 className='text-h2'>
-              {isHost ? 'Add at least two teams to start the game' :
+              {isHost ? 'Create and choose your team' :
                 teamsList.length === 0 ? 'Waiting for host to add the teams...' : 'Choose your team'}
             </h2>
             <span className='text-label text-text-label font-noto'>
@@ -267,10 +289,9 @@ const WaitingRoom = () => {
           <Chat/>
         </div>
 
-        <div className='flex w-full gap-[10px] items-center justify-center'>
+        <div className='flex w-full gap-[10px] items-center justify-end'>
           {isHost ? (
             <>
-
               <Button
                 onClick={() => closeRoom(roomCode)}
                 disabled={isClosingRoom}
@@ -280,7 +301,7 @@ const WaitingRoom = () => {
               </Button>
 
               <Button
-                disabled={teamsList.length < (roomData.settings?.min_teams || 2) || isStartingGame}
+                disabled={!canStartGame || isStartingGame}
                 onClick={() => startGame(roomCode)}
               >
                 Start the game

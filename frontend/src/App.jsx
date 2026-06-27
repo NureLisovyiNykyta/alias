@@ -27,7 +27,7 @@ import JoinRoom from "@/pages/JoinRoom.jsx";
 import ActiveLobbyWidget from "@/components/layouts/ActiveLobbyWidget.jsx";
 import Gameplay from "@/pages/Gameplay.jsx";
 
-function App() {
+export default function App() {
   const { isAuthenticated, user, isLoading } = useAuth();
 
   const isFullyVerified = isAuthenticated && user?.is_email_verified;
@@ -90,5 +90,3 @@ function App() {
     </BrowserRouter>
   );
 }
-
-export default App;

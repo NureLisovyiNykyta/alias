@@ -107,6 +107,7 @@ export const useMyPacksQuery = (params, options) => {
 
 export const useSavePackMutation = (options) => {
   const { showNotification } = useNotification();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (packId) => savePack(packId),
@@ -116,6 +117,8 @@ export const useSavePackMutation = (options) => {
         message: "Pack has been saved to your collection.",
         isSuccess: true,
       });
+
+      queryClient.invalidateQueries({ queryKey: ['publicPacks'] });
     },
     ...options,
   });

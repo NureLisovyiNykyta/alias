@@ -14,6 +14,7 @@ import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useNavigate } from "react-router-dom";
 import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const createPackSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -112,19 +113,19 @@ const CardPackCreator = () => {
               closeNotification();
             }, 2500);
           },
-          onError: () => {
+          onError: (error) => {
             showNotification({
               title: "Error",
-              message: "Pack created, but failed to upload the cover.",
+              message: `Pack created, but failed to upload the cover. ${parseErrors(error.response?.data)}`,
               isSuccess: false,
             });
           }
         });
       },
-      onError: () => {
+      onError: (error) => {
         showNotification({
           title: "Error",
-          message: "Failed to create the card-pack.",
+          message: `Failed to create the card-pack. ${parseErrors(error.response?.data)}`,
           isSuccess: false,
         });
       }
@@ -167,7 +168,7 @@ const CardPackCreator = () => {
               onChange={handleFileSelect}
               error={!!errors.image}
               isValid={isImageValid}
-              helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
+              helpText={errors.image ? errors.image.message : 'Png, jpg, jpeg & webp files are supported'}
               successText='Correct Format'
             />
           )}

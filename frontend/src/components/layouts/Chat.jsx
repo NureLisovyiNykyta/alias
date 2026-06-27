@@ -5,17 +5,23 @@ import { useLobby } from "@/contexts/LobbyContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import rightArrow from '@/assets/rightArrow.svg';
 
+import { GiphyFetch } from '@giphy/js-fetch-api';
+import { Grid } from '@giphy/react-components';
+
+const gf = new GiphyFetch(import.meta.env.VITE_GIPHY_API_KEY);
+
 export default function Chat({ types = null, activeType = null, onChangeType = null }) {
   const { user } = useAuth();
-
   const { chatMessages, sendMessage } = useLobby();
 
   const [inputValue, setInputValue] = useState('');
   const textareaRef = useRef(null);
   const scrollRef = useRef(null);
 
-  const isGeneral = !types || activeType === 'general' || activeType === 'room';
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifSearchQuery, setGifSearchQuery] = useState('');
 
+  const isGeneral = !types || activeType === 'general' || activeType === 'room';
   const rawMessages = isGeneral ? (chatMessages?.room || []) : (chatMessages?.team || []);
 
   const activeMessages = useMemo(() => {
@@ -24,6 +30,7 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
     return rawMessages.map(msg => ({
       id: msg.message_id,
       text: msg.content,
+      mediaUrl: msg.media_url,
       isMyMsg: msg.sender_id === currentUserId,
       senderName: msg.sender_nickname,
       avatar: msg.sender_avatar_url
@@ -58,17 +65,48 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
 
+    const trimmed = inputValue.trim();
+
+    const isGiphyLink = trimmed.startsWith('https://media.giphy.com/') ||
+      trimmed.startsWith('https://i.giphy.com/');
+
+    if (isGiphyLink) {
+      sendMessage({
+        type: 'chat_message',
+        payload: {
+          target: isGeneral ? 'room' : 'team',
+          content: '',
+          message_type: 'gif',
+          media_url: trimmed
+        }
+      });
+    } else {
+      sendMessage({
+        type: 'chat_message',
+        payload: {
+          target: isGeneral ? 'room' : 'team',
+          content: trimmed,
+          message_type: 'text'
+        }
+      });
+    }
+
+    setInputValue('');
+    if (textareaRef.current) textareaRef.current.style.height = '44px';
+  };
+
+  const handleSendGif = (gifUrl) => {
     sendMessage({
       type: 'chat_message',
       payload: {
         target: isGeneral ? 'room' : 'team',
-        content: inputValue.trim(),
-        message_type: 'text'
+        content: '',
+        message_type: 'gif',
+        media_url: gifUrl
       }
     });
-
-    setInputValue('');
-    if (textareaRef.current) textareaRef.current.style.height = '44px';
+    setShowGifPicker(false);
+    setGifSearchQuery('');
   };
 
   const handleKeyDown = (e) => {
@@ -83,8 +121,15 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
   };
 
+  const fetchGifs = (offset) => {
+    if (gifSearchQuery) {
+      return gf.search(gifSearchQuery, { offset, limit: 10 });
+    }
+    return gf.trending({ offset, limit: 10 });
+  };
+
   return (
-    <div className='w-full h-full min-h-0 bg-white rounded-[12px] flex p-3 flex-col pt-0 border border-surface'>
+    <div className='w-full h-full min-h-0 bg-white rounded-[12px] flex p-3 flex-col pt-0 border border-surface relative'>
       <div className="shrink-0">
         {types ? (
           <NeutralSwitch options={types} activeId={activeType} onChange={onChangeType} layoutId="chatSwitchIndicator" />
@@ -97,7 +142,7 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
 
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll overflow-x-hidden flex flex-col bg-white my-2 scrollbar-always-visible">
         <AnimatePresence mode="wait">
-          <motion.ul key={activeType} initial={{ opacity: 0 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="w-full flex flex-col gap-4 py-2">
+          <motion.ul key={activeType} initial={{ opacity: 0 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="w-full flex flex-col gap-4 py-2 pr-2">
             {groupedMessages.map((group) => (
               <motion.li layout key={group.id} className={`w-full flex gap-4 ${group.isMyMsg ? 'justify-end' : ''}`}>
                 {!group.isMyMsg && <img src={group.avatar || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + group.senderName} className="size-8 rounded-full sticky top-0" alt="avatar" />}
@@ -105,8 +150,11 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
                   {!group.isMyMsg && <span className='text-label font-noto text-text-label mb-1'>{group.senderName}</span>}
                   <div className={`flex flex-col w-full gap-1 ${group.isMyMsg ? 'items-end' : 'items-start'}`}>
                     {group.messages.map((msg) => (
-                      <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={msg.id} className={`py-[10px] px-4 rounded-[12px] ${group.isMyMsg ? 'bg-brand-300 ml-12' : 'bg-surface'}`}>
-                        <p className='font-noto text-[14px] break-words'>{msg.text}</p>
+                      <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={msg.id} className={` rounded-[12px] flex flex-col gap-2 ${group.isMyMsg ? 'bg-brand-300 ml-12' : 'bg-surface mr-12'} ${!msg.mediaUrl && 'py-[10px] px-4'}`}>
+                        {msg.mediaUrl && (
+                          <img src={msg.mediaUrl} alt="GIF" className="max-w-[140px] w-fit h-auto rounded-[8px]" />
+                        )}
+                        {msg.text && <p className='font-noto text-[14px] break-all'>{msg.text}</p>}
                       </motion.div>
                     ))}
                   </div>
@@ -117,7 +165,40 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
         </AnimatePresence>
       </div>
 
-      <div className="shrink-0 flex items-end gap-2 bg-surface p-2 rounded-[12px] border border-text-label">
+      {showGifPicker && (
+        <div className="absolute bottom-[70px] left-3 bg-white border border-surface shadow-lg rounded-[12px] p-2 z-50 w-[280px]">
+          <input
+            type="text"
+            placeholder="Search GIFs..."
+            value={gifSearchQuery}
+            onChange={(e) => setGifSearchQuery(e.target.value)}
+            className="w-full bg-surface mb-2 p-2 rounded-[8px] outline-none text-label font-noto"
+            autoFocus
+          />
+          <div className="h-[250px] overflow-y-auto overflow-x-hidden">
+            <Grid
+              key={gifSearchQuery}
+              fetchGifs={fetchGifs}
+              width={250}
+              columns={2}
+              gutter={6}
+              onGifClick={(gif, e) => {
+                e.preventDefault();
+                handleSendGif(gif.images.fixed_height_downsampled.url);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="shrink-0 flex items-end gap-2 bg-surface p-2 rounded-[12px] border border-text-label relative">
+        <button
+          onClick={() => setShowGifPicker(!showGifPicker)}
+          className="p-2 flex items-center justify-center bg-white rounded-[8px] text-[12px] font-bold text-brand-500 self-center hover:bg-brand-100 transition-colors shrink-0"
+        >
+          GIF
+        </button>
+
         <textarea
           ref={textareaRef}
           value={inputValue}
@@ -127,7 +208,7 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
           placeholder="Type a message..."
           className="w-full bg-transparent outline-none text-label font-noto resize-none h-[44px] p-2 overflow-y-auto"
         />
-        <button onClick={handleSendMessage} className="p-2 bg-brand-500 rounded-[8px] self-center ">
+        <button onClick={handleSendMessage} className="p-2 bg-brand-500 rounded-[8px] self-center shrink-0">
           <img src={rightArrow} alt="Send" />
         </button>
       </div>
