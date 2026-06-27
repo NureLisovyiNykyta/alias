@@ -118,6 +118,9 @@ async def _dispatch_event(
         case ClientEventType.RESTART_TURN:
             await game_service.handle_restart_turn(room_code, player_id)
 
+        case ClientEventType.END_GAME:
+            await game_service.handle_end_game(room_code, player_id)
+
         case ClientEventType.CHAT_MESSAGE:
             payload = _expect_payload(event, ChatMessagePayload)
             await chat_service.handle_chat_message(

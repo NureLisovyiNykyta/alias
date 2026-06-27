@@ -261,6 +261,26 @@ class TestHandleCardSwipe:
 
         conn_manager.send_to_player.assert_called_once()
 
+    async def test_swipe_broadcasts_card_swiped_to_others(self, service_and_room, game_repo, conn_manager):
+        svc, room, t1, t2 = service_and_room
+        room = await self._make_guessing(svc, room, game_repo)
+        conn_manager.reset_mock()
+
+        explainer_id = room.current_turn.explainer_id
+        swiped_card = room.current_turn.round_cards[-1]
+
+        await svc.handle_card_swipe(room.room_code, explainer_id, CardStatus.GUESSED)
+
+        conn_manager.broadcast_except.assert_called_once()
+        call_args = conn_manager.broadcast_except.call_args[0]
+        assert call_args[0] == room.room_code
+        assert call_args[1] == explainer_id
+        event = call_args[2]
+        assert event.type.value == "card_swiped"
+        assert event.payload.card_id == swiped_card.card_id
+        assert event.payload.content == swiped_card.content
+        assert event.payload.status == "GUESSED"
+
     async def test_swipe_failed_updates_card(self, service_and_room, game_repo, conn_manager):
         svc, room, t1, t2 = service_and_room
         room = await self._make_guessing(svc, room, game_repo)
@@ -574,6 +594,84 @@ class TestHandleRestartTurn:
 
         with pytest.raises(ForbiddenError):
             await svc.handle_restart_turn(room.room_code, ids[2])
+
+
+# ---------------------------------------------------------------------------
+# Tests: handle_end_game
+# ---------------------------------------------------------------------------
+
+class TestHandleEndGame:
+    async def test_end_game_finishes_with_leader(self, service_and_room, game_repo, conn_manager, ids):
+        svc, room, t1, t2 = service_and_room
+
+        # Give team1 some score
+        await svc.handle_adjust_score(room.room_code, ids[0], t1, 3)
+        conn_manager.reset_mock()
+
+        await svc.handle_end_game(room.room_code, ids[0])
+
+        stored = await game_repo.get_room(room.room_code)
+        assert stored.status == RoomStatus.FINISHED
+        assert stored.current_turn is None
+
+        conn_manager.broadcast.assert_called_once()
+        event = conn_manager.broadcast.call_args[0][1]
+        assert event.type.value == "game_finished"
+        assert event.payload.winner_team_id == t1
+
+    async def test_end_game_no_winner_when_all_at_zero(self, service_and_room, game_repo, conn_manager, ids):
+        svc, room, t1, t2 = service_and_room
+        conn_manager.reset_mock()
+
+        await svc.handle_end_game(room.room_code, ids[0])
+
+        stored = await game_repo.get_room(room.room_code)
+        assert stored.status == RoomStatus.FINISHED
+
+        event = conn_manager.broadcast.call_args[0][1]
+        assert event.payload.winner_team_id is None
+
+    async def test_end_game_non_host_raises(self, service_and_room, ids):
+        svc, room, t1, t2 = service_and_room
+
+        with pytest.raises(ForbiddenError):
+            await svc.handle_end_game(room.room_code, ids[2])
+
+    async def test_end_game_cancels_timer(self, service_and_room, game_repo, conn_manager, ids):
+        svc, room, t1, t2 = service_and_room
+
+        # Start guessing (which starts a timer)
+        await svc.handle_ready(room.room_code, ids[0])
+        conn_manager.reset_mock()
+
+        await svc.handle_end_game(room.room_code, ids[0])
+
+        stored = await game_repo.get_room(room.room_code)
+        assert stored.status == RoomStatus.FINISHED
+
+    async def test_end_game_draw_when_tied(self, service_and_room, game_repo, conn_manager, ids):
+        svc, room, t1, t2 = service_and_room
+
+        # Give both teams the same score > 0
+        await svc.handle_adjust_score(room.room_code, ids[0], t1, 3)
+        await svc.handle_adjust_score(room.room_code, ids[0], t2, 3)
+        conn_manager.reset_mock()
+
+        await svc.handle_end_game(room.room_code, ids[0])
+
+        event = conn_manager.broadcast.call_args[0][1]
+        assert event.payload.winner_team_id is None
+
+    async def test_end_game_always_records_games_played(self, service_and_room, game_repo, conn_manager, mock_db, ids):
+        svc, room, t1, t2 = service_and_room
+        conn_manager.reset_mock()
+
+        # End game with no winner (all at 0)
+        await svc.handle_end_game(room.room_code, ids[0])
+
+        # games_played should still be incremented (db.execute called)
+        mock_db.execute.assert_called()
+        mock_db.commit.assert_called_once()
 
 
 # ---------------------------------------------------------------------------

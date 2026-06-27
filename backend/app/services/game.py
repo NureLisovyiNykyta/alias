@@ -115,8 +115,8 @@ class GameService:
     # ------------------------------------------------------------------
 
     def _schedule_timer(self, room_code: str, delay: float) -> None:
-        """Schedule a background task that will force REVIEW after `delay` seconds
-        if the client hasn't sent TIMER_EXPIRED by then."""
+        """Schedule a background task that will force transition to REVIEW
+        after `delay` seconds."""
         self._cancel_timer(room_code)
         task = asyncio.create_task(self._timer_guard(room_code, delay))
         _timer_tasks[room_code] = task
@@ -125,7 +125,9 @@ class GameService:
     def _cancel_timer(room_code: str) -> None:
         task = _timer_tasks.pop(room_code, None)
         if task is not None and not task.done():
-            task.cancel()
+            # Don't cancel ourselves (task suicide prevention)
+            if task != asyncio.current_task():
+                task.cancel()
 
     async def _timer_guard(self, room_code: str, delay: float) -> None:
         """Background coroutine: sleep, then force transition to REVIEW."""
@@ -133,6 +135,10 @@ class GameService:
             await asyncio.sleep(delay)
         except asyncio.CancelledError:
             return
+
+        # Timer fired successfully — remove ourselves from the dict
+        # so _cancel_timer (called inside _transition_to_review) won't cancel us.
+        _timer_tasks.pop(room_code, None)
 
         try:
             room = await self.game_repo.get_room(room_code)
@@ -147,6 +153,7 @@ class GameService:
         except Exception:
             logger.exception("Timer guard error for room %s", room_code)
         finally:
+            # Clean up in case of other errors
             _timer_tasks.pop(room_code, None)
 
     # ------------------------------------------------------------------
@@ -198,6 +205,11 @@ class GameService:
             current_card = turn.round_cards[-1]
             if current_card.status == CardStatus.UNPLAYED:
                 current_card.status = status
+                # Notify other players about the swipe result
+                await self.conn_manager.broadcast_except(
+                    room_code, player_id,
+                    ServerEvent.card_swiped(current_card.card_id, current_card.content, status),
+                )
 
         # Deal next card
         result = await self._deal_next_card(room)
@@ -336,6 +348,55 @@ class GameService:
 
         await self.game_repo.save_room(room)
         await self.conn_manager.broadcast(room_code, ServerEvent.phase_changed(turn))
+
+    # ------------------------------------------------------------------
+    # END_GAME — host ends the game early
+    # ------------------------------------------------------------------
+
+    async def handle_end_game(self, room_code: str, player_id: uuid.UUID) -> None:
+        room = await self._get_playing_room(room_code)
+        if player_id != room.host_id:
+            raise ForbiddenError(ErrorMessage.ROOM_NOT_HOST)
+
+        # Determine winner: team with the sole highest position
+        # If tied or all at 0 → no winner (draw)
+        max_position = max(team.current_position for team in room.teams.values())
+        winner_team_id: uuid.UUID | None = None
+        if max_position > 0:
+            leaders = [
+                team_id for team_id, team in room.teams.items()
+                if team.current_position == max_position
+            ]
+            if len(leaders) == 1:
+                winner_team_id = leaders[0]
+
+        self._cancel_timer(room_code)
+        room.status = RoomStatus.FINISHED
+        room.current_turn = None
+
+        await self.game_repo.save_room(room)
+        await self.conn_manager.broadcast(room_code, ServerEvent.game_finished(winner_team_id, room.teams))
+
+        # Persist stats
+        all_player_ids = list(room.players.keys())
+
+        if all_player_ids:
+            await self.db.execute(
+                update(User)
+                .where(User.id.in_(all_player_ids), User.deleted_at.is_(None))
+                .values(games_played=User.games_played + 1)
+            )
+
+        if winner_team_id is not None:
+            winner_player_ids = set(room.teams[winner_team_id].player_ids)
+            if winner_player_ids:
+                await self.db.execute(
+                    update(User)
+                    .where(User.id.in_(winner_player_ids), User.deleted_at.is_(None))
+                    .values(games_won=User.games_won + 1)
+                )
+
+        await self.db.commit()
 
     # ------------------------------------------------------------------
     # Internal transitions

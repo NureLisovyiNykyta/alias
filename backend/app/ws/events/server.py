@@ -26,6 +26,7 @@ class ServerEventType(StrEnum):
     TURN_STARTED = "turn_started"
     PHASE_CHANGED = "phase_changed"
     CARD_DEALT = "card_dealt"
+    CARD_SWIPED = "card_swiped"
     ROUND_RESULTS = "round_results"
     SCORE_UPDATED = "score_updated"
     GAME_FINISHED = "game_finished"
@@ -109,6 +110,12 @@ class CardDealtPayload(BaseModel):
     content: dict[str, Any]
 
 
+class CardSwipedPayload(BaseModel):
+    card_id: UUID
+    content: dict[str, Any]
+    status: str  # GUESSED or FAILED
+
+
 class RoundResultsPayload(BaseModel):
     team_id: UUID
     round_cards: list[RoundCard]
@@ -122,7 +129,7 @@ class ScoreUpdatedPayload(BaseModel):
 
 
 class GameFinishedPayload(BaseModel):
-    winner_team_id: UUID
+    winner_team_id: UUID | None
     teams: dict[UUID, Team]
 
 
@@ -158,6 +165,7 @@ class ServerEvent(BaseModel):
         | TurnStartedPayload
         | PhaseChangedPayload
         | CardDealtPayload
+        | CardSwipedPayload
         | RoundResultsPayload
         | ScoreUpdatedPayload
         | GameFinishedPayload
@@ -240,6 +248,10 @@ class ServerEvent(BaseModel):
         return cls(type=ServerEventType.CARD_DEALT, payload=CardDealtPayload(card_id=card_id, content=content))
 
     @classmethod
+    def card_swiped(cls, card_id: UUID, content: dict[str, Any], status: str) -> "ServerEvent":
+        return cls(type=ServerEventType.CARD_SWIPED, payload=CardSwipedPayload(card_id=card_id, content=content, status=status))
+
+    @classmethod
     def round_results(
         cls, team_id: UUID, round_cards: list[RoundCard], score_delta: int, new_position: int
     ) -> "ServerEvent":
@@ -255,7 +267,7 @@ class ServerEvent(BaseModel):
         return cls(type=ServerEventType.SCORE_UPDATED, payload=ScoreUpdatedPayload(team_id=team_id, new_position=new_position))
 
     @classmethod
-    def game_finished(cls, winner_team_id: UUID, teams: dict[UUID, Team]) -> "ServerEvent":
+    def game_finished(cls, winner_team_id: UUID | None, teams: dict[UUID, Team]) -> "ServerEvent":
         return cls(type=ServerEventType.GAME_FINISHED, payload=GameFinishedPayload(winner_team_id=winner_team_id, teams=teams))
 
     # --- Chat ---
