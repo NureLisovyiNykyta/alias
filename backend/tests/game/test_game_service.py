@@ -165,6 +165,12 @@ async def service_and_room(game_repo, conn_manager, mock_db, ids):
     return service, room, team_ids[0], team_ids[1]
 
 
+async def _force_review(svc: GameService, room_code: str, game_repo: GameRepository) -> None:
+    """Simulate server-side timer expiry: transition current turn to REVIEW."""
+    room = await game_repo.get_room(room_code)
+    await svc._transition_to_review(room, room_code)
+
+
 # ---------------------------------------------------------------------------
 # Tests: handle_ready
 # ---------------------------------------------------------------------------
@@ -266,7 +272,7 @@ class TestHandleCardSwipe:
         stored = await game_repo.get_room(room.room_code)
         assert stored.current_turn.round_cards[0].status == CardStatus.FAILED
 
-    async def test_swipe_after_timer_transitions_to_review(self, service_and_room, game_repo, conn_manager):
+    async def test_swipe_after_timer_is_ignored(self, service_and_room, game_repo, conn_manager):
         svc, room, t1, t2 = service_and_room
         room = await self._make_guessing(svc, room, game_repo)
 
@@ -278,8 +284,9 @@ class TestHandleCardSwipe:
         explainer_id = room.current_turn.explainer_id
         await svc.handle_card_swipe(room.room_code, explainer_id, CardStatus.GUESSED)
 
+        # Swipe is silently ignored; phase stays GUESSING (server timer guard handles transition)
         stored = await game_repo.get_room(room.room_code)
-        assert stored.current_turn.phase == TurnPhase.REVIEW
+        assert stored.current_turn.phase == TurnPhase.GUESSING
 
     async def test_swipe_no_more_cards_transitions_to_review(self, game_repo, conn_manager, mock_db, ids):
         cards = _card_ids(1)  # only 1 card
@@ -311,27 +318,6 @@ class TestHandleCardSwipe:
 
 
 # ---------------------------------------------------------------------------
-# Tests: handle_timer_expired
-# ---------------------------------------------------------------------------
-
-class TestHandleTimerExpired:
-    async def test_timer_expired_transitions_to_review(self, service_and_room, game_repo, conn_manager):
-        svc, room, t1, t2 = service_and_room
-        explainer_id = room.current_turn.explainer_id
-
-        await svc.handle_ready(room.room_code, explainer_id)
-        conn_manager.reset_mock()
-
-        await svc.handle_timer_expired(room.room_code, explainer_id)
-
-        stored = await game_repo.get_room(room.room_code)
-        assert stored.current_turn.phase == TurnPhase.REVIEW
-        assert stored.current_turn.ends_at == 0.0
-
-        conn_manager.broadcast.assert_called_once()
-
-
-# ---------------------------------------------------------------------------
 # Tests: handle_edit_card_status
 # ---------------------------------------------------------------------------
 
@@ -340,7 +326,7 @@ class TestHandleEditCardStatus:
         explainer_id = room.current_turn.explainer_id
         await svc.handle_ready(room.room_code, explainer_id)
         await svc.handle_card_swipe(room.room_code, explainer_id, CardStatus.GUESSED)
-        await svc.handle_timer_expired(room.room_code, explainer_id)
+        await _force_review(svc, room.room_code, game_repo)
         conn_manager.reset_mock()
         return await game_repo.get_room(room.room_code)
 
@@ -395,7 +381,7 @@ class TestHandleConfirmResults:
         for _ in range(n_failed):
             await svc.handle_card_swipe(room.room_code, explainer_id, CardStatus.FAILED)
 
-        await svc.handle_timer_expired(room.room_code, explainer_id)
+        await _force_review(svc, room.room_code, game_repo)
         conn_manager.reset_mock()
         return await game_repo.get_room(room.room_code)
 
@@ -439,7 +425,7 @@ class TestHandleConfirmResults:
         await svc.handle_ready(room.room_code, explainer_id)
         # Swipe 1 card as GUESSED, then timer expires — last card stays UNPLAYED
         await svc.handle_card_swipe(room.room_code, explainer_id, CardStatus.GUESSED)
-        await svc.handle_timer_expired(room.room_code, explainer_id)
+        await _force_review(svc, room.room_code, game_repo)
 
         room = await game_repo.get_room(room.room_code)
         round_card_ids = [c.card_id for c in room.current_turn.round_cards]
@@ -471,7 +457,7 @@ class TestHandleConfirmResults:
         # 3 guessed → score = 3, position = 3 >= max_fields(3) → WIN
         for _ in range(3):
             await svc.handle_card_swipe(room.room_code, explainer_id, CardStatus.GUESSED)
-        await svc.handle_timer_expired(room.room_code, explainer_id)
+        await _force_review(svc, room.room_code, game_repo)
         conn_manager.reset_mock()
 
         await svc.handle_confirm_results(room.room_code, explainer_id)
@@ -493,7 +479,7 @@ class TestHandleConfirmResults:
         # Only fail cards → score negative, but position clamped to 0
         for _ in range(5):
             await svc.handle_card_swipe(room.room_code, explainer_id, CardStatus.FAILED)
-        await svc.handle_timer_expired(room.room_code, explainer_id)
+        await _force_review(svc, room.room_code, game_repo)
         conn_manager.reset_mock()
 
         await svc.handle_confirm_results(room.room_code, explainer_id)
@@ -599,10 +585,10 @@ class TestRotateTurn:
         svc, room, t1, t2 = service_and_room
         explainer_id = room.current_turn.explainer_id
 
-        # Play a full round: ready → swipe → timer → confirm
+        # Play a full round: ready → swipe → review → confirm
         await svc.handle_ready(room.room_code, explainer_id)
         await svc.handle_card_swipe(room.room_code, explainer_id, CardStatus.GUESSED)
-        await svc.handle_timer_expired(room.room_code, explainer_id)
+        await _force_review(svc, room.room_code, game_repo)
         await svc.handle_confirm_results(room.room_code, explainer_id)
 
         stored = await game_repo.get_room(room.room_code)
@@ -618,7 +604,7 @@ class TestRotateTurn:
             exp_id = stored.current_turn.explainer_id
             await svc.handle_ready(room.room_code, exp_id)
             await svc.handle_card_swipe(room.room_code, exp_id, CardStatus.GUESSED)
-            await svc.handle_timer_expired(room.room_code, exp_id)
+            await _force_review(svc, room.room_code, game_repo)
             await svc.handle_confirm_results(room.room_code, exp_id)
 
         # After 2 rounds (team1 → team2 → team1), team1's explainer should be ids[1]
@@ -638,7 +624,7 @@ class TestRotateTurn:
         explainer_id = ids[0]
         await svc.handle_ready(room.room_code, explainer_id)
         await svc.handle_card_swipe(room.room_code, explainer_id, CardStatus.GUESSED)
-        await svc.handle_timer_expired(room.room_code, explainer_id)
+        await _force_review(svc, room.room_code, game_repo)
         await svc.handle_confirm_results(room.room_code, explainer_id)
 
         # Should skip team2 and come back to team1
@@ -661,7 +647,7 @@ class TestRotateTurn:
 
         await svc.handle_ready(room.room_code, ids[0])
         await svc.handle_card_swipe(room.room_code, ids[0], CardStatus.GUESSED)
-        await svc.handle_timer_expired(room.room_code, ids[0])
+        await _force_review(svc, room.room_code, game_repo)
 
         # Now make current explainer offline too
         r = await game_repo.get_room(room.room_code)
@@ -711,7 +697,7 @@ class TestHandleExplainerDisconnect:
 
         await svc.handle_ready(room.room_code, ids[0])
         await svc.handle_card_swipe(room.room_code, ids[0], CardStatus.GUESSED)
-        await svc.handle_timer_expired(room.room_code, ids[0])
+        await _force_review(svc, room.room_code, game_repo)
         conn_manager.reset_mock()
 
         await svc.handle_explainer_disconnect(room.room_code, ids[0])

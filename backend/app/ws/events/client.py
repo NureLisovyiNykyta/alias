@@ -12,7 +12,6 @@ class ClientEventType(StrEnum):
     # Game flow
     READY = "ready"
     CARD_SWIPE = "card_swipe"
-    TIMER_EXPIRED = "timer_expired"
     EDIT_CARD_STATUS = "edit_card_status"
     CONFIRM_RESULTS = "confirm_results"
 

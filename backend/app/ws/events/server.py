@@ -96,10 +96,12 @@ class PlayerTeamChangedPayload(BaseModel):
 
 class TurnStartedPayload(BaseModel):
     current_turn: CurrentTurn
+    remaining_seconds: float
 
 
 class PhaseChangedPayload(BaseModel):
     current_turn: CurrentTurn
+    remaining_seconds: float | None = None
 
 
 class CardDealtPayload(BaseModel):
@@ -226,12 +228,12 @@ class ServerEvent(BaseModel):
     # --- Game ---
 
     @classmethod
-    def turn_started(cls, current_turn: CurrentTurn) -> "ServerEvent":
-        return cls(type=ServerEventType.TURN_STARTED, payload=TurnStartedPayload(current_turn=current_turn))
+    def turn_started(cls, current_turn: CurrentTurn, remaining_seconds: float = 0.0) -> "ServerEvent":
+        return cls(type=ServerEventType.TURN_STARTED, payload=TurnStartedPayload(current_turn=current_turn, remaining_seconds=remaining_seconds))
 
     @classmethod
-    def phase_changed(cls, current_turn: CurrentTurn) -> "ServerEvent":
-        return cls(type=ServerEventType.PHASE_CHANGED, payload=PhaseChangedPayload(current_turn=current_turn))
+    def phase_changed(cls, current_turn: CurrentTurn, remaining_seconds: float | None = None) -> "ServerEvent":
+        return cls(type=ServerEventType.PHASE_CHANGED, payload=PhaseChangedPayload(current_turn=current_turn, remaining_seconds=remaining_seconds))
 
     @classmethod
     def card_dealt(cls, card_id: UUID, content: dict[str, Any]) -> "ServerEvent":
