@@ -7,7 +7,7 @@ import TurnAlert from "@/components/modals/TurnAlert.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import GuessModal from "@/components/modals/GuessModal.jsx";
 import Results from "@/components/modals/Results.jsx";
-import HostActions from "@/components/layouts/HostActions.jsx";
+import GameActions from "@/components/layouts/GameActions.jsx";
 import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
@@ -18,7 +18,7 @@ export default function Gameplay() {
   const navigate = useNavigate();
   const { showNotification, closeNotification } = useNotification();
 
-  const { roomData, sendMessage, setRoom } = useLobby();
+  const { roomData, sendMessage, setRoom, lastJsonMessage } = useLobby();
   const { user } = useAuth();
 
   const currentUserId = user?.id || localStorage.getItem('guest_id');
@@ -58,6 +58,22 @@ export default function Gameplay() {
     return () => closeNotification();
   }, [currentPhase, isExplainer, explainerName, showNotification, closeNotification]);
 
+  useEffect(() => {
+    if (!lastJsonMessage) return;
+
+    const { type, payload } = lastJsonMessage;
+
+    if (type === 'card_swiped' && !isExplainer) {
+      showNotification({
+        title: payload.content.text,
+        message: null,
+        type: 'game',
+        isSuccess: payload.status === 'GUESSED',
+        autoClose: true
+      });
+    }
+  }, [lastJsonMessage, isExplainer, showNotification]);
+
   const themeInfo = roomData?.theme_info;
 
   const piecesData = useMemo(() => {
@@ -70,7 +86,7 @@ export default function Gameplay() {
       const pos = anchors[flatIndex] || [0, 0, 0];
 
       const colorKey = team.color ? team.color.toLowerCase() : 'cyan';
-      const textureUrl = themeInfo.color_textures?.[colorKey] ||   themeInfo.color_textures?.cyan;
+      const textureUrl = themeInfo.color_textures?.[colorKey] || themeInfo.color_textures?.cyan;
 
       return {
         id: team.team_id || team.id,
@@ -101,8 +117,6 @@ export default function Gameplay() {
         phase={currentPhase}
         endsAt={currentTurn?.ends_at}
         timeLimit={timeLimit}
-        isExplainer={isExplainer}
-        onTimerExpired={() => sendMessage({ type: 'timer_expired' })}
       />
 
       <ChatAndLeaderboard />
@@ -141,7 +155,7 @@ export default function Gameplay() {
         />
       )}
 
-      {isHost && <HostActions />}
+      <GameActions isHost={isHost}/>
 
       <ThemeCanvas
         mapUrl={themeInfo.scene_url}

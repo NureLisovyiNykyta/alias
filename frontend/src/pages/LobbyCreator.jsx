@@ -80,10 +80,10 @@ const LobbyCreator = () => {
         closeNotification();
       }, 1500);
     },
-    onError: () => {
+    onError: (error ) => {
       showNotification({
         title: "Error",
-        message: "Failed to create the lobby.",
+        message: `Failed to create the lobby. ${parseErrors(error.response?.data)}`,
         isSuccess: false,
       });
     },

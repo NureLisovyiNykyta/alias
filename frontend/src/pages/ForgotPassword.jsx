@@ -5,6 +5,7 @@ import EmailStep from "@/components/auth/EmailStep.jsx";
 import ResetPasswordStep from "@/components/auth/ResetPasswordStep.jsx";
 import VerificationStep from "@/components/auth/VerificationStep.jsx";
 import { useForgotPasswordMutation, useResetPasswordMutation } from "@/api/auth.js";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ const ForgotPassword = () => {
               onError: (error) => {
                 setError("email", {
                   type: "server",
-                  message: error.response?.data?.message || "User with this email not found."
+                  message: `Error occured. ${parseErrors(error.response?.data)}`,
                 });
               }
             });
@@ -102,7 +103,7 @@ const ForgotPassword = () => {
               onError: (error) => {
                 setError("code", {
                   type: "server",
-                  message: error.response?.data?.message || "Invalid or expired code."
+                  message: `Error occured. ${parseErrors(error.response?.data)}`,
                 });
               }
             });

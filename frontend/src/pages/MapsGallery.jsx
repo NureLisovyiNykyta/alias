@@ -39,7 +39,7 @@ const ITEMS_PER_PAGE = 20;
 const MapsGallery = () => {
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [sortOption, setSortOption] = useState(SORT_OPTIONS[0]);
-  const [statusOption, setStatusOption] = useState(STATUS_OPTIONS[0]); // Стейт для статуса
+  const [statusOption, setStatusOption] = useState(STATUS_OPTIONS[0]);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const MapsGallery = () => {
   };
 
   const { data: currentData = { items: [], total: 0 }, isLoading } = useQuery({
-    queryKey: ['maps', activeTab.id, queryParams],
+    queryKey: ['publicMaps', activeTab.id, queryParams],
     queryFn: () => activeTab.fetchFn(queryParams),
   });
 

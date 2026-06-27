@@ -9,16 +9,17 @@ import Spinner from "@/components/layouts/Spinner.jsx";
 
 const LINKS = [
   '/auth/sign-in',
+  '/'
 ];
 
-const Header = () => {
+export default function Header() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
   return (
     <header className='h-20 sticky top-0 bg-white z-50 flex items-center px-5 border-b border-surface justify-between'>
-      <span className="font-zen text-logo">
+      <Link to={LINKS[1]} className="font-zen text-logo">
         alias
-      </span>
+      </Link>
 
       {isAuthenticated ?
         <Popover className="relative">
@@ -55,6 +56,4 @@ const Header = () => {
       }
     </header>
   );
-};
-
-export default Header;
+}

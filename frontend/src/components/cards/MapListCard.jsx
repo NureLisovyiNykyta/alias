@@ -6,6 +6,8 @@ import { Button } from "@/components/buttons/Button.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { useSaveMapMutation } from "@/api/maps.js";
 import { formatPackDate } from "@/utils/parseTime.js";
+import mapPreview from "@/assets/mapPreview.svg";
+import done from '@/assets/doneMark.svg';
 
 const MapListCard = ({ map, type = null }) => {
   const { mutate: saveMap, isPending } = useSaveMapMutation();
@@ -18,13 +20,21 @@ const MapListCard = ({ map, type = null }) => {
 
   return (
     <li className='flex gap-8 p-6 rounded-[12px] w-full min-h-[250px] bg-surface'>
-      <img
+      {map?.cover_url ? <img
         className='w-[420px] h-[246px] rounded-[12px] border border-text-label object-cover shrink-0'
-        src={map?.image_url || map?.cover_url || 'placeholder_image_path'}
+        src={map?.image_url || map?.cover_url}
         alt={map?.name || 'Map'}
-      />
+      /> : <div
+        className='w-[420px] h-[246px] rounded-[12px] border border-text-label shrink-0 flex flex-col items-center justify-center gap-2'>
+        <img src={mapPreview} alt="Map Template"/>
+        <span className='text-label text-text-label'>No Image Selected</span>
+      </div>}
 
       <div className='flex flex-col justify-between w-full py-1'>
+        <div className='flex flex-col gap-4'>
+          <h2 className='text-h1'>{map?.name}</h2>
+        </div>
+
         <div className='flex flex-col gap-6 pt-4'>
           <ul className='flex items-center gap-12'>
             <li className='flex flex-col gap-1'>
@@ -55,14 +65,14 @@ const MapListCard = ({ map, type = null }) => {
               <Button
                 variant='secondary'
                 onClick={handleSave}
-                disabled={isPending}
+                disabled={isPending || map?.is_saved}
               >
                 {isPending ? (
                   <Spinner size='sm'/>
                 ) : (
                   <div className='flex items-center justify-center gap-2'>
-                    <img src={plus} alt="Plus"/>
-                    <span>Save to My maps</span>
+                    <img src={map?.is_saved ? done : plus} alt="Plus"/>
+                    <span>{map?.is_saved ? 'Saved to my maps' : 'Save to My maps'}</span>
                   </div>
                 )}
               </Button>

@@ -163,6 +163,7 @@ export const useMyMapsQuery = (params, options) => {
 
 export const useSaveMapMutation = (options) => {
   const { showNotification } = useNotification();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (mapId) => saveMap(mapId),
@@ -172,6 +173,8 @@ export const useSaveMapMutation = (options) => {
         message: "Map has been saved to your collection.",
         isSuccess: true,
       });
+
+      queryClient.invalidateQueries({ queryKey: ['publicMaps'] });
     },
     ...options,
   });

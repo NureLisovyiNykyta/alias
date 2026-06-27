@@ -6,6 +6,7 @@ import { useNotification } from "@/contexts/NotificationContext.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
 import GuestJoinModal from "@/components/modals/GuestJoinModal.jsx";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const JoinRoom = () => {
   const { code: roomCode } = useParams();
@@ -24,7 +25,7 @@ const JoinRoom = () => {
     onError: (error) => {
       showNotification({
         title: "Login error",
-        message: error.response?.data?.detail || "Failed to join the room",
+        message: `Failed to join the room. ${parseErrors(error.response?.data)}`,
         isSuccess: false,
       });
       navigate("/");

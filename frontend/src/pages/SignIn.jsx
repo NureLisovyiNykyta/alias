@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGoogleLoginMutation, useLoginMutation } from "@/api/auth.js";
 import { GoogleLogin } from "@react-oauth/google";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const LINKS = [
   { path: "/", label: "Main Page", id: 1 },
@@ -45,7 +46,7 @@ const SignIn = () => {
       navigate('/');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data?.detail || error.response?.data?.message || "Invalid email or password";
+      const errorMessage = parseErrors(error.response?.data) || "Invalid email or password";
       setError("password", { type: "server", message: errorMessage });
     },
   });

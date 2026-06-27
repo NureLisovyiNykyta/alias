@@ -1,6 +1,6 @@
 import info from '@/assets/info.svg';
 import { useUI } from "@/contexts/UIContext.jsx";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Digit from "@/components/layouts/Digit.jsx";
 
 const PHASE_LABELS = {
@@ -15,42 +15,25 @@ const PHASE_COLORS = {
   REVIEW: 'text-team-green-dark',
 };
 
-export default function PhaseAndTimer({ phase, endsAt, timeLimit = 60, isExplainer, onTimerExpired }) {
+export default function PhaseAndTimer({ phase, endsAt, timeLimit = 60 }) {
   const { isBoardOpen } = useUI();
   const [timeLeft, setTimeLeft] = useState(0);
-
-  const hasExpiredRef = useRef(false);
 
   useEffect(() => {
     if (!endsAt || phase !== 'GUESSING') {
       setTimeLeft(0);
-      hasExpiredRef.current = false;
       return;
     }
-
-    const triggerExpiration = () => {
-      if (!hasExpiredRef.current) {
-        hasExpiredRef.current = true;
-        setTimeLeft(0);
-
-        if (isExplainer && onTimerExpired) {
-          onTimerExpired();
-        }
-      }
-    };
 
     const updateTimer = () => {
       const now = Date.now() / 1000;
       const diff = Math.ceil(endsAt - now);
 
       if (diff > timeLimit) {
-        if (!hasExpiredRef.current) setTimeLeft(timeLimit);
-        return;
-      }
-
-      if (diff <= 0) {
-        triggerExpiration();
-      } else if (!hasExpiredRef.current) {
+        setTimeLeft(timeLimit);
+      } else if (diff <= 0) {
+        setTimeLeft(0);
+      } else {
         setTimeLeft(diff);
       }
     };
@@ -58,19 +41,8 @@ export default function PhaseAndTimer({ phase, endsAt, timeLimit = 60, isExplain
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
 
-    const nowForTimeout = Date.now() / 1000;
-    const diffForTimeout = Math.ceil(endsAt - nowForTimeout);
-    const timeoutDuration = diffForTimeout > 0 ? (diffForTimeout + 1) * 1000 : 1000;
-
-    const backupTimeout = setTimeout(() => {
-      triggerExpiration();
-    }, timeoutDuration);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(backupTimeout);
-    };
-  }, [endsAt, phase, timeLimit, isExplainer, onTimerExpired]);
+    return () => clearInterval(interval);
+  }, [endsAt, phase, timeLimit]);
 
   const displayPhase = PHASE_LABELS[phase] || 'Waiting';
 

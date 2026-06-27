@@ -22,6 +22,7 @@ import {
   useDeletePackCoverMutation
 } from "@/api/card-packs";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const updatePackSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -105,10 +106,10 @@ const CardPackEditor = () => {
           isSuccess: true
         });
       },
-      onError: () => {
+      onError: (error) => {
         showNotification({
           title: "Error",
-          message: "Failed to upload cover.",
+          message: `Failed to upload cover. ${parseErrors(error.response?.data)}`,
           isSuccess: false
         });
       }
@@ -125,10 +126,10 @@ const CardPackEditor = () => {
           isSuccess: true
         });
       },
-      onError: () => {
+      onError: (error) => {
         showNotification({
           title: "Error",
-          message: "Failed to delete cover.",
+          message: `Failed to delete cover. ${parseErrors(error.response?.data)}`,
           isSuccess: false
         });
       }
@@ -160,10 +161,10 @@ const CardPackEditor = () => {
           closeNotification();
         }, 2500);
       },
-      onError: () => {
+      onError: (error) => {
         showNotification({
           title: "Error",
-          message: "Failed to update the card-pack.",
+          message: `Failed to update the card-pack. ${parseErrors(error.response?.data)}`,
           isSuccess: false,
         });
       }
@@ -225,7 +226,7 @@ const CardPackEditor = () => {
                 onChange={handleFileSelect}
                 error={!!errors.image}
                 isValid={!!currentImage && !errors.image}
-                helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
+                helpText={errors.image ? errors.image.message : 'Png, jpg, jpeg & webp files are supported'}
                 successText='Image uploaded'
               />
             )}

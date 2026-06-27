@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.0] - 2026-06-28
+
+### Added
+- **Avatar Step**: Added `user invalidateQuery` after successful avatar install on Auth Avatar Step.
+- **Cards Image Placeholder**: Added `No Image Selected` placeholder for gallery lists.
+- **Header Logo Link**: Added to `/` link for `Alias` logo.
+- **Backend Validation Messages Display**: Added display for backend responses in `Notification` component.
+- **Navigation Images**: Added `cover_url` for both packs and maps.
+- **Word Guess Status**: Implemented `showNotification` call to display the word status for non-explainer players.
+- **Save And Activate Requests**: For `MapFieldsEditor` and `WordsEditor` pages added UX feature - double requests to reduce save clicking.
+- **Chat GIFs**: Integrated `Giphy` for chat `.gif` files.
+
+### Changed
+- **Auto Close Notification**: Returned logic where default notification closes after 5 seconds.
+- **Map List Card**: Name has been returned due to mistake.
+- **WEBP Image Type Support**: File support list was extended by `.webp` type.
+- **Lobby Start Game Validation**: Implemented `.env` requirements import and disabling `Start Game` button if conditions don't match.
+- **Deleted Account Label**: Removed URL to deleted accounts in list cards.
+- **Save Card Update**: Added `invalidateQuery` for cards after the are saved.
+- **Phase And Timer**: Implemented only server counting.
+- **Lobby Widget**: Added conditional redirect according to `room_state.status`.
+
 ## [0.22.0] - 2026-06-27
 
 ### Added
@@ -42,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Full Gameplay Integration**: Connected all core game phases (`PREPARE`, `GUESSING`, `REVIEW`) with the backend WebSocket server, enabling a seamless real-time alias game loop.
-- **Host Controls Integration**: Linked `HostActions` and `Leaderboard` to the backend socket, allowing the host to dynamically adjust team scores, restart active turns, and end the game.
+- **Host Controls Integration**: Linked `GameActions` and `Leaderboard` to the backend socket, allowing the host to dynamically adjust team scores, restart active turns, and end the game.
 - **Final Leaderboard**: Added handling for the `game_finished` event, smoothly transitioning all players to a final results screen with an option to safely leave the room and return to the Main Menu.
 
 ### Changed
@@ -56,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.20.2] - 2026-06-22
 
 ### Added
-- **Dynamic Host Modals**: Enhanced `HostActions` to properly handle and invoke specific `GameConfirmModal` variations (Restart Turn, End Game) using a unified `activeModal` state, preventing multiple modals from opening simultaneously.
+- **Dynamic Host Modals**: Enhanced `GameActions` to properly handle and invoke specific `GameConfirmModal` variations (Restart Turn, End Game) using a unified `activeModal` state, preventing multiple modals from opening simultaneously.
 
 ### Changed
 - **Chat UX Improvements**: Redesigned the `Chat` component to visually group consecutive messages from the same user. This eliminates redundant avatar and name rendering while introducing a sticky avatar behavior for improved scrolling readability.
@@ -78,7 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Chat State Management**: Added explicit state handling for different chat types (e.g., global, team) to allow users to switch between communication channels.
 - **Guess Modal UI**: Developed the `GuessModal` interface for the "Guessing" game phase, featuring progress tracking and word outcome selection.
 - **Results Table UI**: Created the `Results` table UI to summarize round outcomes, score calculations, and allow host verification during the "Review" phase.
-- **Host Control Panel**: Implemented a responsive `HostActions` modal using `@headlessui/react` to provide game creators with centralized controls (edit score, restart turn, end game).
+- **Host Control Panel**: Implemented a responsive `GameActions` modal using `@headlessui/react` to provide game creators with centralized controls (edit score, restart turn, end game).
 - **Game Confirm Window**: Developed a reusable `GameConfirmModal` to explicitly verify critical host actions and prevent accidental game disruptions.
 
 ### Changed

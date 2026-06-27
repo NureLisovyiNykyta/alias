@@ -56,7 +56,7 @@ const PacksGallery = () => {
   };
 
   const { data: currentData = { items: [], total: 0 }, isLoading } = useQuery({
-    queryKey: ['packs', activeTab.id, queryParams],
+    queryKey: ['publicPacks', activeTab.id, queryParams],
     queryFn: () => activeTab.fetchFn(queryParams),
   });
 

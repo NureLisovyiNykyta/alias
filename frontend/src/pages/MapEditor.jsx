@@ -20,6 +20,7 @@ import {
   useDeleteMapCoverMutation
 } from "@/api/maps";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const updateMapSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -100,10 +101,10 @@ const MapEditor = () => {
           isSuccess: true
         });
       },
-      onError: () => {
+      onError: (error) => {
         showNotification({
           title: "Error",
-          message: "Failed to upload cover.",
+          message: `Failed to upload cover. ${parseErrors(error.response?.data)}`,
           isSuccess: false
         });
       }
@@ -120,10 +121,10 @@ const MapEditor = () => {
           isSuccess: true
         });
       },
-      onError: () => {
+      onError: (error) => {
         showNotification({
           title: "Error",
-          message: "Failed to delete cover.",
+          message: `Failed to delete cover. ${parseErrors(error.response?.data)}`,
           isSuccess: false
         });
       }
@@ -154,10 +155,10 @@ const MapEditor = () => {
           closeNotification();
         }, 2500);
       },
-      onError: () => {
+      onError: (error) => {
         showNotification({
           title: "Error",
-          message: "Failed to update the map.",
+          message: `Failed to update the map. ${parseErrors(error.response?.data)}`,
           isSuccess: false,
         });
       }
@@ -221,7 +222,7 @@ const MapEditor = () => {
                 onChange={handleFileSelect}
                 error={!!errors.image}
                 isValid={!!currentImage && !errors.image}
-                helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
+                helpText={errors.image ? errors.image.message : 'Png, jpg, jpeg & webp files are supported'}
                 successText='Image uploaded'
               />
             )}

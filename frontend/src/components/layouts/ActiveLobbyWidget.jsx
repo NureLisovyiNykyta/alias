@@ -4,7 +4,7 @@ import { Button } from "@/components/buttons/Button.jsx";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
 
 export default function ActiveLobbyWidget()  {
-  const { activeRoom } = useLobby();
+  const { activeRoom, roomData } = useLobby();
   const location = useLocation();
 
   const isHidden = !activeRoom || location.pathname.includes('/lobby');
@@ -24,7 +24,7 @@ export default function ActiveLobbyWidget()  {
             <span className="text-h2 font-noto">Room <b>{activeRoom}</b></span>
           </div>
 
-          <Button as={Link} to={`/lobby/${activeRoom}/waiting`} variant="primary" className="h-[40px] px-6">
+          <Button as={Link} to={`/lobby/${activeRoom}/${roomData?.status === 'PLAYING' ? 'game' : 'waiting'}`} variant="primary" className="h-[40px] px-6">
             Return
           </Button>
         </motion.div>

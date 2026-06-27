@@ -14,6 +14,7 @@ import StatusLabel from "@/components/cards/StatusLabel.jsx";
 import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
 import DropDown from "@/components/inputs/DropDown.jsx";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const createMapSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -120,19 +121,19 @@ const MapCreator = () => {
               closeNotification();
             }, 2500);
           },
-          onError: () => {
+          onError: (error) => {
             showNotification({
               title: "Error",
-              message: "Map created, but failed to upload the cover.",
+              message: `Map created, but failed to upload the cover. ${parseErrors(error.response?.data)}`,
               isSuccess: false,
             });
           }
         });
       },
-      onError: () => {
+      onError: (error) => {
         showNotification({
           title: "Error",
-          message: "Failed to create the map.",
+          message: `Failed to create the map. ${parseErrors(error.response?.data)}`,
           isSuccess: false,
         });
       }
@@ -177,7 +178,7 @@ const MapCreator = () => {
               onChange={handleFileSelect}
               error={!!errors.image}
               isValid={isImageValid}
-              helpText={errors.image ? errors.image.message : 'Png, jpg & jpeg files are supported'}
+              helpText={errors.image ? errors.image.message : 'Png, jpg, jpeg & webp files are supported'}
               successText='Correct Format'
             />
           )}
