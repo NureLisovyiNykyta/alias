@@ -40,7 +40,6 @@ async def list_map_sizes() -> list[MapSizeRead]:
 
 @router.get("/themes", response_model=list[MapThemeRead])
 async def list_map_themes(
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list:
     return await get_all_map_themes(db)

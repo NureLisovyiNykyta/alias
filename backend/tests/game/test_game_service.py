@@ -27,6 +27,7 @@ from app.schemas.game_room import (
     TurnPhase,
 )
 from app.services.game import GameService
+from app.services.game_state import find_online_explainer
 
 
 # ---------------------------------------------------------------------------
@@ -765,9 +766,29 @@ class TestRotateTurn:
 # ---------------------------------------------------------------------------
 
 class TestHandleExplainerDisconnect:
-    async def test_disconnect_during_prepare_rotates_turn(self, service_and_room, game_repo, conn_manager, ids):
+    async def test_disconnect_during_prepare_reassigns_in_same_team(self, service_and_room, game_repo, conn_manager, ids):
         svc, room, t1, t2 = service_and_room
         explainer_id = ids[0]
+
+        # Simulate router marking player offline before calling disconnect handler
+        room.players[explainer_id].is_online = False
+        await game_repo.save_room(room)
+
+        await svc.handle_explainer_disconnect(room.room_code, explainer_id)
+
+        stored = await game_repo.get_room(room.room_code)
+        # Should stay in team1 but with a different explainer (ids[1])
+        assert stored.current_turn.team_id == t1
+        assert stored.current_turn.explainer_id == ids[1]
+
+    async def test_disconnect_during_prepare_rotates_if_no_one_in_team(self, service_and_room, game_repo, conn_manager, ids):
+        svc, room, t1, t2 = service_and_room
+        explainer_id = ids[0]
+
+        # Mark all team1 players offline
+        room.players[ids[0]].is_online = False
+        room.players[ids[1]].is_online = False
+        await game_repo.save_room(room)
 
         await svc.handle_explainer_disconnect(room.room_code, explainer_id)
 
@@ -781,6 +802,11 @@ class TestHandleExplainerDisconnect:
         await svc.handle_ready(room.room_code, ids[0])
         await svc.handle_card_swipe(room.room_code, ids[0], CardStatus.GUESSED)
         conn_manager.reset_mock()
+
+        # Mark explainer offline (as router would do)
+        stored = await game_repo.get_room(room.room_code)
+        stored.players[ids[0]].is_online = False
+        await game_repo.save_room(stored)
 
         await svc.handle_explainer_disconnect(room.room_code, ids[0])
 
@@ -797,6 +823,11 @@ class TestHandleExplainerDisconnect:
         await svc.handle_card_swipe(room.room_code, ids[0], CardStatus.GUESSED)
         await _force_review(svc, room.room_code, game_repo)
         conn_manager.reset_mock()
+
+        # Mark explainer offline (as router would do)
+        stored = await game_repo.get_room(room.room_code)
+        stored.players[ids[0]].is_online = False
+        await game_repo.save_room(stored)
 
         await svc.handle_explainer_disconnect(room.room_code, ids[0])
 
@@ -835,15 +866,7 @@ class TestHandleExplainerDisconnect:
 # ---------------------------------------------------------------------------
 
 class TestFindOnlineExplainer:
-    def _make_service(self) -> GameService:
-        return GameService(
-            game_repo=AsyncMock(),
-            conn_manager=AsyncMock(),
-            db=AsyncMock(),
-        )
-
     def test_finds_first_online(self):
-        svc = self._make_service()
         p1, p2, p3 = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
 
         room = MagicMock()
@@ -856,12 +879,11 @@ class TestFindOnlineExplainer:
         team = Team(team_id=uuid.uuid4(), name="T", color=TeamColor.GREEN,
                     current_position=0, player_ids=[p1, p2, p3], explainer_index=0)
 
-        result = svc._find_online_explainer(room, team)
+        result = find_online_explainer(room, team)
         assert result == p2
         assert team.explainer_index == 1
 
     def test_wraps_around(self):
-        svc = self._make_service()
         p1, p2, p3 = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
 
         room = MagicMock()
@@ -874,12 +896,11 @@ class TestFindOnlineExplainer:
         team = Team(team_id=uuid.uuid4(), name="T", color=TeamColor.GREEN,
                     current_position=0, player_ids=[p1, p2, p3], explainer_index=1)
 
-        result = svc._find_online_explainer(room, team)
+        result = find_online_explainer(room, team)
         assert result == p1
         assert team.explainer_index == 0
 
     def test_all_offline_returns_none(self):
-        svc = self._make_service()
         p1, p2 = uuid.uuid4(), uuid.uuid4()
 
         room = MagicMock()
@@ -891,17 +912,16 @@ class TestFindOnlineExplainer:
         team = Team(team_id=uuid.uuid4(), name="T", color=TeamColor.GREEN,
                     current_position=0, player_ids=[p1, p2], explainer_index=0)
 
-        result = svc._find_online_explainer(room, team)
+        result = find_online_explainer(room, team)
         assert result is None
 
     def test_empty_team_returns_none(self):
-        svc = self._make_service()
         room = MagicMock()
 
         team = Team(team_id=uuid.uuid4(), name="T", color=TeamColor.GREEN,
                     current_position=0, player_ids=[], explainer_index=0)
 
-        result = svc._find_online_explainer(room, team)
+        result = find_online_explainer(room, team)
         assert result is None
 
 
@@ -985,5 +1005,4 @@ class TestHandlePlayerReconnect:
         assert stored.current_turn is not None
         assert stored.current_turn.team_id == t2
         assert stored.current_turn.explainer_id == ids[2]
-
 

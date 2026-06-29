@@ -1,29 +1,23 @@
 import random
 import uuid
-from typing import cast
 
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.core.messages import ErrorMessage
 from app.core.security import generate_room_code
-from app.models.card import CardPack
-from app.models.map import Map, MapTheme
 from app.models.user import User
 from app.repositories.card_repository import CardRepository
 from app.repositories.game_repository import GameRepository
 from app.repositories.map_repository import MapRepository
 from app.schemas.game_room import (
-    CardPackInfo,
     CurrentTurn,
-    MapField,
-    MapInfo,
     Player,
     RoomStateJSON,
     RoomStatus,
     Settings,
-    ThemeInfo,
     TurnPhase,
 )
 from app.schemas.room import CreateRoomRequest, JoinRoomRequest
+from app.services.game import GameService
 from app.ws.connection_manager import ConnectionManager
 from app.ws.events import ServerEvent
 
@@ -43,8 +37,8 @@ class RoomService:
 
 
     async def create_room(self, request: CreateRoomRequest, host: User) -> RoomStateJSON:
-        map_info, card_packs_info, size = await self._load_map_data(request.map_id)
-        theme_info = await self._load_theme_info(request.theme_id, size)
+        map_info, card_packs_info, size = await self.map_repo.load_map_data(request.map_id)
+        theme_info = await self.map_repo.load_theme_info(request.theme_id, size)
 
         host_player = Player.create_from_user(host)
 
@@ -96,7 +90,8 @@ class RoomService:
 
 
     async def leave_room(
-        self, room_code: str, user: User | None, guest_id: uuid.UUID | None
+        self, room_code: str, user: User | None, guest_id: uuid.UUID | None,
+        game_service: GameService | None = None,
     ) -> RoomStateJSON:
         room = await self.game_repo.get_room(room_code)
         if room is None:
@@ -115,12 +110,20 @@ class RoomService:
         if player_id == room.host_id:
             raise ForbiddenError(ErrorMessage.ROOM_HOST_CANNOT_LEAVE)
 
-        player = room.players.pop(player_id)
+        if room.status == RoomStatus.PLAYING and game_service is not None:
+            await game_service.handle_leave_game(room_code, player_id)
+            room = await self.game_repo.get_room(room_code)
+            assert room is not None
+            return room
 
-        if player.team_id is not None and player.team_id in room.teams:
+        # LOBBY status
+        player = room.players.get(player_id)
+        if player is not None and player.team_id is not None and player.team_id in room.teams:
             team = room.teams[player.team_id]
-            if player.user_id in team.player_ids:
-                team.player_ids.remove(player.user_id)
+            if player_id in team.player_ids:
+                team.player_ids.remove(player_id)
+
+        room.players.pop(player_id, None)
 
         await self.game_repo.save_room(room)
         await self.conn_manager.broadcast(room.room_code, ServerEvent.player_left(player_id))
@@ -171,6 +174,10 @@ class RoomService:
             room.card_queues[pack_id] = card_ids
 
         first_team = next(iter(room.teams.values()))
+        if not first_team.player_ids:
+            raise BadRequestError(
+                ErrorMessage.ROOM_TEAM_INVALID_SIZE.format(name=first_team.name)
+            )
         first_player_id = first_team.player_ids[0]
         room.current_turn = CurrentTurn(
             team_id=first_team.team_id,
@@ -185,69 +192,3 @@ class RoomService:
         await self.game_repo.save_room(room)
         await self.conn_manager.broadcast(room_code, ServerEvent.game_started(room))
         return room
-
-
-    async def _load_map_data(
-        self, map_id: uuid.UUID
-    ) -> tuple[MapInfo, dict[uuid.UUID, CardPackInfo], str]:
-        map_obj: Map = await self.map_repo.get_map_with_relations(map_id)
-
-        fields_dict: dict[int, MapField] = {}
-        card_packs_info: dict[uuid.UUID, CardPackInfo] = {}
-
-        for field in map_obj.fields:
-            pack_id = cast(uuid.UUID, field.card_pack_id)
-
-            fields_dict[field.position_index] = MapField(
-                position_index=field.position_index,
-                time_limit=field.time_limit,
-                award=field.award,
-                penalty=field.penalty,
-                card_pack_id=pack_id,
-            )
-
-            if pack_id not in card_packs_info:
-                cp = cast(CardPack, field.card_pack)
-                card_packs_info[pack_id] = CardPackInfo(
-                    card_pack_id=pack_id,
-                    name=cp.name,
-                    core_mechanic=cp.type.core_mechanic,
-                    description=cp.description,
-                )
-
-        map_info = MapInfo(
-            map_id=map_obj.id,
-            name=map_obj.name,
-            max_fields_count=map_obj.max_fields_count,
-            fields=fields_dict,
-        )
-
-        return map_info, card_packs_info, map_obj.size
-
-    async def _load_theme_info(
-        self, theme_id: uuid.UUID, size: str
-    ) -> ThemeInfo:
-        theme: MapTheme | None = await self.map_repo.get_theme(theme_id)
-        if theme is None:
-            raise NotFoundError(ErrorMessage.MAP_THEME_NOT_FOUND)
-
-        size_to_url = {
-            "SMALL": theme.scene_url_small,
-            "MEDIUM": theme.scene_url_medium,
-            "LARGE": theme.scene_url_large,
-        }
-
-        scene_url = size_to_url.get(size)
-        if not scene_url or not theme.piece_model_url or not theme.color_textures or not theme.background_url:
-            raise BadRequestError(ErrorMessage.MAP_THEME_INCOMPLETE)
-
-        return ThemeInfo(
-            theme_id=theme.id,
-            code=theme.code,
-            name=theme.name,
-            scene_url=scene_url,
-            piece_model_url=theme.piece_model_url or "",
-            background_url=theme.background_url or "",
-            color_textures=theme.color_textures or {},
-        )
-

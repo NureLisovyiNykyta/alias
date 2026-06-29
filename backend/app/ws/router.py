@@ -12,7 +12,15 @@ from app.services.game import GameService
 from app.ws.connection_manager import ConnectionManager
 from app.ws.dependencies import _WS_FORBIDDEN, _WS_NOT_FOUND, get_ws_player_id
 from app.ws.events import ClientEvent, ClientEventType, ServerEvent
-from app.ws.events.client import AdjustScorePayload, CardSwipePayload, ChatMessagePayload, EditCardStatusPayload
+from app.ws.events.client import (
+    AdjustScorePayload,
+    CardSwipePayload,
+    ChatMessagePayload,
+    EditCardStatusPayload,
+    KickPlayerPayload,
+    MovePlayerPayload,
+    ReorderTeamsPayload,
+)
 
 router = APIRouter(prefix="/ws", tags=["websocket"])
 
@@ -36,6 +44,9 @@ async def room_websocket(
     game_service = GameService(game_repo=game_repo, conn_manager=conn_manager, db=db)
     chat_repo = ChatRepository(game_repo.redis)
     chat_service = ChatService(chat_repo=chat_repo, game_repo=game_repo, conn_manager=conn_manager)
+
+    # --- Cancel pending disconnect grace task if player is reconnecting ---
+    GameService.cancel_pending_disconnect(room_code, player_id)
 
     # --- Connect ---
     await conn_manager.connect(room_code, player_id, ws)
@@ -79,8 +90,8 @@ async def room_websocket(
             await game_repo.save_room(room)
             await conn_manager.broadcast(room_code, ServerEvent.player_disconnected(player_id))
 
-            # If the disconnected player was the current explainer, handle it
-            await game_service.handle_explainer_disconnect(room_code, player_id)
+            # Schedule delayed disconnect handling (grace period for reconnect)
+            GameService.schedule_disconnect(room_code, player_id)
 
 
 async def _dispatch_event(
@@ -120,6 +131,18 @@ async def _dispatch_event(
 
         case ClientEventType.END_GAME:
             await game_service.handle_end_game(room_code, player_id)
+
+        case ClientEventType.KICK_PLAYER:
+            payload = _expect_payload(event, KickPlayerPayload)
+            await game_service.handle_kick_player(room_code, player_id, payload.player_id)
+
+        case ClientEventType.MOVE_PLAYER:
+            payload = _expect_payload(event, MovePlayerPayload)
+            await game_service.handle_move_player(room_code, player_id, payload.player_id, payload.target_team_id)
+
+        case ClientEventType.REORDER_TEAMS:
+            payload = _expect_payload(event, ReorderTeamsPayload)
+            await game_service.handle_reorder_teams(room_code, player_id, payload.team_ids)
 
         case ClientEventType.CHAT_MESSAGE:
             payload = _expect_payload(event, ChatMessagePayload)

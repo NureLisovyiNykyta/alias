@@ -1,15 +1,17 @@
 import uuid
+from typing import cast
 
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import BadRequestError, NotFoundError
 from app.core.messages import ErrorMessage
 from app.models.card import CardPack
 from app.models.enums import StatusEnum
 from app.models.map import Map, MapField as MapFieldORM, MapRating, MapTheme, SavedMap
 from app.schemas.card_pack import SortOrder
+from app.schemas.game_room import CardPackInfo, MapField, MapInfo, ThemeInfo
 from app.schemas.map import MapSearchScope
 
 
@@ -351,3 +353,66 @@ class MapRepository:
             (await self.db.execute(select(MapTheme).order_by(MapTheme.name))).scalars().all()
         )
 
+    async def load_map_data(
+        self, map_id: uuid.UUID
+    ) -> tuple[MapInfo, dict[uuid.UUID, CardPackInfo], str]:
+        """Load map with fields and card packs, return game-ready data."""
+        map_obj: Map = await self.get_map_with_relations(map_id)
+
+        fields_dict: dict[int, MapField] = {}
+        card_packs_info: dict[uuid.UUID, CardPackInfo] = {}
+
+        for field in map_obj.fields:
+            pack_id = cast(uuid.UUID, field.card_pack_id)
+
+            fields_dict[field.position_index] = MapField(
+                position_index=field.position_index,
+                time_limit=field.time_limit,
+                award=field.award,
+                penalty=field.penalty,
+                card_pack_id=pack_id,
+            )
+
+            if pack_id not in card_packs_info:
+                cp = cast(CardPack, field.card_pack)
+                card_packs_info[pack_id] = CardPackInfo(
+                    card_pack_id=pack_id,
+                    name=cp.name,
+                    core_mechanic=cp.type.core_mechanic,
+                    description=cp.description,
+                )
+
+        map_info = MapInfo(
+            map_id=map_obj.id,
+            name=map_obj.name,
+            max_fields_count=map_obj.max_fields_count,
+            fields=fields_dict,
+        )
+
+        return map_info, card_packs_info, map_obj.size
+
+    async def load_theme_info(self, theme_id: uuid.UUID, size: str) -> ThemeInfo:
+        """Load theme and build ThemeInfo for the given map size."""
+        theme: MapTheme | None = await self.get_theme(theme_id)
+        if theme is None:
+            raise NotFoundError(ErrorMessage.MAP_THEME_NOT_FOUND)
+
+        size_to_url = {
+            "SMALL": theme.scene_url_small,
+            "MEDIUM": theme.scene_url_medium,
+            "LARGE": theme.scene_url_large,
+        }
+
+        scene_url = size_to_url.get(size)
+        if not scene_url or not theme.piece_model_url or not theme.color_textures or not theme.background_url:
+            raise BadRequestError(ErrorMessage.MAP_THEME_INCOMPLETE)
+
+        return ThemeInfo(
+            theme_id=theme.id,
+            code=theme.code,
+            name=theme.name,
+            scene_url=scene_url,
+            piece_model_url=theme.piece_model_url or "",
+            background_url=theme.background_url or "",
+            color_textures=theme.color_textures or {},
+        )
