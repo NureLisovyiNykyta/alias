@@ -34,7 +34,6 @@ router = APIRouter(prefix="/api/card-packs", tags=["card-packs"])
 
 @router.get("/types", response_model=list[CardTypeRead])
 async def list_card_types(
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list:
     return await get_all_card_types(db)

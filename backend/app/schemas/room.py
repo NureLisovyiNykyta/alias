@@ -2,7 +2,7 @@ import uuid
 
 from pydantic import BaseModel
 
-from app.schemas.game_room import TeamColor
+from app.schemas.game_room import RoomStatus, TeamColor
 
 
 class CreateRoomRequest(BaseModel):
@@ -34,3 +34,8 @@ class UpdateTeamRequest(BaseModel):
 
 class TeamPlayerRequest(BaseModel):
     guest_id: uuid.UUID | None = None
+
+
+class RoomStatusResponse(BaseModel):
+    exists: bool
+    status: RoomStatus | None = None

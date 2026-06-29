@@ -14,6 +14,7 @@ class ServerEventType(StrEnum):
     PLAYER_DISCONNECTED = "player_disconnected"
     PLAYER_JOINED = "player_joined"
     PLAYER_LEFT = "player_left"
+    PLAYER_KICKED = "player_kicked"
     GAME_STARTED = "game_started"
     ROOM_CLOSED = "room_closed"
     ERROR = "error"
@@ -21,6 +22,7 @@ class ServerEventType(StrEnum):
     TEAM_UPDATED = "team_updated"
     TEAM_DELETED = "team_deleted"
     PLAYER_TEAM_CHANGED = "player_team_changed"
+    TEAMS_REORDERED = "teams_reordered"
 
     # Game events
     TURN_STARTED = "turn_started"
@@ -61,6 +63,10 @@ class PlayerLeftPayload(BaseModel):
     player_id: UUID
 
 
+class PlayerKickedPayload(BaseModel):
+    player_id: UUID
+
+
 class GameStartedPayload(BaseModel):
     room: RoomStateJSON
 
@@ -90,6 +96,10 @@ class PlayerTeamChangedPayload(BaseModel):
     player_id: UUID
     old_team_id: UUID | None
     new_team_id: UUID | None
+
+
+class TeamsReorderedPayload(BaseModel):
+    team_ids: list[UUID]
 
 
 # --- Game payloads ---
@@ -155,6 +165,7 @@ class ServerEvent(BaseModel):
         | PlayerDisconnectedPayload
         | PlayerJoinedPayload
         | PlayerLeftPayload
+        | PlayerKickedPayload
         | GameStartedPayload
         | RoomClosedPayload
         | ErrorPayload
@@ -162,6 +173,7 @@ class ServerEvent(BaseModel):
         | TeamUpdatedPayload
         | TeamDeletedPayload
         | PlayerTeamChangedPayload
+        | TeamsReorderedPayload
         | TurnStartedPayload
         | PhaseChangedPayload
         | CardDealtPayload
@@ -194,6 +206,10 @@ class ServerEvent(BaseModel):
     @classmethod
     def player_left(cls, player_id: UUID) -> "ServerEvent":
         return cls(type=ServerEventType.PLAYER_LEFT, payload=PlayerLeftPayload(player_id=player_id))
+
+    @classmethod
+    def player_kicked(cls, player_id: UUID) -> "ServerEvent":
+        return cls(type=ServerEventType.PLAYER_KICKED, payload=PlayerKickedPayload(player_id=player_id))
 
     @classmethod
     def game_started(cls, room: RoomStateJSON) -> "ServerEvent":
@@ -232,6 +248,10 @@ class ServerEvent(BaseModel):
                 player_id=player_id, old_team_id=old_team_id, new_team_id=new_team_id
             ),
         )
+
+    @classmethod
+    def teams_reordered(cls, team_ids: list[UUID]) -> "ServerEvent":
+        return cls(type=ServerEventType.TEAMS_REORDERED, payload=TeamsReorderedPayload(team_ids=team_ids))
 
     # --- Game ---
 

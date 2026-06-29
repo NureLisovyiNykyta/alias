@@ -92,6 +92,10 @@ class ErrorMessage(StrEnum):
     GAME_NO_CARDS_LEFT = "No cards left in the queue"
     GAME_CARD_NOT_IN_ROUND = "Card not found in current round"
     GAME_INVALID_CARD_STATUS = "Card status can only be changed to GUESSED or FAILED"
+    GAME_CANNOT_KICK_SELF = "Cannot kick yourself"
+    GAME_TARGET_TEAM_NOT_FOUND = "Target team not found"
+    GAME_INVALID_TEAM_ORDER = "Provided team IDs don't match existing teams"
+    GAME_LAST_TEAM = "Cannot delete the last team during a game"
 
     CHAT_MESSAGE_EMPTY = "Message cannot be empty"
     CHAT_MESSAGE_TOO_LONG = "Message too long. Maximum {max_length} characters"

@@ -19,6 +19,9 @@ class ClientEventType(StrEnum):
     ADJUST_SCORE = "adjust_score"
     RESTART_TURN = "restart_turn"
     END_GAME = "end_game"
+    KICK_PLAYER = "kick_player"
+    MOVE_PLAYER = "move_player"
+    REORDER_TEAMS = "reorder_teams"
 
     # Chat
     CHAT_MESSAGE = "chat_message"
@@ -43,6 +46,19 @@ class AdjustScorePayload(BaseModel):
     delta: int
 
 
+class KickPlayerPayload(BaseModel):
+    player_id: UUID
+
+
+class MovePlayerPayload(BaseModel):
+    player_id: UUID
+    target_team_id: UUID
+
+
+class ReorderTeamsPayload(BaseModel):
+    team_ids: list[UUID]
+
+
 class ChatMessagePayload(BaseModel):
     target: ChatTarget
     content: str
@@ -57,4 +73,13 @@ class ChatMessagePayload(BaseModel):
 
 class ClientEvent(BaseModel):
     type: ClientEventType
-    payload: CardSwipePayload | EditCardStatusPayload | AdjustScorePayload | ChatMessagePayload | None = None
+    payload: (
+        CardSwipePayload
+        | EditCardStatusPayload
+        | AdjustScorePayload
+        | KickPlayerPayload
+        | MovePlayerPayload
+        | ReorderTeamsPayload
+        | ChatMessagePayload
+        | None
+    ) = None

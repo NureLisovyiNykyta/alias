@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     CHAT_MAX_MESSAGE_LENGTH: int = 500
     CHAT_MAX_MESSAGES_PER_CHANNEL: int = 100
 
+    # WebSocket
+    WS_DISCONNECT_GRACE_SECONDS: float = 10.0
+
     # TTL (seconds)
     ROOM_TTL_LOBBY: int = 7200       # 2 hours
     ROOM_TTL_PLAYING: int = 14400    # 4 hours
