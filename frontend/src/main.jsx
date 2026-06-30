@@ -23,17 +23,17 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <LobbyProvider>
-        <UIProvider>
-          <NotificationProvider>
-            <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <LobbyProvider>
+          <UIProvider>
+            <NotificationProvider>
               <AuthProvider>
                 <App/>
               </AuthProvider>
-            </QueryClientProvider>
-          </NotificationProvider>
-        </UIProvider>
-      </LobbyProvider>
+            </NotificationProvider>
+          </UIProvider>
+        </LobbyProvider>
+      </QueryClientProvider>
     </GoogleOAuthProvider>
   </StrictMode>,
 )
