@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.1] - 2026-06-30
+
+### Added
+- **Map Fields Auto-Fill**: Implemented intelligent auto-fill logic for `MapFieldsEditor`. Selecting existing map fields now automatically populates input values (time limit, reward, penalty, card pack) if all selected cells share identical data.
+- **Smart Range Parsing**: Added dynamic range parsing in the "Field position" input, allowing real-time selection and highlighting of grid cells when entering ranges (e.g., "5-10").
+
+### Changed
+- **UX Form Synchronization**: Optimized state management to automatically reset form inputs to default values if mixed or empty fields are selected, preventing accidental data overwrites during bulk editing.
+- **Lobby Context**: Implemented `/status` endpoint call for `ActiveLobbyWidget` modal.
+
 ## [0.24.0] - 2026-06-30
 
 ### Added

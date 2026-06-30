@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import RowNavigation from '@/components/nav/RowNavigation.jsx';
 import { Button } from '@/components/buttons/Button.jsx';
@@ -69,6 +69,7 @@ const MapFieldEditor = () => {
           newGrid[field.position_index] = {
             id: field.id,
             card_pack_id: field.card_pack_id,
+            card_pack: field.card_pack,
             time_limit: field.time_limit,
             award: field.award,
             penalty: field.penalty
@@ -79,6 +80,61 @@ const MapFieldEditor = () => {
       setOriginalFields(newGrid);
     }
   }, [serverFields, totalFields]);
+
+  const currentSelectedIndices = useMemo(() => {
+    const posArray = new Set();
+    const parts = positions.split(',').map(p => p.trim()).filter(Boolean);
+
+    parts.forEach(part => {
+      if (part.includes('-')) {
+        const [start, end] = part.split('-').map(Number);
+        if (!isNaN(start) && !isNaN(end) && start <= end) {
+          for (let i = start; i <= end; i++) posArray.add(i - 1);
+        }
+      } else {
+        const num = Number(part);
+        if (!isNaN(num)) posArray.add(num - 1);
+      }
+    });
+    return Array.from(posArray).filter(p => p >= 0 && p < totalFields);
+  }, [positions, totalFields]);
+
+  useEffect(() => {
+    if (!serverFields) return;
+
+    const selectedFilledFields = currentSelectedIndices
+      .map(idx => gridFields[idx])
+      .filter(Boolean);
+
+    if (selectedFilledFields.length === 0) {
+      setTimeLimit(DEFAULT_TIME);
+      setReward(DEFAULT_REWARD);
+      setPenalty(DEFAULT_PENALTY);
+      setSelectedPack(null);
+      return;
+    }
+
+    const first = selectedFilledFields[0];
+    const isUniformTime = selectedFilledFields.every(f => f.time_limit === first.time_limit);
+    const isUniformAward = selectedFilledFields.every(f => f.award === first.award);
+    const isUniformPenalty = selectedFilledFields.every(f => f.penalty === first.penalty);
+    const isUniformPack = selectedFilledFields.every(f => f.card_pack_id === first.card_pack_id);
+
+    setTimeLimit(isUniformTime ? first.time_limit.toString() : DEFAULT_TIME);
+    setReward(isUniformAward ? first.award.toString() : DEFAULT_REWARD);
+    setPenalty(isUniformPenalty ? first.penalty.toString() : DEFAULT_PENALTY);
+
+    if (isUniformPack && first.card_pack) {
+      setSelectedPack({
+        id: first.card_pack.id,
+        label: first.card_pack.name,
+        image: first.card_pack.cover_url || null
+      });
+    } else {
+      setSelectedPack(null);
+    }
+  }, [currentSelectedIndices, gridFields, serverFields]);
+
 
   const [searchScope, setSearchScope] = useState(SCOPE_OPTIONS[0].id);
   const minChars = ['my', 'saved'].includes(searchScope) ? 1 : 2;
@@ -150,22 +206,7 @@ const MapFieldEditor = () => {
   };
 
   const handleApply = () => {
-    const posArray = new Set();
-    const parts = positions.split(',').map(p => p.trim()).filter(Boolean);
-
-    parts.forEach(part => {
-      if (part.includes('-')) {
-        const [start, end] = part.split('-').map(Number);
-        if (!isNaN(start) && !isNaN(end) && start <= end) {
-          for (let i = start; i <= end; i++) posArray.add(i - 1);
-        }
-      } else {
-        const num = Number(part);
-        if (!isNaN(num)) posArray.add(num - 1);
-      }
-    });
-
-    const validIndices = Array.from(posArray).filter(p => p >= 0 && p < totalFields);
+    const validIndices = currentSelectedIndices;
     const newGrid = [...gridFields];
 
     validIndices.forEach(idx => {
@@ -173,6 +214,7 @@ const MapFieldEditor = () => {
       newGrid[idx] = {
         id: existingField ? existingField.id : undefined,
         card_pack_id: selectedPack.id,
+        card_pack: { id: selectedPack.id, name: selectedPack.label },
         time_limit: Number(timeLimit),
         award: Number(reward),
         penalty: Number(penalty)
@@ -182,10 +224,6 @@ const MapFieldEditor = () => {
     setGridFields(newGrid);
 
     setPositions('');
-    setSelectedPack(null);
-    setTimeLimit(DEFAULT_TIME);
-    setReward(DEFAULT_REWARD);
-    setPenalty(DEFAULT_PENALTY);
   };
 
   const getFieldsPayload = () => {
@@ -236,10 +274,6 @@ const MapFieldEditor = () => {
   const isAllCellsFilled = totalFields > 0 && gridFields.length === totalFields && gridFields.every(field => field !== null);
   const isDraft = mapData?.status?.toUpperCase() === 'DRAFT';
   const isActivePrivate = mapData?.status?.toUpperCase() === 'ACTIVE' && !mapData?.is_public;
-
-  const currentSelectedIndices = positions.split(',')
-    .map(p => parseInt(p.trim()) - 1)
-    .filter(n => !isNaN(n));
 
   return (
     <div className="flex flex-col w-full gap-8">

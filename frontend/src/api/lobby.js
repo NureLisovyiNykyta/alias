@@ -101,3 +101,13 @@ export const useStartGameMutation = (options) => {
     ...options,
   });
 };
+
+export const useCheckLobbyQuery = (options) => {
+  return useMutation({
+    mutationFn: async (roomCode) => {
+      const response = await api.get(`/rooms/${roomCode}/status`);
+      return response.data;
+    },
+    ...options,
+  });
+};
