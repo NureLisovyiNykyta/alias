@@ -11,11 +11,11 @@ const ProfileSettings = () => {
 
   return (
     <div
-      className='w-fit h-[160px] rounded-[12px] border-2 border-surface bg-white shadow-buttons flex flex-col p-[15px] gap-5'
+      className='w-[240px] rounded-[12px] border-2 border-surface bg-white shadow-buttons flex flex-col p-[15px] gap-5'
     >
       <div className='w-full flex flex-col pb-2 border-b border-text-label'>
-        <span className='font-noto text-p'>{user?.username}</span>
-        <span className='font-noto text-label text-text-label'>{user?.email}</span>
+        <span className='font-noto text-p truncate'>{user?.username}</span>
+        <span className='font-noto text-label text-text-label truncate'>{user?.email}</span>
       </div>
 
       <div className='flex flex-col gap-4'>

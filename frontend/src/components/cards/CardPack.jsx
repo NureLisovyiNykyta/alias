@@ -62,16 +62,16 @@ const CardPack = ({ pack, type }) => {
               <span>Review {pack.title} pack</span>
             </Button>
 
-            {type === 'public' && (
+            {type !== 'my_creations' && (
               <Button
                 variant='secondary'
                 onClick={handleSave}
-                disabled={isPending || pack.is_saved}
+                disabled={isPending || (type === 'community' && pack.is_saved)}
               >
                 {isPending ? <Spinner size='sm'/> :
                   <div className='flex items-center justify-center gap-2'>
                     <img src={pack.is_saved ? done : plus} alt="Plus"/>
-                    <span>{pack.is_saved ? 'Saved to my packs' : 'Save to My packs'}</span>
+                    <span>{pack.is_saved ? type === 'saved' ? 'Remove from saved' : 'Saved to my packs' : 'Save to my packs'}</span>
                   </div>
                 }
               </Button>

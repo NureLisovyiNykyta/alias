@@ -1,17 +1,43 @@
-import { Link, useParams } from "react-router-dom";
-import { useMapQuery } from "@/api/maps.js";
+import React, { useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { useDeleteMapQuery, useMapQuery } from "@/api/maps.js";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import MapPreviewCard from "@/components/cards/MapPreviewCard.jsx";
 import MapPreviewBoard from "@/components/layouts/MapPreviewBoard.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { Button } from "@/components/buttons/Button.jsx";
-import React from "react";
+import ConfirmWindow from "@/components/modals/ConfirmWindow.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
+import { useNotification } from "@/contexts/NotificationContext.jsx";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const MapPreview = () => {
   const { id: mapId } = useParams();
+  const navigate = useNavigate();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
   const { data: map, isLoading } = useMapQuery(mapId);
   const { user: me } = useAuth();
+  const { showNotification } = useNotification();
+
+  const { mutate, isPending } = useDeleteMapQuery({
+    onSuccess: () => {
+      showNotification({
+        title: "Map Deleted",
+        message: `Map was deleted from the list. The existing rooms will not be affected.`,
+      });
+      setIsConfirmOpen(false);
+      navigate('/gallery/maps');
+    },
+    onError: (error) => {
+      showNotification({
+        title: "Error occurred",
+        message: `Failed to delete map data. ${parseErrors(error.response?.data)}`,
+        isSuccess: false
+      });
+      setIsConfirmOpen(false);
+    },
+  });
 
   const links = [
     { path: "/", label: "Main Page", id: 1 },
@@ -28,7 +54,7 @@ const MapPreview = () => {
   }
 
   return (
-    <main className="flex flex-col w-full gap-8 pb-10">
+    <main className="flex flex-col w-full gap-8 pb-10 relative">
       <RowNavigation links={links}/>
 
       <div className="flex flex-col w-full gap-4">
@@ -39,19 +65,35 @@ const MapPreview = () => {
       </div>
 
       <MapPreviewCard map={map}/>
-
       <MapPreviewBoard mapId={mapId}/>
 
       {me?.id === map?.author_id &&
-        <Button
-          as={Link}
-          to={`/edit/map/${map.id}`}
-          variant='tertiary'
-          className='self-start'
-        >
-          Edit Map
-        </Button>
+        <div className="flex items-center gap-2 justify-between">
+          <Button
+            as={Link}
+            to={`/edit/map/${map.id}`}
+            variant='tertiary'
+          >
+            Edit Map
+          </Button>
+
+          <Button
+            onClick={() => setIsConfirmOpen(true)}
+            disabled={isPending}
+          >
+            Delete Map
+          </Button>
+        </div>
       }
+
+      <ConfirmWindow
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        title="Delete Map"
+        label="Are you sure you want to delete this map?"
+        paragraph="This action cannot be undone and will permanently remove the map from your collection."
+        onSuccess={() => mutate({ mapId })}
+      />
     </main>
   );
 };

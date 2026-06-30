@@ -6,7 +6,6 @@ import Spinner from '@/components/layouts/Spinner.jsx';
 import DropDown from "@/components/inputs/DropDown.jsx";
 import Input from "@/components/inputs/Input.jsx";
 import NumberInput from "@/components/inputs/NumberInput.jsx";
-
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -16,7 +15,7 @@ import {
   useActivateMapMutation,
   usePublishMapMutation
 } from "@/api/maps.js";
-import { usePublicPacksQuery } from "@/api/card-packs.js";
+import { useSearchPacksInfiniteQuery } from "@/api/card-packs.js";
 import { getCellGridStyle } from "@/utils/getCellGridStyle.js";
 import { parseErrors } from "@/utils/parseErrors.js";
 
@@ -24,6 +23,13 @@ const DEFAULT_TIME = '60';
 const DEFAULT_REWARD = '1';
 const DEFAULT_PENALTY = '1';
 const MAX_ROW_WIDTH = 12;
+
+const SCOPE_OPTIONS = [
+  { id: 'available', label: 'All' },
+  { id: 'public', label: 'Public' },
+  { id: 'saved', label: 'Saved' },
+  { id: 'my', label: 'My' },
+];
 
 const MapFieldEditor = () => {
   const { id: mapId } = useParams();
@@ -33,20 +39,27 @@ const MapFieldEditor = () => {
   const [positions, setPositions] = useState('');
   const [selectedPack, setSelectedPack] = useState(null);
 
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
+
   const [timeLimit, setTimeLimit] = useState(DEFAULT_TIME);
   const [reward, setReward] = useState(DEFAULT_REWARD);
   const [penalty, setPenalty] = useState(DEFAULT_PENALTY);
 
   const { data: mapData } = useMapQuery(mapId);
   const { data: serverFields, isLoading: isFieldsLoading } = useMapFieldsQuery(mapId);
-  const { data: myPacks } = usePublicPacksQuery({});
 
   const totalFields = mapData?.max_fields_count || 0;
 
   const [gridFields, setGridFields] = useState([]);
   const [originalFields, setOriginalFields] = useState([]);
-
-  const packOptions = myPacks?.items?.map(pack => ({ id: pack.id, label: pack.name })) || [];
 
   useEffect(() => {
     if (serverFields && totalFields > 0) {
@@ -66,6 +79,31 @@ const MapFieldEditor = () => {
       setOriginalFields(newGrid);
     }
   }, [serverFields, totalFields]);
+
+  const [searchScope, setSearchScope] = useState(SCOPE_OPTIONS[0].id);
+  const minChars = ['my', 'saved'].includes(searchScope) ? 1 : 2;
+
+  const isSearchActive = debouncedSearch.trim().length >= minChars;
+  const isTypingShort = debouncedSearch.trim().length > 0 && !isSearchActive;
+
+  const searchParams = isSearchActive
+    ? { q: debouncedSearch.trim(), scope: searchScope, limit: 10 }
+    : { scope: searchScope, limit: 10, sort_by: searchScope === SCOPE_OPTIONS[3].id ? 'newest' : 'most_saved' };
+
+  const {
+    data: searchResults,
+    isLoading: isSearching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useSearchPacksInfiniteQuery(searchParams, {
+    enabled: !isTypingShort,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const packOptions = searchResults?.pages
+    .flatMap(page => page.items)
+    .map(pack => ({ id: pack.id, label: pack.name, image: pack.cover_url })) || [];
 
   const { mutate: syncFields, mutateAsync: syncFieldsAsync, isPending: isSaving } = useBulkSyncFieldsMutation({
     onSuccess: () => {
@@ -241,6 +279,16 @@ const MapFieldEditor = () => {
                 options={packOptions}
                 value={selectedPack}
                 onChange={setSelectedPack}
+                withSearch={true}
+                searchValue={searchInput}
+                onSearchChange={setSearchInput}
+                isLoading={isSearching}
+                scopeOptions={SCOPE_OPTIONS}
+                activeScope={searchScope}
+                onScopeChange={setSearchScope}
+                onLoadMore={() => fetchNextPage()}
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
               />
               <span className='text-label text-text-label font-noto'>The task that player has to solve</span>
             </div>

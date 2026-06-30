@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 const useWebSocket = wsPackage.default || wsPackage;
 
-export const useGameSocket = (roomCode) => {
+export const useGameSocket = (roomCode, isAllowedToConnect = false) => {
   const [roomData, setRoomData] = useState(null);
   const [isRoomClosed, setIsRoomClosed] = useState(false);
 
@@ -17,7 +17,7 @@ export const useGameSocket = (roomCode) => {
   }, [roomCode]);
 
   const socketUrl = useMemo(() => {
-    if (!roomCode) return null;
+    if (!roomCode || !isAllowedToConnect) return null;
 
     const token = Cookies.get("authToken");
     const guestId = localStorage.getItem("guest_id");
@@ -27,7 +27,7 @@ export const useGameSocket = (roomCode) => {
     if (guestId) return `${baseUrl}/ws/rooms/${roomCode}?guest_id=${guestId}`;
 
     return null;
-  }, [roomCode]);
+  }, [roomCode, isAllowedToConnect]);
 
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
     socketUrl,

@@ -110,4 +110,9 @@
     input:-webkit-autofill:active{
         transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s;
     }
+
+    h1, h2, h3, p, span {
+        overflow-wrap: anywhere;
+        max-width: 100%;
+    }
 }

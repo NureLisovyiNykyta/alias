@@ -1,5 +1,6 @@
 import { TEAM_BG_MAP_DARK } from "@/constants/teamColors.js";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
+import profile from '@/assets/userProfile.svg';
 
 export default function TeamsDashboard({ team, explainer }) {
   if (!team || !explainer) return null;
@@ -29,7 +30,7 @@ export default function TeamsDashboard({ team, explainer }) {
 
         <div className='flex items-center gap-4 mr-8'>
           <img
-            src={explainer.avatar_url}
+            src={explainer.avatar_url ?? profile}
             alt='Explainer Avatar'
             className='object-center size-12 shadow-lobby-modal rounded-full'
           />

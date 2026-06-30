@@ -145,12 +145,38 @@ export default function Chat({ types = null, activeType = null, onChangeType = n
           <motion.ul key={activeType} initial={{ opacity: 0 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="w-full flex flex-col gap-4 py-2 pr-2">
             {groupedMessages.map((group) => (
               <motion.li layout key={group.id} className={`w-full flex gap-4 ${group.isMyMsg ? 'justify-end' : ''}`}>
-                {!group.isMyMsg && <img src={group.avatar || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + group.senderName} className="size-8 rounded-full sticky top-0" alt="avatar" />}
-                <div className={`flex flex-col min-w-0 ${group.isMyMsg ? 'items-end' : 'items-start w-full'}`}>
-                  {!group.isMyMsg && <span className='text-label font-noto text-text-label mb-1'>{group.senderName}</span>}
+                {!group.isMyMsg && (
+                  <motion.div
+                    layout="position"
+                    className="shrink-0 size-8 sticky top-0"
+                  >
+                    <img
+                      src={group.avatar || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + group.senderName}
+                      className="w-full h-full rounded-full object-cover"
+                      alt="avatar"
+                    />
+                  </motion.div>
+                )}
+
+                <div className={`flex flex-col min-w-0 ${group.isMyMsg ? 'items-end' : 'items-start flex-1'}`}>
+                  {!group.isMyMsg && (
+                    <motion.span
+                      layout="position"
+                      className='text-label font-noto text-text-label mb-1'
+                    >
+                      {group.senderName}
+                    </motion.span>
+                  )}
+
                   <div className={`flex flex-col w-full gap-1 ${group.isMyMsg ? 'items-end' : 'items-start'}`}>
                     {group.messages.map((msg) => (
-                      <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={msg.id} className={` rounded-[12px] flex flex-col gap-2 ${group.isMyMsg ? 'bg-brand-300 ml-12' : 'bg-surface mr-12'} ${!msg.mediaUrl && 'py-[10px] px-4'}`}>
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        key={msg.id}
+                        className={`rounded-[12px] flex flex-col gap-2 ${group.isMyMsg ? 'bg-brand-300 ml-12' : 'bg-surface mr-12'} ${!msg.mediaUrl && 'py-[10px] px-4'}`}
+                      >
                         {msg.mediaUrl && (
                           <img src={msg.mediaUrl} alt="GIF" className="max-w-[140px] w-fit h-auto rounded-[8px]" />
                         )}
