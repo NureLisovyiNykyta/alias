@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2026-06-30
+
+### Added
+- **Teams Dashboard Image**: Added placeholder if player has no avatar.
+- **Unsave Button**: Implemented conditional rendering for `type = 'saved'` for map/pack cards.
+- **Token And Game Race Condition**: Implemented waiting for valid `authToken` before socket connection.
+- **UX Load Helper**: Added 5-second timer for lobby loading and reload button.
+- **Search Endpoins**: Implemented `/search` endpoint integration for both card and map lists with 200ms debounce.
+- **Activate and Publish**: On values Editing pages added `Activate` and `Publish` buttons. This hepls users not to browse unnecessary pages.
+- **Delete Pack And Map**: Implemented API calls for removal ability.
+
+### Changed
+- **Index CSS**: Added app layer words overflow-wrap.
+
 ## [0.23.0] - 2026-06-28
 
 ### Added

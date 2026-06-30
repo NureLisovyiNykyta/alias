@@ -14,12 +14,13 @@ import Spinner from "@/components/layouts/Spinner.jsx";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
-
 import {
   usePackQuery,
   useUpdatePackMutation,
   useUploadPackCoverMutation,
-  useDeletePackCoverMutation
+  useDeletePackCoverMutation,
+  useActivatePackMutation,
+  usePublishPackMutation
 } from "@/api/card-packs";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
 import { parseErrors } from "@/utils/parseErrors.js";
@@ -135,6 +136,29 @@ const CardPackEditor = () => {
       }
     });
   };
+
+  const { mutate: activatePack, isPending: isActivating } = useActivatePackMutation({
+    onSuccess: () => {
+      showNotification({ title: "Pack Activated", message: "Your pack is now active.", isSuccess: true });
+      queryClient.invalidateQueries({ queryKey: ['pack', packId] });
+    },
+    onError: (error) => {
+      showNotification({ title: "Error", message: `Failed to activate the pack. ${parseErrors(error.response?.data)}`, isSuccess: false });
+    }
+  });
+
+  const { mutate: publishPack, isPending: isPublishing } = usePublishPackMutation({
+    onSuccess: () => {
+      showNotification({ title: "Pack Published", message: "Your pack is now public.", isSuccess: true });
+      queryClient.invalidateQueries({ queryKey: ['pack', packId] });
+    },
+    onError: (error) => {
+      showNotification({ title: "Error", message: `Failed to publish the pack. ${parseErrors(error.response?.data)}`, isSuccess: false });
+    }
+  });
+
+  const isDraft = packData?.status?.toUpperCase() === 'DRAFT';
+  const isActivePrivate = packData?.status?.toUpperCase() === 'ACTIVE' && !packData?.is_public;
 
   const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.name;
   const isFormValid = isNameValid && description.trim() !== '';
@@ -259,13 +283,34 @@ const CardPackEditor = () => {
         onChange={(e) => setDescription(e.target.value)}
       />
 
-      <Button
-        className='self-end mt-4'
-        disabled={!isFormValid || isUpdating || isUploading}
-        onClick={handleSubmit(onSubmit)}
-      >
-        {isUpdating ? <Spinner size='sm' /> : 'Save Changes'}
-      </Button>
+      <div className='flex items-center justify-between w-full mt-4'>
+        <Button
+          disabled={!isFormValid || isUpdating || isUploading}
+          onClick={handleSubmit(onSubmit)}
+        >
+          {isUpdating ? <Spinner size='sm' /> : 'Save Changes'}
+        </Button>
+
+        <div className='flex items-center gap-3'>
+          {isDraft && (
+            <Button
+              onClick={() => activatePack(packId)}
+              disabled={isActivating || isUpdating}
+            >
+              {isActivating ? <Spinner size="sm" /> : 'Activate'}
+            </Button>
+          )}
+
+          {isActivePrivate && (
+            <Button
+              onClick={() => publishPack(packId)}
+              disabled={isPublishing || isUpdating}
+            >
+              {isPublishing ? <Spinner size="sm" /> : 'Publish'}
+            </Button>
+          )}
+        </div>
+      </div>
 
       <ImageCropperModal
         isOpen={isCropperOpen}

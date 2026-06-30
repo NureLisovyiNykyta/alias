@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -11,16 +11,31 @@ import Spinner from '@/components/layouts/Spinner.jsx';
 import dots from '@/assets/tripleDot.svg';
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useCreateRoomMutation } from "@/api/lobby";
-import { useMyMapsQuery, useMapThemesQuery } from "@/api/maps.js";
+import { useMapThemesQuery, useSearchMapsInfiniteQuery } from "@/api/maps.js";
 import mapPreviewIcon from "@/assets/mapPreview.svg";
 import MapThemeSelector from "@/components/inputs/MapThemeSelector.jsx";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
+import { parseErrors } from "@/utils/parseErrors.js";
 
 const createLobbySchema = z.object({
   room_name: z.string().min(1, "Name is required"),
   map: z.any().refine((val) => val !== null && val !== undefined, "Map is required"),
   theme: z.any().refine((val) => val !== null && val !== undefined, "Theme is required"),
 });
+
+const SCOPE_OPTIONS = [
+  { id: 'available', label: 'All' },
+  { id: 'public', label: 'Public' },
+  { id: 'saved', label: 'Saved' },
+  { id: 'my', label: 'My' },
+];
+
+const SIZE_OPTIONS = [
+  { id: 'ALL', label: 'All' },
+  { id: 'SMALL', label: 'Small' },
+  { id: 'MEDIUM', label: 'Medium' },
+  { id: 'LARGE', label: 'Large' },
+];
 
 const LobbyCreator = () => {
   const navigate = useNavigate();
@@ -52,13 +67,47 @@ const LobbyCreator = () => {
     name: ["room_name", "map", "theme"],
   });
 
-  const { data: rawMaps, isLoading: isMapsLoading } = useMyMapsQuery();
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchScope, setSearchScope] = useState(SCOPE_OPTIONS[0].id);
+  const [searchSize, setSearchSize] = useState(SIZE_OPTIONS[0].id);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
+
+  const minChars = ['my', 'saved'].includes(searchScope) ? 1 : 2;
+
+  const isSearchActive = debouncedSearch.trim().length >= minChars;
+  const isTypingShort = debouncedSearch.trim().length > 0 && !isSearchActive;
+
+  const searchParams = {
+    limit: 10,
+    scope: searchScope,
+    ...(isSearchActive ? { q: debouncedSearch.trim() } : { sort_by: searchScope === 'my' ? 'newest' : 'most_saved' }),
+    ...(searchSize !== 'ALL' ? { size: searchSize } : {}),
+  };
+
+  const {
+    data: searchResults,
+    isLoading: isMapsSearching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useSearchMapsInfiniteQuery(searchParams, {
+    enabled: !isTypingShort,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const mapOptions = searchResults?.pages
+    .flatMap(page => page.items)
+    .filter(map => map.status === 'ACTIVE')
+    .map(map => ({ ...map, label: map.name, image: map.cover_url })) || [];
+
   const { data: rawThemes, isLoading: isThemesLoading } = useMapThemesQuery();
-
-  const mapOptions = Array.isArray(rawMaps)
-    ? rawMaps.map(map => ({ ...map, label: map.name })).filter(m => m.status === 'ACTIVE')
-    : rawMaps?.items?.map(map => ({ ...map, label: map.name })).filter(m => m.status === 'ACTIVE') || [];
-
   const themeOptions = Array.isArray(rawThemes)
     ? rawThemes.map(theme => ({ ...theme, label: theme.name }))
     : rawThemes?.items?.map(theme => ({ ...theme, label: theme.name })) || [];
@@ -131,27 +180,33 @@ const LobbyCreator = () => {
 
         <div className='w-full flex items-center justify-around bg-surface rounded-[12px] p-4 gap-16'>
           <div className='flex flex-col gap-2'>
-            {isMapsLoading ? (
-              <div className="flex items-center gap-2 text-text-label">
-                <Spinner size="sm"/>
-                <span className="font-noto text-sm">Loading maps...</span>
-              </div>
-            ) : (
-              <Controller
-                control={control}
-                name="map"
-                render={({ field: { onChange, value } }) => (
-                  <DropDown
-                    placeholder='Choose the Map'
-                    options={mapOptions}
-                    value={value}
-                    onChange={onChange}
-                    error={!!errors.map}
-                    isValid={isMapValid}
-                  />
-                )}
-              />
-            )}
+            <Controller
+              control={control}
+              name="map"
+              render={({ field: { onChange, value } }) => (
+                <DropDown
+                  placeholder='Choose the Map'
+                  options={mapOptions}
+                  value={value}
+                  onChange={onChange}
+                  error={!!errors.map}
+                  isValid={isMapValid}
+                  withSearch={true}
+                  searchValue={searchInput}
+                  onSearchChange={setSearchInput}
+                  isLoading={isMapsSearching}
+                  scopeOptions={SCOPE_OPTIONS}
+                  activeScope={searchScope}
+                  onScopeChange={setSearchScope}
+                  secondaryScopeOptions={SIZE_OPTIONS}
+                  activeSecondaryScope={searchSize}
+                  onSecondaryScopeChange={setSearchSize}
+                  onLoadMore={() => fetchNextPage()}
+                  hasNextPage={hasNextPage}
+                  isFetchingNextPage={isFetchingNextPage}
+                />
+              )}
+            />
             <span className='text-label text-text-label font-noto'>
               {errors.map ? errors.map.message : 'Pick an option from the maps'}
             </span>
@@ -183,8 +238,8 @@ const LobbyCreator = () => {
               <div className="flex flex-col items-center gap-4">
                 <img src={mapPreviewIcon} alt="Map Placeholder"/>
                 <span className="text-label text-text-label font-noto text-center">
-                Preview will appear here after selecting a map
-              </span>
+                  Preview will appear here after selecting a map
+                </span>
               </div>
             </div>
           )}

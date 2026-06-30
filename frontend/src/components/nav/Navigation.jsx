@@ -4,7 +4,6 @@ import pin from '@/assets/pin.svg';
 import grayPlus from '@/assets/grayPlus.svg';
 import greenGlobe from '@/assets/greenGlobe.svg';
 import redGlove from '@/assets/redGlobe.svg';
-import mapPreview from "@/assets/mapPreview.svg";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useMyPacksQuery } from "@/api/card-packs.js";
 import { useMyMapsQuery } from "@/api/maps.js";
@@ -13,7 +12,7 @@ import Spinner from "@/components/layouts/Spinner.jsx";
 const PINNED_LINKS = [
   { id: 1, label: 'How to play Alias?', path: '/start', color: 'bg-decorative-500' },
   { id: 2, label: 'Join our Discord', path: 'https://discord.gg/2xsU4arUnX', color: 'bg-decorative-300' },
-  { id: 3, label: 'Latest update', path: '/updates', color: 'bg-decorative-900' },
+  { id: 3, label: 'Create New Lobby', path: '/new/lobby', color: 'bg-decorative-900' },
 ];
 
 const Navigation = () => {
@@ -36,7 +35,7 @@ const Navigation = () => {
   const myMaps = mapsData?.items || [];
 
   return (
-    <aside className="sticky top-20 h-[calc(100vh-80px)] overflow-y-auto w-55 shrink-0 py-2 flex flex-col justify-between gap-12 border-r border-surface">
+    <aside className="sticky top-20 h-[calc(100vh-80px)] overflow-y-auto w-55 shrink-0 py-2 flex flex-col gap-8 border-r border-surface">
       <nav aria-label="Pinned Navigation">
         <div className="flex items-center gap-2 mb-4 px-2">
           <div className="w-6 h-6 flex items-center justify-center">
@@ -102,7 +101,7 @@ const Navigation = () => {
                     className="flex items-center gap-2 rounded-lg hover:text-brand-500"
                   >
                     {pack.cover_url ? (
-                      <img src={pack?.cover_url} alt={pack?.name} className='size-6 rounded-[8px] shrink-0 border border-surface'/>
+                      <img src={pack?.cover_url} alt={pack?.name} className='size-6 rounded-[8px] shrink-0 border border-surface object-cover'/>
                     ) : (
                       <span className='size-6 rounded-[8px] bg-decorative-300 shrink-0'/>
                     )}
@@ -157,7 +156,7 @@ const Navigation = () => {
                     className="flex items-center gap-2 rounded-lg hover:text-brand-500"
                   >
                     {map.cover_url ? (
-                      <img src={map?.cover_url} alt={map?.name} className='size-6 rounded-[8px] shrink-0 border border-surface'/>
+                      <img src={map?.cover_url} alt={map?.name} className='size-6 rounded-[8px] shrink-0 border border-surface object-cover'/>
                     ) : (
                       <span className='size-6 rounded-[8px] bg-decorative-500 shrink-0'/>
                     )}

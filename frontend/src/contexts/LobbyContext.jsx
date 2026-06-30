@@ -1,11 +1,14 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useGameSocket } from "@/sockets/useGameSockets.js";
+import { useAuth } from "@/contexts/AuthContext.jsx";
 
 const LobbyContext = createContext({});
 
 const ROOM_MAX_TTL = (Number(import.meta.env.VITE_ROOM_TTL_PLAYING) || 14400) * 1000;
 
 export const LobbyProvider = ({ children }) => {
+  const { isLoading } = useAuth;
+
   const [activeRoom, setActiveRoom] = useState(() => {
     const saved = localStorage.getItem('activeRoomData');
     if (!saved) return null;
@@ -33,7 +36,6 @@ export const LobbyProvider = ({ children }) => {
       localStorage.setItem('activeRoomData', JSON.stringify(roomData));
       setActiveRoom(code);
     } else {
-      console.log('code removal');
       localStorage.removeItem('activeRoomData');
       setActiveRoom(null);
     }
@@ -61,7 +63,7 @@ export const LobbyProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [activeRoom]);
 
-  const socket = useGameSocket(activeRoom);
+  const socket = useGameSocket(activeRoom, !isLoading);
 
   return (
     <LobbyContext.Provider value={{ activeRoom, setRoom, ...socket }}>

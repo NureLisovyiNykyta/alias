@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { getPackCards } from "@/api/card-packs.js";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 
@@ -78,6 +78,11 @@ export const uploadMapCover = async ({ mapId, file }) => {
 
 export const deleteMapCover = async (mapId) => {
   const response = await api.delete(`/maps/${mapId}/cover`);
+  return response.data;
+};
+
+export const searchMaps = async (params, signal) => {
+  const response = await api.get('/maps/search', { params, signal });
   return response.data;
 };
 
@@ -167,14 +172,15 @@ export const useSaveMapMutation = (options) => {
 
   return useMutation({
     mutationFn: (mapId) => saveMap(mapId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       showNotification({
         title: "Success!",
-        message: "Map has been saved to your collection.",
+        message: `Map has been saved ${data.response?.data.saved ? 'saved to' : 'removed from'} collection.`,
         isSuccess: true,
       });
 
       queryClient.invalidateQueries({ queryKey: ['publicMaps'] });
+      queryClient.invalidateQueries({ queryKey: ['savedMaps'] });
     },
     ...options,
   });
@@ -203,3 +209,34 @@ export const useMapSizesQuery = () => {
     }
   });
 };
+
+export const useSearchMapsInfiniteQuery = (params, options) => {
+  return useInfiniteQuery({
+    queryKey: ['searchMapsInfinite', params],
+    initialPageParam: 0,
+    queryFn: ({ pageParam = 0, signal }) =>
+      searchMaps({ ...params, offset: pageParam }, signal),
+    getNextPageParam: (lastPage, allPages) => {
+      const nextOffset = allPages.length * (params.limit || 10);
+      return nextOffset < lastPage.total ? nextOffset : undefined;
+    },
+    ...options,
+  });
+};
+
+export const useDeleteMapQuery = (options) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    queryKey: ['map', options],
+    mutationFn: async ({ mapId }) => {
+      console.log(mapId)
+      const response = await api.delete(`/maps/${mapId}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myMaps'] });
+    },
+    ...options,
+  });
+}

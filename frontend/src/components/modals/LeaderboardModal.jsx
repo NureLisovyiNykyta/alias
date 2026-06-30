@@ -2,7 +2,7 @@ import ModalLayout from "@/components/modals/ModalLayout.jsx";
 import Leaderboard from "@/components/layouts/Leaderboard.jsx";
 import { Button } from "@/components/buttons/Button.jsx";
 
-export default function LeaderboardModal({ isHost = false, isOpen, onClose }) {
+export default function LeaderboardModal({ isFinal = false, isHost = false, isOpen, onClose }) {
   const buttons = [
     { id: 1, variant: 'tertiary', label: 'Cancel', onClick: onClose },
     { id: 2, variant: 'primary', label: 'Confirm changes', onClick: onClose },
@@ -11,7 +11,7 @@ export default function LeaderboardModal({ isHost = false, isOpen, onClose }) {
   return (
     <ModalLayout isOpen={isOpen} onClose={isHost ? onClose : undefined}>
       <div className='bg-white w-[520px] rounded-[12px] flex flex-col pb-4 gap-2'>
-        <Leaderboard isHost={isHost}/>
+        <Leaderboard isHost={isHost} label={isFinal ? 'Final Leaderboard' : 'Leaderboard'}/>
 
         {isHost ? (
           <ul className='flex items-center justify-center gap-2.5 w-full'>

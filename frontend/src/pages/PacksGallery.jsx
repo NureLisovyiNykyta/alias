@@ -17,9 +17,9 @@ const LINKS = [
 ];
 
 const TABS = [
-  { id: 'community', label: 'Community', fetchFn: getPublicPacks },
-  { id: 'saved', label: 'Saved', fetchFn: getSavedPacks },
-  { id: 'my_creations', label: 'My creations', fetchFn: getMyPacks },
+  { id: 'community', label: 'Community', fetchFn: getPublicPacks, queryKey: 'publicPacks' },
+  { id: 'saved', label: 'Saved', fetchFn: getSavedPacks, queryKey: 'savedPacks' },
+  { id: 'my_creations', label: 'My creations', fetchFn: getMyPacks, queryKey: 'myPacks' },
 ];
 
 const SORT_OPTIONS = [
@@ -56,7 +56,7 @@ const PacksGallery = () => {
   };
 
   const { data: currentData = { items: [], total: 0 }, isLoading } = useQuery({
-    queryKey: ['publicPacks', activeTab.id, queryParams],
+    queryKey: [activeTab.queryKey, queryParams],
     queryFn: () => activeTab.fetchFn(queryParams),
   });
 
@@ -139,9 +139,7 @@ const PacksGallery = () => {
                 ...item,
               };
 
-              const packType = activeTab.id === 'community' ? 'public' : 'other';
-
-              return <CardPack key={item.id} pack={mappedPack} type={packType} />;
+              return <CardPack key={item.id} pack={mappedPack} type={activeTab.id} />;
             })
           ) : (
             <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>

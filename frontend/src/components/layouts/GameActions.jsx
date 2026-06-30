@@ -105,7 +105,7 @@ export default function GameActions({ isHost }) {
               variant: isHost ? 'tertiary' : 'primary',
               icon: leave,
               text: 'Leave Room',
-              show: true,
+              show: !isHost,
               onClick: () => {
                 setActiveModal('leaveRoom');
                 close();

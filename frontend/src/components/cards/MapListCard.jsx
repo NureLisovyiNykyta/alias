@@ -9,7 +9,7 @@ import { formatPackDate } from "@/utils/parseTime.js";
 import mapPreview from "@/assets/mapPreview.svg";
 import done from '@/assets/doneMark.svg';
 
-const MapListCard = ({ map, type = null }) => {
+const MapListCard = ({ map, type }) => {
   const { mutate: saveMap, isPending } = useSaveMapMutation();
 
   const handleSave = () => {
@@ -61,18 +61,18 @@ const MapListCard = ({ map, type = null }) => {
               <span>Review {map?.name} map</span>
             </Button>
 
-            {type === 'community' && (
+            {type !== 'my_creations' && (
               <Button
                 variant='secondary'
                 onClick={handleSave}
-                disabled={isPending || map?.is_saved}
+                disabled={isPending || (type === 'community' && map.is_saved)}
               >
                 {isPending ? (
                   <Spinner size='sm'/>
                 ) : (
                   <div className='flex items-center justify-center gap-2'>
                     <img src={map?.is_saved ? done : plus} alt="Plus"/>
-                    <span>{map?.is_saved ? 'Saved to my maps' : 'Save to My maps'}</span>
+                    <span>{map.is_saved ? type === 'saved' ? 'Remove from saved' : 'Saved to my packs' : 'Save to my packs'}</span>
                   </div>
                 )}
               </Button>

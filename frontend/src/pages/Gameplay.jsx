@@ -42,6 +42,16 @@ export default function Gameplay() {
 
   const [anchors, setAnchors] = useState({});
 
+  const [showReloadButton, setShowReloadButton] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowReloadButton(true);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     if (currentPhase === 'PREPARE' && !isExplainer) {
       showNotification({
@@ -72,7 +82,21 @@ export default function Gameplay() {
         autoClose: true
       });
     }
-  }, [lastJsonMessage, isExplainer, showNotification]);
+
+    if (type === 'game_finished') {
+      closeNotification();
+
+      const winnerTeamName = payload.teams?.[payload.winner_team_id]?.name || 'Unknown Team';
+
+      showNotification({
+        title: "Game Ended",
+        message: `The Winner is ${winnerTeamName}!`,
+        type: 'game',
+        isSuccess: true,
+        autoClose: true
+      });
+    }
+  }, [lastJsonMessage, isExplainer, showNotification, closeNotification]);
 
   const themeInfo = roomData?.theme_info;
 
@@ -103,9 +127,23 @@ export default function Gameplay() {
 
   if (!roomData || !themeInfo) {
     return (
-      <div className="flex items-center justify-center w-screen h-screen bg-slate-950 text-slate-400 gap-2">
-        <Spinner color='border-text-slate-400'/>
-        <span className="text-sm font-medium animate-pulse">Loading scene</span>
+      <div className="flex flex-col items-center justify-center w-screen h-screen bg-slate-950 text-slate-400 gap-6">
+        <div className='flex flex-col items-center gap-3'>
+          <Spinner color='border-text-slate-400'/>
+          <span className="text-sm font-medium animate-pulse">Loading scene...</span>
+        </div>
+
+        {showReloadButton && (
+          <div className='flex flex-col items-center gap-3 animate-fade-in bg-slate-900/50 p-4 rounded-xl border border-slate-800 text-center max-w-xs'>
+            <p className="text-slate-500">The scene is taking longer than usual to load.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 border border-slate-700 text-slate-200 text-sm font-medium rounded-lg transition-all cursor-pointer shadow-sm"
+            >
+              Reload Page
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -121,13 +159,13 @@ export default function Gameplay() {
 
       <ChatAndLeaderboard />
 
-      {currentPhase === 'PREPARE' && isExplainer && (
+      {currentPhase === 'PREPARE' && isExplainer && !isGameFinished && (
         <TurnAlert
           onStart={() => sendMessage({ type: 'ready' })}
         />
       )}
 
-      {currentPhase === 'GUESSING' && isExplainer && (
+      {currentPhase === 'GUESSING' && isExplainer && !isGameFinished && (
         <GuessModal
           isOpen={true}
           currentTurn={currentTurn}
@@ -136,7 +174,7 @@ export default function Gameplay() {
         />
       )}
 
-      {currentPhase === 'REVIEW' && (
+      {currentPhase === 'REVIEW' && !isGameFinished && (
         <Results
           isOpen={true}
           isEditable={isExplainer}
@@ -170,6 +208,7 @@ export default function Gameplay() {
           isHost={false}
           isOpen={true}
           onClose={handleMainMenu}
+          isFinal={true}
         />
       )}
     </main>

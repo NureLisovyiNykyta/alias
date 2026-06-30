@@ -17,9 +17,9 @@ const LINKS = [
 ];
 
 const TABS = [
-  { id: 'community', label: 'Community', fetchFn: getPublicMaps },
-  { id: 'saved', label: 'Saved', fetchFn: getSavedMaps },
-  { id: 'my_creations', label: 'My creations', fetchFn: getMyMaps },
+  { id: 'community', label: 'Community', fetchFn: getPublicMaps, queryKey: 'publicMaps' },
+  { id: 'saved', label: 'Saved', fetchFn: getSavedMaps, queryKey: 'savedMaps' },
+  { id: 'my_creations', label: 'My creations', fetchFn: getMyMaps, queryKey: 'myMaps' },
 ];
 
 const SORT_OPTIONS = [
@@ -56,7 +56,7 @@ const MapsGallery = () => {
   };
 
   const { data: currentData = { items: [], total: 0 }, isLoading } = useQuery({
-    queryKey: ['publicMaps', activeTab.id, queryParams],
+    queryKey: [activeTab.queryKey, queryParams],
     queryFn: () => activeTab.fetchFn(queryParams),
   });
 

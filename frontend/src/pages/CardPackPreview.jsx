@@ -1,24 +1,49 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { Button } from "@/components/buttons/Button.jsx";
-import { usePackQuery, usePackCardsQuery } from "@/api/card-packs";
+import { usePackQuery, usePackCardsQuery, useDeletePackQuery } from "@/api/card-packs";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
+import ConfirmWindow from "@/components/modals/ConfirmWindow.jsx";
 import star from '@/assets/star.svg';
 import { formatPackDate } from "@/utils/parseTime.js";
 import { useAuth } from "@/contexts/AuthContext.jsx";
+import { parseErrors } from "@/utils/parseErrors.js";
 import mapPreview from "@/assets/mapPreview.svg";
 
 const CardPackPreview = () => {
   const { id: packId } = useParams();
+  const navigate = useNavigate();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
   const { data: pack, isLoading: isPackLoading } = usePackQuery(packId);
   const { data: serverCards, isLoading: isCardsLoading } = usePackCardsQuery(packId);
   const { showNotification } = useNotification();
-
   const { user: me } = useAuth();
 
   const [words, setWords] = useState([]);
+
+  const { mutate: deletePack, isPending: isDeleting } = useDeletePackQuery({
+    onSuccess: () => {
+      showNotification({
+        title: "Card Pack Deleted",
+        message: `Card pack was successfully deleted.`,
+        isSuccess: true,
+      });
+      setIsConfirmOpen(false);
+      navigate('/gallery/packs');
+    },
+    onError: (error) => {
+      console.log(error)
+      showNotification({
+        title: "Error occurred",
+        message: `Failed to delete card pack. ${parseErrors(error.response?.data)}`,
+        isSuccess: false,
+      });
+      setIsConfirmOpen(false);
+    },
+  });
 
   useEffect(() => {
     if (serverCards) {
@@ -57,7 +82,7 @@ const CardPackPreview = () => {
   }
 
   return (
-    <main className="flex flex-col w-full gap-8">
+    <main className="flex flex-col w-full gap-8 relative">
       <RowNavigation links={navLinks} />
 
       <div className="flex flex-col w-full gap-4">
@@ -155,15 +180,24 @@ const CardPackPreview = () => {
       </div>
 
       <div className={`w-full flex items-center gap-3 ${me?.id === pack?.author_id ? 'justify-between' : 'justify-end'}`}>
-        { me?.id === pack?.author_id &&
-          <Button
-            as={Link}
-            to={`/edit/card-pack/${pack.id}`}
-            variant='tertiary'
-          >
-            Edit Card Pack
-          </Button>
-        }
+        {me?.id === pack?.author_id && (
+          <div className="flex items-center justify-between w-full">
+            <Button
+              as={Link}
+              to={`/edit/card-pack/${pack.id}`}
+              variant='tertiary'
+            >
+              Edit Card Pack
+            </Button>
+
+            <Button
+              onClick={() => setIsConfirmOpen(true)}
+              disabled={isDeleting}
+            >
+              Delete Card Pack
+            </Button>
+          </div>
+        )}
 
         <Button
           onClick={handleExport}
@@ -173,6 +207,15 @@ const CardPackPreview = () => {
           Export
         </Button>
       </div>
+
+      <ConfirmWindow
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        title="Delete Card Pack"
+        label="Are you sure you want to delete this card pack?"
+        paragraph="This action cannot be undone and will permanently remove the pack."
+        onSuccess={() => deletePack({ packId })}
+      />
     </main>
   );
 };

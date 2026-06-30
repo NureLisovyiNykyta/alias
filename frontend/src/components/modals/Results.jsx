@@ -81,12 +81,14 @@ export default function Results({
           <span>{score > 0 ? `+${score}` : score}</span>
         </div>
 
-        <Button
-          className='shrink-0 min-w-[70px]'
-          onClick={isEditable ? onConfirm : onOkay}
-        >
-          {isEditable ? 'Confirm the results' : 'Okay'}
-        </Button>
+        {isEditable && (
+          <Button
+            className='shrink-0 min-w-[70px]'
+            onClick={isEditable ? onConfirm : onOkay}
+          >
+            {isEditable ? 'Confirm the results' : 'Okay'}
+          </Button>
+        )}
       </div>
     </ModalLayout>
   );

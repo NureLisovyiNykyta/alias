@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 
 // API Calls ------------------
@@ -79,6 +79,11 @@ export const deletePackCover = async (packId) => {
   return response.data;
 };
 
+export const searchPacks = async (params, signal) => {
+  const response = await api.get('/card-packs/search', { params, signal });
+  return response.data;
+};
+
 // Query Hooks ------------------
 
 export const usePublicPacksQuery = (params, options) => {
@@ -111,14 +116,15 @@ export const useSavePackMutation = (options) => {
 
   return useMutation({
     mutationFn: (packId) => savePack(packId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       showNotification({
         title: "Success!",
-        message: "Pack has been saved to your collection.",
+        message: `Pack has been ${data.response?.data.saved ? 'saved to' : 'removed from'} your collection.`,
         isSuccess: true,
       });
 
       queryClient.invalidateQueries({ queryKey: ['publicPacks'] });
+      queryClient.invalidateQueries({ queryKey: ['savedPacks'] });
     },
     ...options,
   });
@@ -207,3 +213,42 @@ export const useDeletePackCoverMutation = (options) => {
     ...options,
   });
 };
+
+export const useSearchPacksQuery = (params, options) => {
+  return useQuery({
+    queryKey: ['searchPacks', params],
+    queryFn: ({ signal }) => searchPacks(params, signal),
+    placeholderData: (previousData) => previousData,
+    ...options,
+  });
+};
+
+export const useSearchPacksInfiniteQuery = (params, options) => {
+  return useInfiniteQuery({
+    queryKey: ['searchPacksInfinite', params],
+    initialPageParam: 0,
+    queryFn: ({ pageParam = 0, signal }) =>
+      searchPacks({ ...params, offset: pageParam }, signal),
+    getNextPageParam: (lastPage, allPages) => {
+      const nextOffset = allPages.length * (params.limit || 10);
+      return nextOffset < lastPage.total ? nextOffset : undefined;
+    },
+    ...options,
+  });
+};
+
+export const useDeletePackQuery = (options) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    queryKey: ['pack', options],
+    mutationFn: async ({ packId }) => {
+      const response = await api.delete(`/card-packs/${packId}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myPacks'] });
+    },
+    ...options,
+  });
+}

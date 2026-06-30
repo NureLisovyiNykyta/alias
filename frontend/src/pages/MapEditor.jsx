@@ -17,7 +17,9 @@ import {
   useMapQuery,
   useUpdateMapMutation,
   useUploadMapCoverMutation,
-  useDeleteMapCoverMutation
+  useDeleteMapCoverMutation,
+  useActivateMapMutation,
+  usePublishMapMutation
 } from "@/api/maps";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
 import { parseErrors } from "@/utils/parseErrors.js";
@@ -130,6 +132,29 @@ const MapEditor = () => {
       }
     });
   };
+
+  const { mutate: activateMap, isPending: isActivating } = useActivateMapMutation({
+    onSuccess: () => {
+      showNotification({ title: "Map Activated", message: "Your map is now active.", isSuccess: true });
+      queryClient.invalidateQueries({ queryKey: ['map', mapId] });
+    },
+    onError: (error) => {
+      showNotification({ title: "Error", message: `Failed to activate the map. ${parseErrors(error.response?.data)}`, isSuccess: false });
+    }
+  });
+
+  const { mutate: publishMap, isPending: isPublishing } = usePublishMapMutation({
+    onSuccess: () => {
+      showNotification({ title: "Map Published", message: "Your map is now public.", isSuccess: true });
+      queryClient.invalidateQueries({ queryKey: ['map', mapId] });
+    },
+    onError: (error) => {
+      showNotification({ title: "Error", message: `Failed to publish the map. ${parseErrors(error.response?.data)}`, isSuccess: false });
+    }
+  });
+
+  const isDraft = mapData?.status?.toUpperCase() === 'DRAFT';
+  const isActivePrivate = mapData?.status?.toUpperCase() === 'ACTIVE' && !mapData?.is_public;
 
   const isNameValid = !!currentName && currentName.trim().length > 0 && !errors.name;
   const isFormValid = isNameValid;
@@ -251,13 +276,34 @@ const MapEditor = () => {
         />
       </div>
 
-      <Button
-        className="self-end"
-        disabled={!isFormValid || isUpdating || isUploading}
-        onClick={handleSubmit(onSubmit)}
-      >
-        {isUpdating ? <Spinner size='sm'/> : 'Save Changes'}
-      </Button>
+      <div className='flex items-center justify-between w-full mt-4'>
+        <Button
+          disabled={!isFormValid || isUpdating || isUploading}
+          onClick={handleSubmit(onSubmit)}
+        >
+          {isUpdating ? <Spinner size='sm'/> : 'Save Changes'}
+        </Button>
+
+        <div className='flex items-center gap-3'>
+          {isDraft && (
+            <Button
+              onClick={() => activateMap(mapId)}
+              disabled={isActivating || isUpdating}
+            >
+              {isActivating ? <Spinner size="sm" /> : 'Activate'}
+            </Button>
+          )}
+
+          {isActivePrivate && (
+            <Button
+              onClick={() => publishMap(mapId)}
+              disabled={isPublishing || isUpdating}
+            >
+              {isPublishing ? <Spinner size="sm" /> : 'Publish'}
+            </Button>
+          )}
+        </div>
+      </div>
 
       <ImageCropperModal
         isOpen={isCropperOpen}
