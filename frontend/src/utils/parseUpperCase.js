@@ -1,1 +1,4 @@
-export const parseUpperCase = string => string[0] + string.toLowerCase().slice(1, string.length);
+export const parseUpperCase = string => {
+  if (!string) return string;
+  return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
+};

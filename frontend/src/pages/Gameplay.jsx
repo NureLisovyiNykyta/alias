@@ -93,7 +93,7 @@ export default function Gameplay() {
         message: `The Winner is ${winnerTeamName}!`,
         type: 'game',
         isSuccess: true,
-        autoClose: true
+        autoClose: false
       });
     }
   }, [lastJsonMessage, isExplainer, showNotification, closeNotification]);
