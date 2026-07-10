@@ -5,7 +5,6 @@ import SignIn from './SignIn';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Мокуємо API та контексти
 vi.mock('@/api/auth.js', () => ({
   useLoginMutation: () => ({
     mutate: vi.fn(),
