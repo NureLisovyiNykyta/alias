@@ -236,7 +236,7 @@ const CardPackEditor = () => {
             render={() => (
               <ImageInput
                 value={currentImage}
-                onChange={handleFileSelect}
+                onChange={(e) => handleFileSelect(e, setImageSrc, setIsCropperOpen)}
                 error={!!errors.image}
                 isValid={!!currentImage && !errors.image}
                 helpText={errors.image ? errors.image.message : 'Png, jpg, jpeg & webp files are supported'}

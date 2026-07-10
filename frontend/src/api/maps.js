@@ -230,7 +230,6 @@ export const useDeleteMapMutation = (options) => {
   return useMutation({
     queryKey: ['map', options],
     mutationFn: async ({ mapId }) => {
-      console.log(mapId)
       const response = await api.delete(`/maps/${mapId}`);
       return response.data;
     },
