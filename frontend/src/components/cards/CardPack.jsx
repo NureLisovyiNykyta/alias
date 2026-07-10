@@ -1,19 +1,39 @@
 import star from '@/assets/star.svg';
+import emptyStar from '@/assets/emptyStar.svg';
 import plus from '@/assets/plus.svg';
 import { Button } from "@/components/buttons/Button.jsx";
-import { useSavePackMutation } from "@/api/card-packs.js";
+import { useRatePackMutation, useSavePackMutation } from "@/api/card-packs.js";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { Link } from 'react-router-dom'
 import mapPreview from "@/assets/mapPreview.svg";
 import done from '@/assets/doneMark.svg';
 import { formatPackDate } from "@/utils/parseTime.js";
+import { useAuth } from "@/contexts/AuthContext.jsx";
+import { parseErrors } from "@/utils/parseErrors.js";
+import { useNotification } from "@/contexts/NotificationContext.jsx";
+import { useState } from "react";
 
 const CardPack = ({ pack, type }) => {
+  const [hoveredRating, setHoveredRating] = useState(0);
+  
   const { mutate: savePack, isPending } = useSavePackMutation();
+  const { isAuthenticated } = useAuth();
+
+  const { showNotification } = useNotification();
 
   const handleSave = () => {
     savePack(pack.id);
   };
+
+  const { mutate: ratePack, isPending: isRating } = useRatePackMutation({
+    onError: (error) => {
+      showNotification({
+        title: "Error occurred",
+        message: `Failed to rate card pack. ${parseErrors(error.response?.data)}`,
+        isSuccess: false,
+      });
+    },
+  });
 
   return (
     <li className='flex gap-8 p-6 rounded-[12px] w-full min-h-[250px] bg-surface'>
@@ -52,9 +72,41 @@ const CardPack = ({ pack, type }) => {
               <span className='text-label text-text-label font-noto'>Rating</span>
               <div className='flex items-center gap-2'>
                 <img src={star} alt="Star rating"/>
-                <p className='font-noto text-p'>{pack.rating}</p>
+                <p className='font-noto text-p'>{pack.rating_average}</p>
               </div>
             </li>
+
+            {isAuthenticated && type !== 'my_creations' &&
+              <li className='flex flex-col gap-2'>
+                <span className='text-label text-text-label font-noto'>Rate</span>
+                <ul className='flex items-center gap-2' onMouseLeave={() => setHoveredRating(0)}>
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    const starValue = i + 1;
+
+                    const isFilled = hoveredRating > 0
+                      ? starValue <= hoveredRating
+                      : starValue <= (pack.my_rating || 0);
+
+                    return (
+                      <li key={i}>
+                        <button
+                          className='w-full h-full flex items-center justify-center transition-opacity'
+                          onMouseEnter={() => setHoveredRating(starValue)}
+                          onClick={() => ratePack({ packId: pack.id, score: starValue })}
+                          disabled={isRating || pack.my_rating === starValue}
+                        >
+                          <img
+                            src={isFilled ? star : emptyStar}
+                            alt={`${starValue} Star`}
+                            className="transition-all duration-200 ease-in-out hover:scale-110"
+                          />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            }
           </ul>
 
           <div className='flex items-center gap-7'>

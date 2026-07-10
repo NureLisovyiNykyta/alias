@@ -237,7 +237,7 @@ export const useSearchPacksInfiniteQuery = (params, options) => {
   });
 };
 
-export const useDeletePackQuery = (options) => {
+export const useDeletePackMutation = (options) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -251,4 +251,21 @@ export const useDeletePackQuery = (options) => {
     },
     ...options,
   });
-}
+};
+
+export const useRatePackMutation = (options) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    queryKey: ['ratePacks', options],
+    mutationFn: async ({ packId, score }) => {
+      const response = await api.post(`/card-packs/${packId}/rate`, { score });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['publicPacks'] });
+      queryClient.invalidateQueries({ queryKey: ['savedPacks'] });
+    },
+    ...options,
+  })
+};
