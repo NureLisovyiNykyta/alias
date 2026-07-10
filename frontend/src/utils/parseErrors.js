@@ -1,6 +1,7 @@
 function parseSnakeWord(word) {
   if (!word || typeof word !== 'string') return word;
-  return word.split("_").map(w => w[0].toUpperCase().concat(w.slice(1))).join(" ");
+  const spaced = word.replace(/_/g, ' ');
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
 export function parseErrors(errorData) {

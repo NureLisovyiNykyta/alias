@@ -2,6 +2,7 @@ import React, { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { MapControls, useGLTF, useTexture, Environment } from '@react-three/drei';
 import * as THREE from 'three';
+import { extractAnchors } from "@/utils/anchorExtractor.js";
 
 const Board = ({ url, onAnchorsLoaded }) => {
   const { scene } = useGLTF(url);
@@ -9,34 +10,8 @@ const Board = ({ url, onAnchorsLoaded }) => {
   useEffect(() => {
     if (!scene) return;
     scene.updateMatrixWorld(true);
-
-    const extractedAnchors = {};
-
-    scene.traverse((child) => {
-      const match = child.name.match(/^(\d+)_pos(\d+)$/);
-
-      if (match) {
-        const squareIdx = parseInt(match[1], 10);
-        const posNum = parseInt(match[2], 10);
-
-        const flatIndex = squareIdx * 4 + (posNum - 1);
-
-        const worldPos = new THREE.Vector3();
-        child.getWorldPosition(worldPos);
-
-        const posArray = [
-          parseFloat(worldPos.x.toFixed(3)),
-          parseFloat(worldPos.y.toFixed(3)),
-          parseFloat(worldPos.z.toFixed(3)),
-        ];
-
-        extractedAnchors[flatIndex] = posArray;
-      }
-    });
-
-    if (onAnchorsLoaded) {
-      onAnchorsLoaded(extractedAnchors);
-    }
+    const anchors = extractAnchors(scene);
+    if (onAnchorsLoaded) onAnchorsLoaded(anchors);
   }, [scene, onAnchorsLoaded]);
 
   const clonedScene = useMemo(() => scene.clone(), [scene]);

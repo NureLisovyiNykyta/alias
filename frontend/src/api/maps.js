@@ -224,7 +224,7 @@ export const useSearchMapsInfiniteQuery = (params, options) => {
   });
 };
 
-export const useDeleteMapQuery = (options) => {
+export const useDeleteMapMutation = (options) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -239,4 +239,21 @@ export const useDeleteMapQuery = (options) => {
     },
     ...options,
   });
-}
+};
+
+export const useRateMapMutation = (options) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    queryKey: ['rateMaps', options],
+    mutationFn: async ({ mapId, score }) => {
+      const response = await api.post(`/maps/${mapId}/rate`, { score });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['publicMaps'] });
+      queryClient.invalidateQueries({ queryKey: ['savedMaps'] });
+    },
+    ...options,
+  })
+};

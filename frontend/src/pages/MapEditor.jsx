@@ -23,6 +23,7 @@ import {
 } from "@/api/maps";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
 import { parseErrors } from "@/utils/parseErrors.js";
+import { handleFileSelect } from "@/utils/fileHandlers.js";
 
 const updateMapSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -78,18 +79,6 @@ const MapEditor = () => {
   const { mutate: updateMap, isPending: isUpdating } = useUpdateMapMutation();
   const { mutate: uploadCover, isPending: isUploading } = useUploadMapCoverMutation();
   const { mutate: deleteCover, isPending: isDeleting } = useDeleteMapCoverMutation();
-
-  const handleFileSelect = (e) => {
-    const file = e.target?.files ? e.target.files[0] : e;
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        setImageSrc(reader.result);
-        setIsCropperOpen(true);
-      };
-    }
-  };
 
   const handleCropSave = (file) => {
     uploadCover({ mapId, file }, {

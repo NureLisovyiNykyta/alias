@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useDeleteMapQuery, useMapQuery } from "@/api/maps.js";
+import { useDeleteMapMutation, useMapQuery } from "@/api/maps.js";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import MapPreviewCard from "@/components/cards/MapPreviewCard.jsx";
 import MapPreviewBoard from "@/components/layouts/MapPreviewBoard.jsx";
@@ -20,7 +20,7 @@ const MapPreview = () => {
   const { user: me } = useAuth();
   const { showNotification } = useNotification();
 
-  const { mutate, isPending } = useDeleteMapQuery({
+  const { mutate, isPending } = useDeleteMapMutation({
     onSuccess: () => {
       showNotification({
         title: "Map Deleted",

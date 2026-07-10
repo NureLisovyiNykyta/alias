@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { Button } from "@/components/buttons/Button.jsx";
+import { parseImportedWords } from "@/utils/parseImportedWords.js";
 
 const WordImportForm = ({ isOpen, onClose, onApply }) => {
   const [text, setText] = useState('');
 
   const handleApply = () => {
-    const newWords = text
-      .split(',')
-      .map(word => word.trim())
-      .filter(word => word.length > 0);
-
-    const uniqueWords = [...new Set(newWords)];
+    const uniqueWords = parseImportedWords(text);
     onApply(uniqueWords);
     setText('');
     onClose();

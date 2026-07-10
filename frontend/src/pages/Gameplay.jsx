@@ -13,12 +13,13 @@ import { useLobby } from "@/contexts/LobbyContext.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import LeaderboardModal from "@/components/modals/LeaderboardModal.jsx";
+import OfflineOverlay from "@/components/layouts/OfflineOverlay.jsx";
 
 export default function Gameplay() {
   const navigate = useNavigate();
   const { showNotification, closeNotification } = useNotification();
 
-  const { roomData, sendMessage, setRoom, lastJsonMessage } = useLobby();
+  const { roomData, sendMessage, setRoom, lastJsonMessage, isConnected } = useLobby();
   const { user } = useAuth();
 
   const currentUserId = user?.id || localStorage.getItem('guest_id');
@@ -93,7 +94,7 @@ export default function Gameplay() {
         message: `The Winner is ${winnerTeamName}!`,
         type: 'game',
         isSuccess: true,
-        autoClose: true
+        autoClose: false
       });
     }
   }, [lastJsonMessage, isExplainer, showNotification, closeNotification]);
@@ -125,7 +126,9 @@ export default function Gameplay() {
     navigate('/');
   };
 
-  if (!roomData || !themeInfo) {
+  const isInitialLoading = !roomData || !themeInfo;
+
+  if (isInitialLoading) {
     return (
       <div className="flex flex-col items-center justify-center w-screen h-screen bg-slate-950 text-slate-400 gap-6">
         <div className='flex flex-col items-center gap-3'>
@@ -150,6 +153,8 @@ export default function Gameplay() {
 
   return (
     <main className="relative w-screen h-screen overflow-hidden">
+      <OfflineOverlay isConnected={isConnected} isInitialLoading={isInitialLoading} />
+
       <TeamsDashboard team={currentTeam} explainer={currentExplainer} />
       <PhaseAndTimer
         phase={currentPhase}

@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import RowNavigation from "@/components/nav/RowNavigation.jsx";
 import Spinner from "@/components/layouts/Spinner.jsx";
 import { Button } from "@/components/buttons/Button.jsx";
-import { usePackQuery, usePackCardsQuery, useDeletePackQuery } from "@/api/card-packs";
+import { usePackQuery, usePackCardsQuery, useDeletePackMutation } from "@/api/card-packs";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import ConfirmWindow from "@/components/modals/ConfirmWindow.jsx";
 import star from '@/assets/star.svg';
@@ -24,7 +24,7 @@ const CardPackPreview = () => {
 
   const [words, setWords] = useState([]);
 
-  const { mutate: deletePack, isPending: isDeleting } = useDeletePackQuery({
+  const { mutate: deletePack, isPending: isDeleting } = useDeletePackMutation({
     onSuccess: () => {
       showNotification({
         title: "Card Pack Deleted",

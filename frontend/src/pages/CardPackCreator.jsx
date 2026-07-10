@@ -15,6 +15,7 @@ import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { useNavigate } from "react-router-dom";
 import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
 import { parseErrors } from "@/utils/parseErrors.js";
+import { handleFileSelect } from "@/utils/fileHandlers.js";
 
 const createPackSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -65,18 +66,6 @@ const CardPackCreator = () => {
 
   const { mutate: createPack, isPending: isCreating } = useCreatePackMutation();
   const { mutate: uploadCover, isPending: isUploading } = useUploadPackCoverMutation();
-
-  const handleFileSelect = (e) => {
-    const file = e.target?.files ? e.target.files[0] : e;
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        setImageSrc(reader.result);
-        setIsCropperOpen(true);
-      };
-    }
-  };
 
   const handleCropSave = (file) => {
     setValue('image', file, { shouldValidate: true, shouldDirty: true });

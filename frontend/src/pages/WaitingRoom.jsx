@@ -20,6 +20,7 @@ import TeamCard from "../components/cards/TeamCard.jsx";
 import { useLobby } from "@/contexts/LobbyContext.jsx";
 import Chat from "@/components/layouts/Chat.jsx";
 import { parseErrors } from "@/utils/parseErrors.js";
+import OfflineOverlay from "@/components/layouts/OfflineOverlay.jsx";
 
 const MIN_TEAMS = Number(import.meta.env.VITE_ROOM_MIN_TEAMS) || 2;
 const MAX_TEAMS = Number(import.meta.env.VITE_ROOM_MAX_TEAMS) || 4;
@@ -29,7 +30,7 @@ const MAX_PLAYERS_PER_TEAM = Number(import.meta.env.VITE_ROOM_PLAYERS_PER_TEAM_M
 const WaitingRoom = () => {
   const { code: roomCode } = useParams();
 
-  const { setRoom, roomData, isRoomClosed } = useLobby();
+  const { setRoom, roomData, isRoomClosed, isConnected } = useLobby();
   const { user } = useAuth();
 
   const { showNotification, closeNotification } = useNotification();
@@ -204,6 +205,8 @@ const WaitingRoom = () => {
 
   return (
     <main className="grid grid-cols-[952px_1fr] w-full gap-16">
+      <OfflineOverlay isConnected={isConnected} isInitialLoading={!roomData} />
+
       <div className='flex flex-col w-[952px] gap-16'>
         <div className="flex flex-col w-full gap-4">
           <h1 className="text-h1">Game <b>{roomData.name}</b> lobby — Waiting for players</h1>

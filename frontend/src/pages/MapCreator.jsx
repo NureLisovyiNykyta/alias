@@ -15,6 +15,7 @@ import ImageCropperModal from "@/components/modals/ImageCropperModal.jsx";
 import DropDown from "@/components/inputs/DropDown.jsx";
 import { parseUpperCase } from "@/utils/parseUpperCase.js";
 import { parseErrors } from "@/utils/parseErrors.js";
+import { handleFileSelect } from "@/utils/fileHandlers.js";
 
 const createMapSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -73,18 +74,6 @@ const MapCreator = () => {
       code: size.code
     }));
   }, [sizes]);
-
-  const handleFileSelect = (e) => {
-    const file = e.target?.files ? e.target.files[0] : e;
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        setImageSrc(reader.result);
-        setIsCropperOpen(true);
-      };
-    }
-  };
 
   const handleCropSave = (file) => {
     setValue('image', file, { shouldValidate: true, shouldDirty: true });
