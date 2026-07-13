@@ -1,0 +1,1003 @@
+import datetime
+import uuid
+
+import pytest
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.config import settings
+from app.core.messages import ErrorMessage
+from app.models.card import CardPack, CardPackRating, CardType, SavedCardPack
+from app.models.enums import StatusEnum
+from app.models.user import User
+from tests.conftest import VALID_CARD_CONTENT
+
+
+class TestCardPacks:
+    async def test_create_pack(
+        self,
+        client: AsyncClient,
+        test_card_type: CardType,
+        auth_headers: dict[str, str],
+        test_user: User,
+    ) -> None:
+        response = await client.post(
+            "/api/card-packs/",
+            json={
+                "name": "My Pack",
+                "description": "Pack description",
+                "type_id": str(test_card_type.id),
+            },
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["name"] == "My Pack"
+        assert data["status"] == "DRAFT"
+        assert data["author_id"] == str(test_user.id)
+
+    async def test_update_pack_success(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack_id = created_pack["id"]
+        response = await client.patch(
+            f"/api/card-packs/{pack_id}",
+            json={"name": "Updated Pack Name"},
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+        assert response.json()["name"] == "Updated Pack Name"
+
+    async def test_update_pack_forbidden(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        second_user_auth_headers: dict[str, str],
+    ) -> None:
+        pack_id = created_pack["id"]
+        response = await client.patch(
+            f"/api/card-packs/{pack_id}",
+            json={"name": "Stolen Name"},
+            headers=second_user_auth_headers,
+        )
+        assert response.status_code == 403
+
+    async def test_activate_pack(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        auth_headers: dict[str, str],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        monkeypatch.setattr(settings, "MIN_ACTIVE_CARDS", 2)
+        pack_id = created_pack["id"]
+
+        sync_resp = await client.put(
+            f"/api/card-packs/{pack_id}/cards",
+            json={"cards": [{"content": VALID_CARD_CONTENT}, {"content": VALID_CARD_CONTENT}]},
+            headers=auth_headers,
+        )
+        assert sync_resp.status_code == 200
+
+        response = await client.post(f"/api/card-packs/{pack_id}/activate", headers=auth_headers)
+        assert response.status_code == 200
+        assert response.json()["status"] == "ACTIVE"
+
+    async def test_activate_pack_not_enough_cards(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        auth_headers: dict[str, str],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        monkeypatch.setattr(settings, "MIN_ACTIVE_CARDS", 2)
+        pack_id = created_pack["id"]
+
+        response = await client.post(f"/api/card-packs/{pack_id}/activate", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_MIN_CARDS.format(
+            min_cards=settings.MIN_ACTIVE_CARDS
+        )
+
+    async def test_toggle_save_pack(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        second_user_auth_headers: dict[str, str],
+    ) -> None:
+        pack_id = created_pack["id"]
+
+        response = await client.post(f"/api/card-packs/{pack_id}/save", headers=second_user_auth_headers)
+        assert response.status_code == 200
+        assert response.json() == {"saved": True}
+
+        response = await client.post(f"/api/card-packs/{pack_id}/save", headers=second_user_auth_headers)
+        assert response.status_code == 200
+        assert response.json() == {"saved": False}
+
+    async def test_save_own_pack_forbidden(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack_id = created_pack["id"]
+        response = await client.post(f"/api/card-packs/{pack_id}/save", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_SAVE_OWN
+
+    async def test_rate_own_pack_forbidden(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack_id = created_pack["id"]
+        response = await client.post(
+            f"/api/card-packs/{pack_id}/rate",
+            json={"score": 5},
+            headers=auth_headers,
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_RATE_OWN
+
+    async def test_rate_pack_success(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        second_user_auth_headers: dict[str, str],
+    ) -> None:
+        pack_id = created_pack["id"]
+        response = await client.post(
+            f"/api/card-packs/{pack_id}/rate",
+            json={"score": 5},
+            headers=second_user_auth_headers,
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["rating_average"] == 5.0
+        assert data["rating_count"] == 1
+
+    async def test_list_my_packs(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        response = await client.get("/api/card-packs/me", headers=auth_headers)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] >= 1
+        assert created_pack["id"] in [item["id"] for item in data["items"]]
+
+    async def test_list_public_packs(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Listed Public Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/public")
+        assert response.status_code == 200
+        assert str(pack.id) in [item["id"] for item in response.json()["items"]]
+
+    async def test_public_packs_exclude_own_when_authenticated(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        own_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Own Public Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        other_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Other Public Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(own_pack)
+        test_db.add(other_pack)
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/public", headers=auth_headers)
+        assert response.status_code == 200
+        ids = [item["id"] for item in response.json()["items"]]
+        assert str(own_pack.id) not in ids
+        assert str(other_pack.id) in ids
+
+    async def test_public_packs_show_all_when_guest(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+    ) -> None:
+        own_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Guest View Own Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        other_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Guest View Other Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(own_pack)
+        test_db.add(other_pack)
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/public")
+        assert response.status_code == 200
+        ids = [item["id"] for item in response.json()["items"]]
+        assert str(own_pack.id) in ids
+        assert str(other_pack.id) in ids
+
+
+class TestSavedCardPacks:
+    async def test_save_and_list_saved(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Saveable Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        save_resp = await client.post(f"/api/card-packs/{pack.id}/save", headers=auth_headers)
+        assert save_resp.status_code == 200
+        assert save_resp.json() == {"saved": True}
+
+        response = await client.get("/api/card-packs/saved", headers=auth_headers)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 1
+        assert str(pack.id) in [item["id"] for item in data["items"]]
+
+    async def test_unsave_removes_from_saved(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Unsaveable Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        await client.post(f"/api/card-packs/{pack.id}/save", headers=auth_headers)
+        await client.post(f"/api/card-packs/{pack.id}/save", headers=auth_headers)
+
+        response = await client.get("/api/card-packs/saved", headers=auth_headers)
+        assert response.status_code == 200
+        assert response.json()["total"] == 0
+
+
+class TestSoftDeleteCardPack:
+    async def test_soft_delete_pack(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        response = await client.delete(f"/api/card-packs/{created_pack['id']}", headers=auth_headers)
+        assert response.status_code == 200
+        assert response.json()["deleted_at"] is not None
+
+    async def test_delete_someone_elses_pack_forbidden(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        second_user_auth_headers: dict[str, str],
+    ) -> None:
+        response = await client.delete(f"/api/card-packs/{created_pack['id']}", headers=second_user_auth_headers)
+        assert response.status_code == 403
+
+    async def test_restore_pack(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Trashed Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+            deleted_at=datetime.datetime.now(datetime.timezone.utc),
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.post(f"/api/card-packs/{pack.id}/restore", headers=auth_headers)
+        assert response.status_code == 200
+        assert response.json()["deleted_at"] is None
+
+    async def test_double_delete_pack_returns_400(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Already Trashed",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+            deleted_at=datetime.datetime.now(datetime.timezone.utc),
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.delete(f"/api/card-packs/{pack.id}", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_ALREADY_DELETED
+
+    async def test_restore_non_deleted_pack_returns_400(
+        self,
+        client: AsyncClient,
+        created_pack: dict,
+        auth_headers: dict[str, str],
+    ) -> None:
+        response = await client.post(f"/api/card-packs/{created_pack['id']}/restore", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_NOT_IN_TRASH
+
+    async def test_get_trash_packs(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+        created_pack: dict,
+    ) -> None:
+        deleted_pack = CardPack(
+            id=uuid.uuid4(),
+            name="In Trash",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+            deleted_at=datetime.datetime.now(datetime.timezone.utc),
+        )
+        test_db.add(deleted_pack)
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/trash", headers=auth_headers)
+        assert response.status_code == 200
+        ids = [item["id"] for item in response.json()["items"]]
+        assert str(deleted_pack.id) in ids
+        assert created_pack["id"] not in ids
+
+
+class TestPublishCardPack:
+    async def test_publish_pack_success(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Active Private Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.post(f"/api/card-packs/{pack.id}/publish", headers=auth_headers)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["is_public"] is True
+        assert "author" in data
+        assert "card_type" in data
+
+    async def test_publish_pack_draft_fail(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Draft Private Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.post(f"/api/card-packs/{pack.id}/publish", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_NOT_ACTIVE_FOR_PUBLISH
+
+    async def test_publish_pack_already_published(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Already Public Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.post(f"/api/card-packs/{pack.id}/publish", headers=auth_headers)
+        assert response.status_code == 400
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_ALREADY_PUBLISHED
+
+
+class TestDetailedCardPackView:
+    async def test_get_pack_detailed_public_guest(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Public Active Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.get(f"/api/card-packs/{pack.id}")
+        assert response.status_code == 200
+        data = response.json()
+        assert "author" in data
+        assert "nickname" in data["author"]
+        assert "card_type" in data
+        assert data["card_type"]["code"] == test_card_type.code
+
+    async def test_get_pack_detailed_private_owner(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Private Pack Owner",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.get(f"/api/card-packs/{pack.id}", headers=auth_headers)
+        assert response.status_code == 200
+        assert response.json()["id"] == str(pack.id)
+
+    async def test_get_pack_detailed_private_forbidden(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user_auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Private Pack Forbidden",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.get(f"/api/card-packs/{pack.id}", headers=second_user_auth_headers)
+        assert response.status_code == 403
+
+    async def test_get_pack_detailed_public_draft_forbidden(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user_auth_headers: dict[str, str],
+    ) -> None:
+        """Public pack that is not yet ACTIVE is not visible to non-owners."""
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Public Draft Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.get(f"/api/card-packs/{pack.id}", headers=second_user_auth_headers)
+        assert response.status_code == 403
+
+    async def test_get_pack_detailed_deleted_not_found(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Deleted Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+            deleted_at=datetime.datetime.now(datetime.timezone.utc),
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.get(f"/api/card-packs/{pack.id}", headers=auth_headers)
+        assert response.status_code == 404
+        assert response.json()["detail"] == ErrorMessage.CARD_PACK_NOT_FOUND
+
+
+class TestCardPacksSearch:
+    async def test_search_available_returns_my_public_and_saved(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=available returns own packs, public packs from others, and saved packs."""
+        my_pack = CardPack(
+            id=uuid.uuid4(),
+            name="My Draft Pack Search",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        public_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Shared Public Pack Search",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        saved_private_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Saved Private Pack Search",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add_all([my_pack, public_pack, saved_private_pack])
+        test_db.add(SavedCardPack(user_id=test_user.id, card_pack_id=saved_private_pack.id))
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/search?scope=available", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(my_pack.id) in ids
+        assert str(public_pack.id) in ids
+        assert str(saved_private_pack.id) in ids
+
+    async def test_search_available_excludes_others_private_packs(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=available does NOT return other users' private packs that are not saved."""
+        other_private_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Other Private Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(other_private_pack)
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/search?scope=available", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(other_private_pack.id) not in ids
+
+    async def test_search_my_returns_only_own_packs(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=my returns only packs authored by the current user."""
+        own_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Own Pack My Scope",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        other_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Other Pack My Scope",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add_all([own_pack, other_pack])
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/search?scope=my", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(own_pack.id) in ids
+        assert str(other_pack.id) not in ids
+
+    async def test_search_saved_returns_only_saved_packs(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=saved returns only packs the user explicitly saved."""
+        saved_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Saved Pack Scope",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        unsaved_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Unsaved Pack Scope",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add_all([saved_pack, unsaved_pack])
+        test_db.add(SavedCardPack(user_id=test_user.id, card_pack_id=saved_pack.id))
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/search?scope=saved", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(saved_pack.id) in ids
+        assert str(unsaved_pack.id) not in ids
+
+    async def test_search_public_includes_own_published_pack(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=public includes the user's own public/active packs (unlike /public endpoint)."""
+        own_public_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Own Public Search Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(own_public_pack)
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/search?scope=public", headers=auth_headers)
+        assert response.status_code == 200
+        ids = [item["id"] for item in response.json()["items"]]
+        assert str(own_public_pack.id) in ids
+
+    async def test_search_public_excludes_draft_packs(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """scope=public does NOT return non-active packs even if public."""
+        draft_pack = CardPack(
+            id=uuid.uuid4(),
+            name="Public Draft Excluded",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add(draft_pack)
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/search?scope=public", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(draft_pack.id) not in ids
+
+    async def test_search_filters_by_q(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """q parameter filters results by name substring (case-insensitive)."""
+        matched = CardPack(
+            id=uuid.uuid4(),
+            name="Geography Quiz Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        not_matched = CardPack(
+            id=uuid.uuid4(),
+            name="Science Pack",
+            description="desc",
+            is_public=False,
+            type_id=test_card_type.id,
+            author_id=test_user.id,
+            status=StatusEnum.DRAFT.value,
+        )
+        test_db.add_all([matched, not_matched])
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/search?scope=my&q=geo", headers=auth_headers)
+        assert response.status_code == 200
+        ids = {item["id"] for item in response.json()["items"]}
+        assert str(matched.id) in ids
+        assert str(not_matched.id) not in ids
+
+    async def test_search_returns_user_meta_saved_and_rated(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """is_saved=True and my_rating are populated when user saved and rated the pack."""
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Rated Saved Meta Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        test_db.add(SavedCardPack(user_id=test_user.id, card_pack_id=pack.id))
+        test_db.add(CardPackRating(user_id=test_user.id, card_pack_id=pack.id, score=4))
+        await test_db.flush()
+
+        response = await client.get(
+            "/api/card-packs/search?scope=public&q=Rated+Saved+Meta", headers=auth_headers
+        )
+        assert response.status_code == 200
+        item = next(i for i in response.json()["items"] if i["id"] == str(pack.id))
+        assert item["is_saved"] is True
+        assert item["my_rating"] == 4
+
+    async def test_search_returns_user_meta_defaults(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """is_saved=False and my_rating=None when user has not saved or rated the pack."""
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Uninteracted Meta Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        await test_db.flush()
+
+        response = await client.get(
+            "/api/card-packs/search?scope=public&q=Uninteracted+Meta", headers=auth_headers
+        )
+        assert response.status_code == 200
+        item = next(i for i in response.json()["items"] if i["id"] == str(pack.id))
+        assert item["is_saved"] is False
+        assert item["my_rating"] is None
+
+
+class TestCardPacksUserMeta:
+    async def test_saved_list_always_has_is_saved_true(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """All items returned by /saved always have is_saved=True."""
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Saved Meta List Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        test_db.add(SavedCardPack(user_id=test_user.id, card_pack_id=pack.id))
+        await test_db.flush()
+
+        response = await client.get("/api/card-packs/saved", headers=auth_headers)
+        assert response.status_code == 200
+        items = response.json()["items"]
+        assert all(item["is_saved"] is True for item in items)
+
+    async def test_public_list_returns_is_saved_and_rating_for_auth_user(
+        self,
+        client: AsyncClient,
+        test_db: AsyncSession,
+        test_card_type: CardType,
+        test_user: User,
+        second_user: User,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """Authenticated users get is_saved and my_rating in /public responses."""
+        pack = CardPack(
+            id=uuid.uuid4(),
+            name="Public Meta List Pack",
+            description="desc",
+            is_public=True,
+            type_id=test_card_type.id,
+            author_id=second_user.id,
+            status=StatusEnum.ACTIVE.value,
+        )
+        test_db.add(pack)
+        test_db.add(SavedCardPack(user_id=test_user.id, card_pack_id=pack.id))
+        test_db.add(CardPackRating(user_id=test_user.id, card_pack_id=pack.id, score=5))
+        await test_db.flush()
+
+        response = await client.get(
+            "/api/card-packs/public?q=Public+Meta+List", headers=auth_headers
+        )
+        assert response.status_code == 200
+        item = next(i for i in response.json()["items"] if i["id"] == str(pack.id))
+        assert item["is_saved"] is True
+        assert item["my_rating"] == 5

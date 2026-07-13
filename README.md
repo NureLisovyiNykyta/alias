@@ -1,1 +1,1 @@
-# alias
+# Web Game Platform Alias
